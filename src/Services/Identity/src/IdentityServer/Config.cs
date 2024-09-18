@@ -24,7 +24,7 @@ namespace IdentityServer
             {
                     new Client
                     {
-                        ClientId = "client",
+                        ClientId = "https://localhost:3000",
 
                         AllowOfflineAccess = true,
 

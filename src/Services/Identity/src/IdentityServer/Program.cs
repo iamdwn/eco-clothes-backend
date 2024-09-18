@@ -15,7 +15,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 // Add DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseMySQL("Data Source=DUNGPHAM;Initial Catalog=IdentityServer;User ID=sa;Password=123456;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False"));
+    options.UseMySQL(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
