@@ -1,4 +1,4 @@
-namespace Auth.Api
+namespace Notification
 {
     public class WeatherForecast
     {

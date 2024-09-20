@@ -1,4 +1,6 @@
-﻿namespace IdentityServer.Models.DTOs
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace IdentityServer.Models.DTOs
 {
     public class RegisterDTO
     {

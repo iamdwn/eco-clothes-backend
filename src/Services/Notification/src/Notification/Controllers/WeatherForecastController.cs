@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace Auth.Api.Controllers
+namespace Notification.Controllers
 {
     [ApiController]
-    [Route("~/auth-api/[controller]")]
+    [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
         private static readonly string[] Summaries = new[]
