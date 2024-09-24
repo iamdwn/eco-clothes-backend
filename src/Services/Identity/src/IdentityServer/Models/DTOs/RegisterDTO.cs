@@ -10,5 +10,6 @@ namespace IdentityServer.Models.DTOs
         public string PhoneNumber { get; set; }
         //public string Address { get; set; }
         public string ImgUrl { get; set; }
+        public string RoleName { get; set; }
     }
 }

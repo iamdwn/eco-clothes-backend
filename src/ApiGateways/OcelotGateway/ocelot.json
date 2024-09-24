@@ -9,7 +9,7 @@
           "Port": 5001
         }
       ],
-      "UpstreamPathTemplate": "/auth-gateway/{everything}",
+      "UpstreamPathTemplate": "/api-gateway/{everything}",
       "UpstreamHttpMethod": [
         "GET",
         "POST"

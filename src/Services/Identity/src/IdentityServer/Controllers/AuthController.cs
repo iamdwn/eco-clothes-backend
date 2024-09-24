@@ -1,12 +1,17 @@
-﻿using EventBus.Events;
+﻿using AutoMapper;
+using EventBus.Events;
+using EventBus.Response;
+using IdentityServer.Data;
 using IdentityServer.Models;
 using IdentityServer.Models.DTOs;
-using IdentityServer.Services;
 using IdentityServer.Services.Interfaces;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace IdentityServer.Controllers
 {
@@ -16,72 +21,115 @@ namespace IdentityServer.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
         private readonly IMassTransitService _massTransitService;
+        private readonly IJwtService _jwtService;
+        private readonly IMapper _mapper;
+        private readonly ApplicationDbContext _context;
 
-        public AuthController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IMassTransitService massTransitService)
+        public AuthController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IMassTransitService massTransitService, IJwtService jwtService, RoleManager<IdentityRole> roleManager, IMapper mapper, ApplicationDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _massTransitService = massTransitService;
+            _jwtService = jwtService;
+            _roleManager = roleManager;
+            _mapper = mapper;
+            _context = context;
         }
 
         [HttpPost("Login")]
         public async Task<IActionResult> Login(LoginDTO model)
         {
-            var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
-            if (result.Succeeded)
+            var user = await _userManager.FindByEmailAsync(model.Email);
+
+            if (user == null) return BadRequest(new ResponseObject<string>(System.Net.HttpStatusCode.NotFound, "User does not exist!"));
+
+            var result = await _userManager.CheckPasswordAsync(user, model.Password);
+
+            if (!result) return Unauthorized(new ResponseObject<string>(System.Net.HttpStatusCode.BadRequest, "Invalid credentials!"));
+
+            await _signInManager.SignInAsync(user, isPersistent: false);
+
+            var claims = await _userManager.GetClaimsAsync(user);
+            var refreshToken = claims.FirstOrDefault()?.Value;
+            var isTokenValid = _jwtService.ValidateRefreshToken(refreshToken);
+
+            var accessToken = _jwtService.GenerateToken(user);
+
+            return Ok(new ResponseObject<object>
             {
-                return Ok("User logged in!");
-            }
-            else
-            {
-                return BadRequest("Invalid login attempt.");
-            }
+                Data = new
+                {
+                    access_token = accessToken,
+                    refresh_token = refreshToken
+                },
+                Message = "Login success!",
+                Status = System.Net.HttpStatusCode.OK,
+            });
         }
 
         [HttpPost("Register")]
         public async Task<IActionResult> Register(RegisterDTO model)
         {
-            var user = new ApplicationUser
+            var user = _mapper.Map<ApplicationUser>(model);
+
+            using (var transaction = await _context.Database.BeginTransactionAsync())
             {
-                FullName = model.FullName,
-                UserName = model.Email,
-                Email = model.Email,
-                PhoneNumber = model.PhoneNumber,
-                ImgUrl = model.ImgUrl,
-            };
-
-            var result = await _userManager.CreateAsync(user, model.Password);
-
-            if (result.Succeeded)
-            {
-                var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                var callbackUrl = Url.Action("ConfirmEmail", "Auth", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
-
-                Task t1 = _massTransitService.Publish(new UserCreatedEvent
+                try
                 {
-                    UserId = user.Id,
-                    Email = user.Email,
-                    UserName = user.UserName,
-                    CallbackUrl = callbackUrl,
-                });
+                    var roleExist = await _roleManager.RoleExistsAsync(model.RoleName);
 
-                Task t2 = _signInManager.SignInAsync(user, isPersistent: false);
+                    if (!roleExist)
+                    {
+                        return BadRequest(new ResponseObject<string>(System.Net.HttpStatusCode.BadRequest, "Role does not exist!"));
+                    }
 
-                await Task.WhenAll(t1, t2);
+                    var userResult = await _userManager.CreateAsync(user, model.Password);
 
-                return Ok("User create account successfully!");
+                    if (!userResult.Succeeded)
+                    {
+                        await transaction.RollbackAsync();
+                        return BadRequest(new ResponseObject<object>(userResult.Errors, System.Net.HttpStatusCode.BadRequest, "User create failed!"));
+                    }
+
+                    var roleResult = await _userManager.AddToRoleAsync(user, "User");
+
+                    if (!roleResult.Succeeded)
+                    {
+                        await transaction.RollbackAsync();
+                        return BadRequest(new ResponseObject<object>(roleResult.Errors, System.Net.HttpStatusCode.BadRequest, "Role assign failed!"));
+                    }
+
+                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var callbackUrl = Url.Action("ConfirmEmail", "Auth", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
+
+                    await _massTransitService.Publish(new UserCreatedEvent
+                    {
+                        UserId = user.Id,
+                        Email = user.Email,
+                        UserName = user.UserName,
+                        CallbackUrl = callbackUrl,
+                    });
+
+                    await transaction.CommitAsync();
+                    return Ok(new ResponseObject<string>(System.Net.HttpStatusCode.Created, "User create successfull!"));
+
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return BadRequest(new ResponseObject<string>(ex.Message, System.Net.HttpStatusCode.BadRequest, "Invalid request!"));
+                }
             }
-
-            return BadRequest("Invalid credentials!");
         }
 
         [HttpGet("Logout")]
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
-            return Ok("User logged out.");
+            return Ok(new ResponseObject<string>(System.Net.HttpStatusCode.OK, "User logged out!"));
         }
 
         [HttpGet("ConfirmEmail")]
@@ -89,18 +137,18 @@ namespace IdentityServer.Controllers
         {
             if (userId == null || code == null)
             {
-                return BadRequest("Invalid request!");
+                return BadRequest(new ResponseObject<string>(System.Net.HttpStatusCode.BadRequest, "Invalid request!"));
             }
 
             var user = await _userManager.FindByIdAsync(userId);
 
             if (user == null)
             {
-                return BadRequest("User doesn't exist!");
+                return BadRequest(new ResponseObject<string>(System.Net.HttpStatusCode.BadRequest, "User does not exist!"));
             }
 
             var result = await _userManager.ConfirmEmailAsync(user, code);
-            return result.Succeeded ? Ok("ConfirmEmail") : BadRequest("Error");
+            return result.Succeeded ? Ok(new ResponseObject<string>(System.Net.HttpStatusCode.OK, "ConfirmEmail")) : BadRequest(new ResponseObject<object>(result.Errors, System.Net.HttpStatusCode.BadRequest, "Error!"));
         }
 
         [HttpPost("ForgotPassword")]
@@ -109,7 +157,7 @@ namespace IdentityServer.Controllers
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
             {
-                return BadRequest("Invalid Email Address!");
+                return BadRequest(new ResponseObject<string>(System.Net.HttpStatusCode.BadRequest, "Invalid Email Address!"));
             }
 
             var code = await _userManager.GeneratePasswordResetTokenAsync(user);
@@ -121,7 +169,15 @@ namespace IdentityServer.Controllers
                 Code = code
             });
 
-            return Ok("Code: " + code);
+            return Ok(new ResponseObject<object>
+            {
+                Data = new
+                {
+                    code
+                },
+                Message = "Login success!",
+                Status = System.Net.HttpStatusCode.OK,
+            });
         }
 
         [HttpPost("ResetPassword")]
@@ -130,22 +186,27 @@ namespace IdentityServer.Controllers
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null)
             {
-                return BadRequest("User doesn't exist!");
+                return BadRequest(new ResponseObject<string>(System.Net.HttpStatusCode.BadRequest, "User does not exist!"));
             }
             var result = await _userManager.ResetPasswordAsync(user, model.Code, model.Password);
             if (result.Succeeded)
             {
-                return Ok("Successfully!");
+                return Ok(new ResponseObject<string>(System.Net.HttpStatusCode.OK, "Password reset successfull!"));
             }
 
-            return BadRequest("Something went wrong!");
+            return BadRequest(new ResponseObject<string>(System.Net.HttpStatusCode.BadRequest, "Invalid request!"));
         }
 
-        //[HttpGet("CurrentUser")]
-        //public async Task<IActionResult> CurrentUser()
-        //{
-        //    var user = await _userManager.GetUserAsync(HttpContext.User);
-        //    return Ok(user);
-        //}
+        [HttpPost("AddRole")]
+        public async Task<IActionResult> AddRole(string roleName)
+        {
+            var result = await _roleManager.CreateAsync(new IdentityRole { Name = roleName });
+
+            if (result.Succeeded)
+            {
+                return Ok(new ResponseObject<string>(System.Net.HttpStatusCode.OK, "Role create successfull!"));
+            }
+            return BadRequest(new ResponseObject<string>(System.Net.HttpStatusCode.BadRequest, "Invalid request!"));
+        }
     }
 }

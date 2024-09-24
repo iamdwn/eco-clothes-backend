@@ -1,5 +1,3 @@
-using Duende.IdentityServer.AspNetIdentity;
-using IdentityServer;
 using IdentityServer.Data;
 using IdentityServer.Models;
 using IdentityServer.Services;
@@ -7,6 +5,7 @@ using IdentityServer.Services.Interfaces;
 using MassTransit;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,17 +26,8 @@ services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
-// Add IdentityServer
-services.AddIdentityServer(options =>
-{
-    options.EmitStaticAudienceClaim = true;
-})
-    .AddInMemoryIdentityResources(Config.IdentityResources)
-    .AddInMemoryApiScopes(Config.ApiScopes)
-    .AddInMemoryClients(Config.Clients)
-    .AddAspNetIdentity<ApplicationUser>() // Ensure this comes after AddIdentity
-//  .AddProfileService<ProfileService>()
-    .AddDeveloperSigningCredential();
+// Add AutoMapper
+services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
 // Add MassTransit
 services.AddMassTransit(x =>
@@ -52,11 +42,8 @@ services.AddMassTransit(x =>
     });
 });
 
-
-
 services.AddScoped<IMassTransitService, MassTransitService>();
-
-
+services.AddScoped<IJwtService, JwtService>();
 
 var app = builder.Build();
 
@@ -70,8 +57,6 @@ if (app.Environment.IsDevelopment())
 app.UseRouting();
 
 app.UseHttpsRedirection();
-
-app.UseIdentityServer();
 
 app.UseAuthorization();
 
