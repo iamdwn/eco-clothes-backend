@@ -1,7 +1,10 @@
-﻿using EventBus.Models;
+﻿using System;
+using System.Collections.Generic;
+using DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
+using Pomelo.EntityFrameworkCore.MySql.Scaffolding.Internal;
 
-namespace EventBus.Persistences;
+namespace DataAccess.Persistences;
 
 public partial class EcoClothesContext : DbContext
 {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace EventBus.Models;
+namespace DataAccess.Models;
 
 public partial class Cart
 {
