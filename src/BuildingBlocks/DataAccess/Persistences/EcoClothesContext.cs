@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using EventBus.Models;
 using Microsoft.EntityFrameworkCore;
-using Pomelo.EntityFrameworkCore.MySql.Scaffolding.Internal;
 
-namespace EventBus.Models;
+namespace EventBus.Persistences;
 
 public partial class EcoClothesContext : DbContext
 {
@@ -46,7 +44,7 @@ public partial class EcoClothesContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseMySql("server=localhost;database=eco_clothes;uid=root;pwd=dozungo", Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.2.0-mysql"));
+        => optionsBuilder.UseMySql("server=localhost;database=eco_clothes;uid=root;pwd=dozungo", ServerVersion.Parse("8.2.0-mysql"));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -25,7 +25,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Notification", "Notificatio
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A3DBD163-E5AD-4CC2-AD5C-BC6D2757809C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notification", "src\Services\Notification\src\Notification\Notification.csproj", "{8BCCD6A8-A90E-48B5-8534-5415618F16F1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Notification", "src\Services\Notification\src\Notification\Notification.csproj", "{8BCCD6A8-A90E-48B5-8534-5415618F16F1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
