@@ -1,16 +1,19 @@
 {
   "Routes": [
     {
-      "DownstreamPathTemplate": "/auth-api/{everything}",
+      "DownstreamPathTemplate": "/{everything}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 7038
+          "Port": 5001
         }
       ],
-      "UpstreamPathTemplate": "/auth-gateway/{everything}",
-      "UpstreamHttpMethod": [ "GET" ]
+      "UpstreamPathTemplate": "/api-gateway/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST"
+      ]
       //"AuthenticationOptions": {
       //  "AuthenticationProviderKey": "Bearer",
       //  "AllowedScopes": []
