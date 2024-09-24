@@ -1,5 +1,5 @@
 
-namespace ProductService
+namespace Product.Api
 {
     public class Program
     {

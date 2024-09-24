@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace EventBus.Models;
+namespace DataAccess.Models;
 
-public partial class Cart
+public partial class Favorite
 {
-    public Guid CartId { get; set; }
+    public Guid FavoriteId { get; set; }
 
     public Guid? UserId { get; set; }
 
     public Guid? ProductId { get; set; }
-
-    public int? Quantity { get; set; }
 }

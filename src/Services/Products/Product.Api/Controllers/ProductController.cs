@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ProductService.Controllers
+namespace Product.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
