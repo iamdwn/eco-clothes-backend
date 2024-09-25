@@ -1,5 +1,6 @@
 ﻿using DataAccess.Base;
 using DataAccess.Models;
+using Products.Api.Dtos.Request;
 
 namespace Products.Api.Services.Impl
 {
@@ -27,18 +28,68 @@ namespace Products.Api.Services.Impl
             return existingProduct;
         }
 
-        public async Task<Product> CreateProductAsync(Product product)
+        public async Task<Product> CreateProductAsync(RequestProduct product)
         {
-            var existingProduct = _unitOfWork.ProductRepository.GetByID(product.ProductId);
-            if (existingProduct != null
-                && product.ProductName.Equals(existingProduct.ProductName))
+            try
             {
-                throw new KeyNotFoundException($"Product with name {product.ProductName} is exist.");
-            }
+                var existingProduct = _unitOfWork.ProductRepository.Get(
+                    filter: p => p.ProductName.Equals(product.ProductName)
+                    ).FirstOrDefault();
 
-            _unitOfWork.ProductRepository.Insert(product);
-            _unitOfWork.Save();
-            return product;
+                if (existingProduct != null)
+                {
+                    throw new KeyNotFoundException($"Product with name {product.ProductName} is exist.");
+                }
+
+                var insertProduct = new Product()
+                {
+                    ProductName = product.ProductName,
+                    OldPrice = product.OldPrice,
+                    NewPrice = product.NewPrice,
+                    NumberOfSold = 0,
+                    ImgUrl = product.ImgUrl,
+                    Description = product.Description
+                };
+
+                _unitOfWork.ProductRepository.Insert(insertProduct);
+                _unitOfWork.Save();
+
+                int amount = 0;
+
+                foreach (var item in product.Sizes)
+                {
+                    var pointSize = _unitOfWork.SizeRepository.Get(
+                        filter: s => s.Name.Equals(item.SizeName)
+                        ).FirstOrDefault();
+
+                    if (pointSize == null)
+                    {
+                        throw new KeyNotFoundException($"Size with name {item.SizeName} not found.");
+                    }
+
+                    var insertSize = new SizeProduct()
+                    {
+                        ProductId = insertProduct.ProductId,
+                        SizeId = pointSize.SizeId,
+                        SizeQuantity = item.SizeQuantity
+                    };
+
+                    amount += item.SizeQuantity;
+
+                    _unitOfWork.SizeproductRepository.Insert(insertSize);
+                    _unitOfWork.Save();
+                };
+
+                existingProduct = _unitOfWork.ProductRepository.GetByID(insertProduct.ProductId);
+                existingProduct.Amount = amount;
+                await UpdateProductAsync(existingProduct);
+
+                return insertProduct;
+            }
+            catch (Exception ex)
+            {
+                throw new KeyNotFoundException(ex.Message);
+            }
         }
 
         public async Task UpdateProductAsync(Product product)

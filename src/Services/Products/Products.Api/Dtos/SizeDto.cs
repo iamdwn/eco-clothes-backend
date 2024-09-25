@@ -2,7 +2,7 @@
 {
     public class SizeDto
     {
-        private string? SizeName { get; set; }
-        private int SizeQuantity { get; set; }
+        public string? SizeName { get; set; }
+        public int SizeQuantity { get; set; }
     }
 }

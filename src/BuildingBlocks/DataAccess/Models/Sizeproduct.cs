@@ -1,4 +1,6 @@
-﻿namespace DataAccess.Models;
+﻿using System.Text.Json.Serialization;
+
+namespace DataAccess.Models;
 
 public partial class SizeProduct
 {
@@ -10,7 +12,9 @@ public partial class SizeProduct
 
     public int SizeQuantity { get; set; }
 
+    [JsonIgnore]
     public virtual Product? Product { get; set; }
 
+    [JsonIgnore]
     public virtual Size? Size { get; set; }
 }

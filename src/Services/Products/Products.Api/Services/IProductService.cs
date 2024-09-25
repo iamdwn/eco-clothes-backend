@@ -1,4 +1,5 @@
 ﻿using DataAccess.Models;
+using Products.Api.Dtos.Request;
 
 namespace Products.Api.Services
 {
@@ -6,7 +7,7 @@ namespace Products.Api.Services
     {
         Task<IEnumerable<Product>> GetAllProductsAsync();
         Task<Product> GetProductByIdAsync(Guid id);
-        Task<Product> CreateProductAsync(Product product);
+        Task<Product> CreateProductAsync(RequestProduct product);
         Task UpdateProductAsync(Product product);
         Task DeleteProductAsync(Guid id);
     }

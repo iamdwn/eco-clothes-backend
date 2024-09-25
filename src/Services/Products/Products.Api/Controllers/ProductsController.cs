@@ -1,5 +1,6 @@
 ﻿using DataAccess.Models;
 using Microsoft.AspNetCore.Mvc;
+using Products.Api.Dtos.Request;
 using Products.Api.Services;
 
 namespace Products.Api.Controllers
@@ -27,7 +28,7 @@ namespace Products.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Product>> CreateProduct(Product product)
+        public async Task<ActionResult<Product>> CreateProduct(RequestProduct product)
         {
             return await _productService.CreateProductAsync(product);
         }

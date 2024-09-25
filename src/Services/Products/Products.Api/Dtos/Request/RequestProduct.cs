@@ -2,18 +2,18 @@
 {
     public class RequestProduct
     {
-        private string ProductName { get; set; } = null!;
+        public string ProductName { get; set; } = null!;
 
-        private decimal? OldPrice { get; set; }
+        public decimal? OldPrice { get; set; }
 
-        private decimal? NewPrice { get; set; }
+        public decimal? NewPrice { get; set; }
 
-        private int? NumberOfSold { get; set; }
+        //public int? NumberOfSold { get; set; }
 
-        private string? ImgUrl { get; set; }
+        public string? ImgUrl { get; set; }
 
-        private string? Description { get; set; }
+        public string? Description { get; set; }
 
-        private List<SizeDto>? Sizes { get; set; }
+        public List<SizeDto>? Sizes { get; set; }
     }
 }
