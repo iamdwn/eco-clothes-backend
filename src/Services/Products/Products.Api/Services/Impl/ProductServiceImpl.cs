@@ -17,7 +17,7 @@ namespace Products.Api.Services.Impl
             return _unitOfWork.ProductRepository.Get().ToList();
         }
 
-        public async Task<Product> GetProductByIdAsync(string id)
+        public async Task<Product> GetProductByIdAsync(Guid id)
         {
             var existingProduct = _unitOfWork.ProductRepository.GetByID(id);
             if (existingProduct == null)
@@ -54,7 +54,7 @@ namespace Products.Api.Services.Impl
         }
 
 
-        public async Task DeleteProductAsync(string id)
+        public async Task DeleteProductAsync(Guid id)
         {
             var existingProduct = _unitOfWork.ProductRepository.GetByID(id);
             if (existingProduct == null)
@@ -66,7 +66,7 @@ namespace Products.Api.Services.Impl
             _unitOfWork.Save();
         }
 
-        private bool ProductExists(int id)
+        private bool ProductExists(Guid id)
         {
             return _unitOfWork.ProductRepository.GetByID(id) != null ? true : false;
         }

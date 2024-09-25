@@ -5,11 +5,11 @@ namespace DataAccess.Models;
 
 public partial class Favorite
 {
-    public int FavoriteId { get; set; }
+    public Guid FavoriteId { get; set; }
 
-    public string? UserId { get; set; }
+    public Guid? UserId { get; set; }
 
-    public int? ProductId { get; set; }
+    public Guid? ProductId { get; set; }
 
     public virtual Product? Product { get; set; }
 }

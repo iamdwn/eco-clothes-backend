@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace DataAccess.Models;
+﻿namespace DataAccess.Models;
 
 public partial class Product
 {
-    public int ProductId { get; set; }
+    public Guid ProductId { get; set; }
 
     public string ProductName { get; set; } = null!;
 

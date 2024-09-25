@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace DataAccess.Models;
+﻿namespace DataAccess.Models;
 
 public partial class SizeProduct
 {
-    public int SizeProductId { get; set; }
+    public Guid SizeProductId { get; set; }
 
-    public int? ProductId { get; set; }
+    public Guid? ProductId { get; set; }
 
-    public int? SizeId { get; set; }
+    public Guid? SizeId { get; set; }
+
+    public int SizeQuantity { get; set; }
 
     public virtual Product? Product { get; set; }
 

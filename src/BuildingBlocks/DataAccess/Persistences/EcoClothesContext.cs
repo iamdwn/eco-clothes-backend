@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using DataAccess.Models;
+﻿using DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
-using Pomelo.EntityFrameworkCore.MySql.Scaffolding.Internal;
 
 namespace DataAccess.Persistences;
 
@@ -66,9 +63,7 @@ public partial class EcoClothesContext : DbContext
 
             entity.Property(e => e.FavoriteId).HasColumnName("favoriteId");
             entity.Property(e => e.ProductId).HasColumnName("productId");
-            entity.Property(e => e.UserId)
-                .HasMaxLength(450)
-                .HasColumnName("userId");
+            entity.Property(e => e.UserId).HasColumnName("userId");
 
             entity.HasOne(d => d.Product).WithMany(p => p.Favorites)
                 .HasForeignKey(d => d.ProductId)
@@ -137,7 +132,7 @@ public partial class EcoClothesContext : DbContext
 
             entity.Property(e => e.SizeId).HasColumnName("sizeId");
             entity.Property(e => e.Name)
-                .HasMaxLength(50)
+                .HasMaxLength(255)
                 .HasColumnName("name");
         });
 
@@ -154,6 +149,7 @@ public partial class EcoClothesContext : DbContext
             entity.Property(e => e.SizeProductId).HasColumnName("sizeProductId");
             entity.Property(e => e.ProductId).HasColumnName("productId");
             entity.Property(e => e.SizeId).HasColumnName("sizeId");
+            entity.Property(e => e.SizeQuantity).HasColumnName("sizeQuantity");
 
             entity.HasOne(d => d.Product).WithMany(p => p.SizeProducts)
                 .HasForeignKey(d => d.ProductId)
