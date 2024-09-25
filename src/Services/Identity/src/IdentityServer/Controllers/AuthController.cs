@@ -5,28 +5,26 @@ using IdentityServer.Data;
 using IdentityServer.Models;
 using IdentityServer.Models.DTOs;
 using IdentityServer.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.WebUtilities;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
 
 namespace IdentityServer.Controllers
 {
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly ApplicationDbContext _context;
 
         private readonly IMassTransitService _massTransitService;
         private readonly IJwtService _jwtService;
         private readonly IMapper _mapper;
-        private readonly ApplicationDbContext _context;
 
         public AuthController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IMassTransitService massTransitService, IJwtService jwtService, RoleManager<IdentityRole> roleManager, IMapper mapper, ApplicationDbContext context)
         {
@@ -43,30 +41,45 @@ namespace IdentityServer.Controllers
         public async Task<IActionResult> Login(LoginDTO model)
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null) return NotFound(new ResponseObject<string>(System.Net.HttpStatusCode.NotFound, "User does not exist!"));
 
-            if (user == null) return BadRequest(new ResponseObject<string>(System.Net.HttpStatusCode.NotFound, "User does not exist!"));
+            if (!user.EmailConfirmed) return BadRequest(new ResponseObject<string>(System.Net.HttpStatusCode.BadRequest, "Email not confirmed!"));
 
-            var result = await _userManager.CheckPasswordAsync(user, model.Password);
-
-            if (!result) return Unauthorized(new ResponseObject<string>(System.Net.HttpStatusCode.BadRequest, "Invalid credentials!"));
+            if (!await _userManager.CheckPasswordAsync(user, model.Password))
+                return Unauthorized(new ResponseObject<string>(System.Net.HttpStatusCode.BadRequest, "Invalid credentials!"));
 
             await _signInManager.SignInAsync(user, isPersistent: false);
 
             var claims = await _userManager.GetClaimsAsync(user);
-            var refreshToken = claims.FirstOrDefault()?.Value;
-            var isTokenValid = _jwtService.ValidateRefreshToken(refreshToken);
+            var refreshTokenClaim = claims.FirstOrDefault(c => c.Type == "refreshToken");
+            string refreshToken;
 
-            var accessToken = _jwtService.GenerateToken(user);
+            if (refreshTokenClaim == null || !_jwtService.ValidateToken(refreshTokenClaim.Value, user))
+            {
+                refreshToken = _jwtService.GenerateRefreshToken(user);
+
+                if (refreshTokenClaim == null)
+                    await _userManager.AddClaimAsync(user, new Claim("refreshToken", refreshToken));
+                else
+                    await _userManager.ReplaceClaimAsync(user, refreshTokenClaim, new Claim("refreshToken", refreshToken));
+            }
+            else
+            {
+                refreshToken = refreshTokenClaim.Value;
+            }
+
+            var userRoles = await _userManager.GetRolesAsync(user);
+            var accessToken = _jwtService.GenerateToken(user, userRoles.FirstOrDefault() ?? "");
 
             return Ok(new ResponseObject<object>
             {
                 Data = new
                 {
                     access_token = accessToken,
-                    refresh_token = refreshToken
+                    refresh_token = refreshToken,
                 },
                 Message = "Login success!",
-                Status = System.Net.HttpStatusCode.OK,
+                Status = System.Net.HttpStatusCode.OK
             });
         }
 
@@ -120,7 +133,7 @@ namespace IdentityServer.Controllers
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    return BadRequest(new ResponseObject<string>(ex.Message, System.Net.HttpStatusCode.BadRequest, "Invalid request!"));
+                    return BadRequest(new ResponseObject<string>(ex.Message, System.Net.HttpStatusCode.BadRequest, ex.Message));
                 }
             }
         }
@@ -133,22 +146,22 @@ namespace IdentityServer.Controllers
         }
 
         [HttpGet("ConfirmEmail")]
-        public async Task<IActionResult> ConfirmEmail(string userId, string code)
+        public async Task<IActionResult> ConfirmEmail(ConfirmEmailDTO model)
         {
-            if (userId == null || code == null)
+            if (model.UserId == null || model.Code == null)
             {
                 return BadRequest(new ResponseObject<string>(System.Net.HttpStatusCode.BadRequest, "Invalid request!"));
             }
 
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByIdAsync(model.UserId);
 
             if (user == null)
             {
                 return BadRequest(new ResponseObject<string>(System.Net.HttpStatusCode.BadRequest, "User does not exist!"));
             }
 
-            var result = await _userManager.ConfirmEmailAsync(user, code);
-            return result.Succeeded ? Ok(new ResponseObject<string>(System.Net.HttpStatusCode.OK, "ConfirmEmail")) : BadRequest(new ResponseObject<object>(result.Errors, System.Net.HttpStatusCode.BadRequest, "Error!"));
+            var result = await _userManager.ConfirmEmailAsync(user, model.Code);
+            return result.Succeeded ? Ok(new ResponseObject<string>(System.Net.HttpStatusCode.OK, "Confirm Email successfull!")) : BadRequest(new ResponseObject<object>(result.Errors, System.Net.HttpStatusCode.BadRequest, "Error!"));
         }
 
         [HttpPost("ForgotPassword")]
@@ -169,15 +182,7 @@ namespace IdentityServer.Controllers
                 Code = code
             });
 
-            return Ok(new ResponseObject<object>
-            {
-                Data = new
-                {
-                    code
-                },
-                Message = "Login success!",
-                Status = System.Net.HttpStatusCode.OK,
-            });
+            return Ok(new ResponseObject<object>(code, System.Net.HttpStatusCode.OK, "Login success!"));
         }
 
         [HttpPost("ResetPassword")]
@@ -193,6 +198,48 @@ namespace IdentityServer.Controllers
             {
                 return Ok(new ResponseObject<string>(System.Net.HttpStatusCode.OK, "Password reset successfull!"));
             }
+
+            return BadRequest(new ResponseObject<string>(System.Net.HttpStatusCode.BadRequest, "Invalid request!"));
+        }
+
+        [Authorize]
+        [HttpPost("GetToken")]
+        public async Task<IActionResult> GetToken(GetTokenDTO model)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user is null) return NotFound(new ResponseObject<string>(System.Net.HttpStatusCode.NotFound, "User does not exist!"));
+
+            var isTokenValid = _jwtService.ValidateToken(model.Token, user);
+
+            if (!isTokenValid) return BadRequest(new ResponseObject<string>(System.Net.HttpStatusCode.BadRequest, "Token invalid!"));
+
+            var userRoles = await _userManager.GetRolesAsync(user);
+            var accessToken = _jwtService.GenerateToken(user, userRoles.FirstOrDefault() ?? "");
+
+            return Ok(new ResponseObject<object>
+            {
+                Data = new
+                {
+                    access_token = accessToken,
+                    refresh_token = model.Token,
+                },
+                Message = "Get token success!",
+                Status = System.Net.HttpStatusCode.OK
+            });
+        }
+
+        [Authorize]
+        [HttpPost("ChangePassword")]
+        public async Task<IActionResult> ChangePassword(ChangePasswordDTO model)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null) return Unauthorized(new ResponseObject<string>(System.Net.HttpStatusCode.Unauthorized, "Invalid request!"));
+
+            var result = await _userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+
+            if (result.Succeeded) return Ok(new ResponseObject<string>(System.Net.HttpStatusCode.OK, "Password has been changed successfully"));
 
             return BadRequest(new ResponseObject<string>(System.Net.HttpStatusCode.BadRequest, "Invalid request!"));
         }

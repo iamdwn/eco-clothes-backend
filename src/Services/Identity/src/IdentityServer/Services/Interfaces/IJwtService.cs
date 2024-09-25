@@ -5,9 +5,8 @@ namespace IdentityServer.Services.Interfaces
 {
     public interface IJwtService
     {
-        string GenerateToken(ApplicationUser user);
+        string GenerateToken(ApplicationUser user, string roleName);
         string GenerateRefreshToken(ApplicationUser user);
-        bool ValidateRefreshToken(string token);
-        bool ValidateToken(string token);
+        bool ValidateToken(string token, ApplicationUser user);
     }
 }

@@ -1,9 +1,6 @@
 ﻿using IdentityServer.Models;
 using IdentityServer.Services.Interfaces;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.IdentityModel.Tokens;
-using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -37,16 +34,22 @@ namespace IdentityServer.Services
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.Now.AddDays(1),
+                expires: DateTime.Now.AddMinutes(Convert.ToInt32(_configuration["Jwt:ExpireTime"])),
                 signingCredentials: creds
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public string GenerateToken(ApplicationUser user)
+        public string GenerateToken(ApplicationUser user, string roleName)
         {
             if (user == null) return "";
+
+            var claims = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+                new Claim("role", roleName),
+            };
 
             var key = Encoding.ASCII.GetBytes(_configuration["Jwt:SecretKey"]);
 
@@ -56,22 +59,61 @@ namespace IdentityServer.Services
             var token = new JwtSecurityToken(
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Audience"],
-                //claims: claims,
-                expires: DateTime.Now.AddDays(1),
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(Convert.ToInt32(_configuration["Jwt:ExpireTime"])),
                 signingCredentials: creds
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public bool ValidateRefreshToken(string token)
+        public bool ValidateToken(string token, ApplicationUser user)
         {
-            throw new NotImplementedException();
-        }
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_configuration["Jwt:SecretKey"]);
 
-        public bool ValidateToken(string token)
-        {
-            throw new NotImplementedException();
+            try
+            {
+                SecurityToken validatedToken;
+
+                var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
+                {
+                    ValidateLifetime = true,
+                    ValidateAudience = true,
+                    ValidateIssuer = true,
+                    ValidIssuer = _configuration["Jwt:Issuer"],
+                    ValidAudience = _configuration["Jwt:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ClockSkew = TimeSpan.Zero
+                }, out validatedToken);
+
+                var jwtSecurityToken = validatedToken as JwtSecurityToken;
+
+                var sub = jwtSecurityToken?.Claims.FirstOrDefault(claim => claim.Type == JwtRegisteredClaimNames.Sub)?.Value;
+
+                if (sub != user.Id)
+                {
+                    return false;
+                }
+
+                //var expiration = jwtSecurityToken?.Claims.FirstOrDefault(claim => claim.Type == JwtRegisteredClaimNames.Exp)?.Value;
+
+                //if (long.TryParse(expiration, out long exp))
+                //{
+                //    var expiryDateTime = DateTimeOffset.FromUnixTimeSeconds(exp).UtcDateTime;
+                //    if (expiryDateTime < DateTime.UtcNow)
+                //    {
+                //        return false; // Token is expired
+                //    }
+                //}
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Token validation failed: {ex.Message}");
+                return false;
+            }
         }
     }
 }
