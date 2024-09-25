@@ -17,21 +17,9 @@ public partial class EcoClothesContext : DbContext
     {
     }
 
-    public virtual DbSet<Cart> Carts { get; set; }
-
     public virtual DbSet<Category> Categories { get; set; }
 
     public virtual DbSet<Favorite> Favorites { get; set; }
-
-    public virtual DbSet<Feedback> Feedbacks { get; set; }
-
-    public virtual DbSet<Order> Orders { get; set; }
-
-    public virtual DbSet<Orderitem> Orderitems { get; set; }
-
-    public virtual DbSet<Payment> Payments { get; set; }
-
-    public virtual DbSet<Paymentsubscription> Paymentsubscriptions { get; set; }
 
     public virtual DbSet<Product> Products { get; set; }
 
@@ -39,33 +27,17 @@ public partial class EcoClothesContext : DbContext
 
     public virtual DbSet<Size> Sizes { get; set; }
 
-    public virtual DbSet<Sizeproduct> Sizeproducts { get; set; }
-
-    public virtual DbSet<Subscription> Subscriptions { get; set; }
-
-    public virtual DbSet<User> Users { get; set; }
+    public virtual DbSet<SizeProduct> SizeProducts { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseMySql("server=localhost;database=eco_clothes;uid=root;pwd=dozungo", ServerVersion.Parse("8.2.0-mysql"));
+        => optionsBuilder.UseMySql("server=database.hdang09.me;database=product_schema;uid=root;pwd=my-secret-pw", ServerVersion.Parse("9.0.1-mysql"));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder
             .UseCollation("utf8mb4_0900_ai_ci")
             .HasCharSet("utf8mb4");
-
-        modelBuilder.Entity<Cart>(entity =>
-        {
-            entity.HasKey(e => e.CartId).HasName("PRIMARY");
-
-            entity.ToTable("cart");
-
-            entity.Property(e => e.CartId).HasColumnName("cartId");
-            entity.Property(e => e.ProductId).HasColumnName("productId");
-            entity.Property(e => e.Quantity).HasColumnName("quantity");
-            entity.Property(e => e.UserId).HasColumnName("userId");
-        });
 
         modelBuilder.Entity<Category>(entity =>
         {
@@ -88,102 +60,20 @@ public partial class EcoClothesContext : DbContext
 
             entity.ToTable("favorite");
 
+            entity.HasIndex(e => e.ProductId, "productId");
+
+            entity.HasIndex(e => e.UserId, "userId");
+
             entity.Property(e => e.FavoriteId).HasColumnName("favoriteId");
             entity.Property(e => e.ProductId).HasColumnName("productId");
-            entity.Property(e => e.UserId).HasColumnName("userId");
-        });
+            entity.Property(e => e.UserId)
+                .HasMaxLength(450)
+                .HasColumnName("userId");
 
-        modelBuilder.Entity<Feedback>(entity =>
-        {
-            entity.HasKey(e => e.FeedbackId).HasName("PRIMARY");
-
-            entity.ToTable("feedback");
-
-            entity.Property(e => e.FeedbackId).HasColumnName("feedbackId");
-            entity.Property(e => e.Comment)
-                .HasColumnType("text")
-                .HasColumnName("comment");
-            entity.Property(e => e.Date).HasColumnName("date");
-            entity.Property(e => e.OrderItemId).HasColumnName("orderItemId");
-            entity.Property(e => e.Rating).HasColumnName("rating");
-        });
-
-        modelBuilder.Entity<Order>(entity =>
-        {
-            entity.HasKey(e => e.OrderId).HasName("PRIMARY");
-
-            entity.ToTable("order");
-
-            entity.Property(e => e.OrderId).HasColumnName("orderId");
-            entity.Property(e => e.Address)
-                .HasColumnType("text")
-                .HasColumnName("address");
-            entity.Property(e => e.EndDate).HasColumnName("endDate");
-            entity.Property(e => e.PaymentId).HasColumnName("paymentId");
-            entity.Property(e => e.StartDate).HasColumnName("startDate");
-            entity.Property(e => e.UserId).HasColumnName("userId");
-        });
-
-        modelBuilder.Entity<Orderitem>(entity =>
-        {
-            entity.HasKey(e => e.OrderItemId).HasName("PRIMARY");
-
-            entity.ToTable("orderitem");
-
-            entity.Property(e => e.OrderItemId).HasColumnName("orderItemId");
-            entity.Property(e => e.OrderId).HasColumnName("orderId");
-            entity.Property(e => e.ProductId).HasColumnName("productId");
-            entity.Property(e => e.Quantity).HasColumnName("quantity");
-            entity.Property(e => e.TotalPrice)
-                .HasPrecision(10, 2)
-                .HasColumnName("totalPrice");
-            entity.Property(e => e.UnitPrice)
-                .HasPrecision(10, 2)
-                .HasColumnName("unitPrice");
-        });
-
-        modelBuilder.Entity<Payment>(entity =>
-        {
-            entity.HasKey(e => e.PaymentId).HasName("PRIMARY");
-
-            entity.ToTable("payment");
-
-            entity.Property(e => e.PaymentId).HasColumnName("paymentId");
-            entity.Property(e => e.Amount)
-                .HasPrecision(10, 2)
-                .HasColumnName("amount");
-            entity.Property(e => e.Method)
-                .HasMaxLength(50)
-                .HasColumnName("method");
-            entity.Property(e => e.Status)
-                .HasMaxLength(50)
-                .HasColumnName("status");
-            entity.Property(e => e.TransactionId)
-                .HasMaxLength(255)
-                .HasColumnName("transactionId");
-            entity.Property(e => e.UserId).HasColumnName("userId");
-        });
-
-        modelBuilder.Entity<Paymentsubscription>(entity =>
-        {
-            entity.HasKey(e => e.PaymentSubscriptionId).HasName("PRIMARY");
-
-            entity.ToTable("paymentsubscription");
-
-            entity.HasIndex(e => e.SubscriptionId, "subscriptionId");
-
-            entity.Property(e => e.PaymentSubscriptionId).HasColumnName("paymentSubscriptionId");
-            entity.Property(e => e.EndDate).HasColumnName("endDate");
-            entity.Property(e => e.PaymentId).HasColumnName("paymentId");
-            entity.Property(e => e.Price)
-                .HasPrecision(10, 2)
-                .HasColumnName("price");
-            entity.Property(e => e.StartDate).HasColumnName("startDate");
-            entity.Property(e => e.SubscriptionId).HasColumnName("subscriptionId");
-
-            entity.HasOne(d => d.Subscription).WithMany(p => p.Paymentsubscriptions)
-                .HasForeignKey(d => d.SubscriptionId)
-                .HasConstraintName("paymentsubscription_ibfk_1");
+            entity.HasOne(d => d.Product).WithMany(p => p.Favorites)
+                .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("favorite_ibfk_2");
         });
 
         modelBuilder.Entity<Product>(entity =>
@@ -203,7 +93,9 @@ public partial class EcoClothesContext : DbContext
             entity.Property(e => e.NewPrice)
                 .HasPrecision(10, 2)
                 .HasColumnName("newPrice");
-            entity.Property(e => e.NumberOfSold).HasColumnName("numberOfSold");
+            entity.Property(e => e.NumberOfSold)
+                .HasDefaultValueSql("'0'")
+                .HasColumnName("numberOfSold");
             entity.Property(e => e.OldPrice)
                 .HasPrecision(10, 2)
                 .HasColumnName("oldPrice");
@@ -218,9 +110,23 @@ public partial class EcoClothesContext : DbContext
 
             entity.ToTable("productcategory");
 
+            entity.HasIndex(e => e.CategoryId, "categoryId");
+
+            entity.HasIndex(e => e.ProductId, "productId");
+
             entity.Property(e => e.ProductCategoryId).HasColumnName("productCategoryId");
             entity.Property(e => e.CategoryId).HasColumnName("categoryId");
             entity.Property(e => e.ProductId).HasColumnName("productId");
+
+            entity.HasOne(d => d.Category).WithMany(p => p.Productcategories)
+                .HasForeignKey(d => d.CategoryId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("productcategory_ibfk_2");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.Productcategories)
+                .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("productcategory_ibfk_1");
         });
 
         modelBuilder.Entity<Size>(entity =>
@@ -235,68 +141,29 @@ public partial class EcoClothesContext : DbContext
                 .HasColumnName("name");
         });
 
-        modelBuilder.Entity<Sizeproduct>(entity =>
+        modelBuilder.Entity<SizeProduct>(entity =>
         {
             entity.HasKey(e => e.SizeProductId).HasName("PRIMARY");
 
-            entity.ToTable("sizeproduct");
+            entity.ToTable("sizeProduct");
+
+            entity.HasIndex(e => e.ProductId, "productId");
+
+            entity.HasIndex(e => e.SizeId, "sizeId");
 
             entity.Property(e => e.SizeProductId).HasColumnName("sizeProductId");
             entity.Property(e => e.ProductId).HasColumnName("productId");
             entity.Property(e => e.SizeId).HasColumnName("sizeId");
-        });
 
-        modelBuilder.Entity<Subscription>(entity =>
-        {
-            entity.HasKey(e => e.SubscriptionId).HasName("PRIMARY");
+            entity.HasOne(d => d.Product).WithMany(p => p.SizeProducts)
+                .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("sizeProduct_ibfk_1");
 
-            entity.ToTable("subscription");
-
-            entity.Property(e => e.SubscriptionId).HasColumnName("subscriptionId");
-            entity.Property(e => e.Description)
-                .HasColumnType("text")
-                .HasColumnName("description");
-            entity.Property(e => e.Name)
-                .HasMaxLength(255)
-                .HasColumnName("name");
-            entity.Property(e => e.Period).HasColumnName("period");
-            entity.Property(e => e.Price)
-                .HasPrecision(10, 2)
-                .HasColumnName("price");
-        });
-
-        modelBuilder.Entity<User>(entity =>
-        {
-            entity.HasKey(e => e.UserId).HasName("PRIMARY");
-
-            entity.ToTable("user");
-
-            entity.Property(e => e.UserId).HasColumnName("userId");
-            entity.Property(e => e.Address)
-                .HasMaxLength(255)
-                .HasColumnName("address");
-            entity.Property(e => e.Dob)
-                .HasColumnType("datetime")
-                .HasColumnName("dob");
-            entity.Property(e => e.Email)
-                .HasMaxLength(255)
-                .HasColumnName("email");
-            entity.Property(e => e.FullName)
-                .HasMaxLength(255)
-                .HasColumnName("fullName");
-            entity.Property(e => e.ImgUrl)
-                .HasMaxLength(255)
-                .HasColumnName("imgUrl");
-            entity.Property(e => e.Password)
-                .HasMaxLength(255)
-                .HasColumnName("password");
-            entity.Property(e => e.Phone)
-                .HasMaxLength(50)
-                .HasColumnName("phone");
-            entity.Property(e => e.Role)
-                .HasMaxLength(50)
-                .HasColumnName("role");
-            entity.Property(e => e.SubscriptionId).HasColumnName("subscriptionId");
+            entity.HasOne(d => d.Size).WithMany(p => p.SizeProducts)
+                .HasForeignKey(d => d.SizeId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("sizeProduct_ibfk_2");
         });
 
         OnModelCreatingPartial(modelBuilder);
