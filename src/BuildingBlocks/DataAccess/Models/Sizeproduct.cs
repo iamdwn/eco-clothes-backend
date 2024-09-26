@@ -15,6 +15,6 @@ public partial class SizeProduct
     [JsonIgnore]
     public virtual Product? Product { get; set; }
 
-    [JsonIgnore]
+    //[JsonIgnore]
     public virtual Size? Size { get; set; }
 }

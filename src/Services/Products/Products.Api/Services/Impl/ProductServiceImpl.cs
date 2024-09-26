@@ -17,7 +17,9 @@ namespace Products.Api.Services.Impl
 
         public async Task<IEnumerable<Product>> GetAllProductsAsync()
         {
-            return _unitOfWork.ProductRepository.Get().ToList();
+            return _unitOfWork.ProductRepository.Get(
+                includeProperties: "SizeProducts,Size"
+                ).ToList();
         }
 
         public async Task<Product> GetProductByIdAsync(Guid id)
