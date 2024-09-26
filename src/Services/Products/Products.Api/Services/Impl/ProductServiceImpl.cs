@@ -7,10 +7,12 @@ namespace Products.Api.Services.Impl
     public class ProductServiceImpl : IProductService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ISizeService _sizeService;
 
-        public ProductServiceImpl(IUnitOfWork unitOfWork)
+        public ProductServiceImpl(IUnitOfWork unitOfWork, ISizeService sizeService)
         {
             _unitOfWork = unitOfWork;
+            _sizeService = sizeService;
         }
 
         public async Task<IEnumerable<Product>> GetAllProductsAsync()
@@ -58,50 +60,55 @@ namespace Products.Api.Services.Impl
 
                 foreach (var item in product.Sizes)
                 {
-                    var pointSize = _unitOfWork.SizeRepository.Get(
-                        filter: s => s.Name.Equals(item.SizeName)
-                        ).FirstOrDefault();
-
-                    if (pointSize == null)
-                    {
-                        throw new KeyNotFoundException($"Size with name {item.SizeName} not found.");
-                    }
-
-                    var insertSize = new SizeProduct()
-                    {
-                        ProductId = insertProduct.ProductId,
-                        SizeId = pointSize.SizeId,
-                        SizeQuantity = item.SizeQuantity
-                    };
-
+                    _sizeService.InsertSize(item, insertProduct.ProductId);
                     amount += item.SizeQuantity;
-
-                    _unitOfWork.SizeproductRepository.Insert(insertSize);
-                    _unitOfWork.Save();
                 };
 
                 existingProduct = _unitOfWork.ProductRepository.GetByID(insertProduct.ProductId);
                 existingProduct.Amount = amount;
-                await UpdateProductAsync(existingProduct);
+                _unitOfWork.ProductRepository.Update(existingProduct);
+                _unitOfWork.Save();
 
                 return insertProduct;
             }
             catch (Exception ex)
             {
-                throw new KeyNotFoundException(ex.Message);
+                throw new Exception(ex.Message);
             }
         }
 
-        public async Task UpdateProductAsync(Product product)
+        public async Task UpdateProductAsync(RequestProduct product)
         {
-            var existingProduct = _unitOfWork.ProductRepository.GetByID(product.ProductId);
-            if (existingProduct == null)
+            try
             {
-                throw new KeyNotFoundException($"Product with ID {product.ProductId} not found.");
-            }
+                var existingProduct = _unitOfWork.ProductRepository.GetByID(product.ProductId);
 
-            _unitOfWork.ProductRepository.Update(product);
-            _unitOfWork.Save();
+                if (existingProduct == null)
+                {
+                    throw new KeyNotFoundException($"Product with id {product.ProductId} not found.");
+                }
+
+                var newAmount = product.Sizes.Sum(s => s.SizeQuantity);
+
+                foreach (var item in product.Sizes)
+                {
+                    _sizeService.UpdateSize(item, existingProduct.ProductId);
+                };
+
+                existingProduct.ProductName = product.ProductName ?? existingProduct.ProductName;
+                existingProduct.OldPrice = product.OldPrice ?? existingProduct.OldPrice;
+                existingProduct.NewPrice = product.NewPrice ?? existingProduct.NewPrice;
+                existingProduct.ImgUrl = product.ImgUrl ?? existingProduct.ImgUrl;
+                existingProduct.Description = product.Description ?? existingProduct.Description;
+                existingProduct.Amount = newAmount;
+
+                _unitOfWork.ProductRepository.Update(existingProduct);
+                _unitOfWork.Save();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
 

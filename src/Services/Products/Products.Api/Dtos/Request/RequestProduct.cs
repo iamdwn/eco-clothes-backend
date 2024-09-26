@@ -2,6 +2,8 @@
 {
     public class RequestProduct
     {
+        public Guid ProductId { get; set; }
+
         public string ProductName { get; set; } = null!;
 
         public decimal? OldPrice { get; set; }

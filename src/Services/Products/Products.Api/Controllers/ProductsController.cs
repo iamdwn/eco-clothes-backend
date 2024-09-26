@@ -34,7 +34,7 @@ namespace Products.Api.Controllers
         }
 
         [HttpPut]
-        public async Task UpdateProduct(Product product)
+        public async Task UpdateProduct(RequestProduct product)
         {
             await _productService.UpdateProductAsync(product);
         }
