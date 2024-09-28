@@ -1,9 +1,5 @@
-﻿using IdentityServer.Models;
-using IdentityServer.Services.Interfaces;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Caching.Distributed;
+﻿using IdentityServer.Services.Interfaces;
 using Microsoft.IdentityModel.Tokens;
-using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -19,15 +15,9 @@ namespace IdentityServer.Services
             _configuration = configuration;
         }
 
-        public string GenerateRefreshToken(ApplicationUser user)
+        public string GenerateJwtToken(List<Claim> claims)
         {
-            if (user == null) return "";
-
-            var claims = new[]
-            {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id),
-            };
-
+            var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_configuration["Jwt:SecretKey"]);
 
             var securityKey = new SymmetricSecurityKey(key);
@@ -37,41 +27,11 @@ namespace IdentityServer.Services
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.Now.AddDays(1),
+                expires: DateTime.Now.AddMinutes(Convert.ToInt32(_configuration["Jwt:ExpireTime"])),
                 signingCredentials: creds
             );
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }
-
-        public string GenerateToken(ApplicationUser user)
-        {
-            if (user == null) return "";
-
-            var key = Encoding.ASCII.GetBytes(_configuration["Jwt:SecretKey"]);
-
-            var securityKey = new SymmetricSecurityKey(key);
-            var creds = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
-            var token = new JwtSecurityToken(
-                issuer: _configuration["Jwt:Issuer"],
-                audience: _configuration["Jwt:Audience"],
-                //claims: claims,
-                expires: DateTime.Now.AddDays(1),
-                signingCredentials: creds
-            );
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }
-
-        public bool ValidateRefreshToken(string token)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool ValidateToken(string token)
-        {
-            throw new NotImplementedException();
+            return tokenHandler.WriteToken(token);
         }
     }
 }
