@@ -5,9 +5,9 @@ namespace DataAccess.Models;
 
 public partial class Size
 {
-    public int SizeId { get; set; }
+    public Guid SizeId { get; set; }
 
-    public string Name { get; set; } = null!;
+    public string? Name { get; set; }
 
     public virtual ICollection<SizeProduct> SizeProducts { get; set; } = new List<SizeProduct>();
 }

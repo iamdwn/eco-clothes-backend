@@ -7,33 +7,33 @@ namespace DataAccess.Base.Impl
     public class UnitOfWork : IUnitOfWork, IDisposable
     {
         private EcoClothesContext context;
-        //private GenericRepository<Cart> cartRepository;
+        private GenericRepository<Cart> cartRepository;
         private GenericRepository<Category> categoryRepository;
         private GenericRepository<Favorite> favoriteRepository;
-        //private GenericRepository<Feedback> feedbackRepository;
-        //private GenericRepository<Order> orderRepository;
-        //private GenericRepository<Orderitem> orderitemRepository;
-        //private GenericRepository<Payment> paymentRepository;
-        //private GenericRepository<Paymentsubscription> paymentsubscriptionRepository;
+        private GenericRepository<Feedback> feedbackRepository;
+        private GenericRepository<Order> orderRepository;
+        private GenericRepository<OrderItem> orderitemRepository;
+        private GenericRepository<Payment> paymentRepository;
+        private GenericRepository<PaymentSubscription> paymentsubscriptionRepository;
         private GenericRepository<Product> productRepository;
-        private GenericRepository<Productcategory> productcategoryRepository;
+        private GenericRepository<ProductCategory> productcategoryRepository;
         private GenericRepository<Size> sizeRepository;
         private GenericRepository<SizeProduct> sizeproductRepository;
-        //private GenericRepository<Subscription> subscriptionRepository;
-        //private GenericRepository<User> userRepository;
+        private GenericRepository<Subscription> subscriptionRepository;
+        private GenericRepository<User> userRepository;
 
         public UnitOfWork(EcoClothesContext _context)
         {
             context = _context;
         }
 
-        //public IGenericRepository<Cart> CartRepository
-        //{
-        //    get
-        //    {
-        //        return cartRepository ??= new GenericRepository<Cart>(context);
-        //    }
-        //}
+        public IGenericRepository<Cart> CartRepository
+        {
+            get
+            {
+                return cartRepository ??= new GenericRepository<Cart>(context);
+            }
+        }
 
         public IGenericRepository<Category> CategoryRepository
         {
@@ -51,45 +51,45 @@ namespace DataAccess.Base.Impl
             }
         }
 
-        //public IGenericRepository<Feedback> FeedbackRepository
-        //{
-        //    get
-        //    {
-        //        return feedbackRepository ??= new GenericRepository<Feedback>(context);
-        //    }
-        //}
+        public IGenericRepository<Feedback> FeedbackRepository
+        {
+            get
+            {
+                return feedbackRepository ??= new GenericRepository<Feedback>(context);
+            }
+        }
 
-        //public IGenericRepository<Order> OrderRepository
-        //{
-        //    get
-        //    {
-        //        return orderRepository ??= new GenericRepository<Order>(context);
-        //    }
-        //}
+        public IGenericRepository<Order> OrderRepository
+        {
+            get
+            {
+                return orderRepository ??= new GenericRepository<Order>(context);
+            }
+        }
 
-        //public IGenericRepository<Orderitem> OrderitemRepository
-        //{
-        //    get
-        //    {
-        //        return orderitemRepository ??= new GenericRepository<Orderitem>(context);
-        //    }
-        //}
+        public IGenericRepository<OrderItem> OrderitemRepository
+        {
+            get
+            {
+                return orderitemRepository ??= new GenericRepository<OrderItem>(context);
+            }
+        }
 
-        //public IGenericRepository<Payment> PaymentRepository
-        //{
-        //    get
-        //    {
-        //        return paymentRepository ??= new GenericRepository<Payment>(context);
-        //    }
-        //}
+        public IGenericRepository<Payment> PaymentRepository
+        {
+            get
+            {
+                return paymentRepository ??= new GenericRepository<Payment>(context);
+            }
+        }
 
-        //public IGenericRepository<Paymentsubscription> PaymentsubscriptionRepository
-        //{
-        //    get
-        //    {
-        //        return paymentsubscriptionRepository ??= new GenericRepository<Paymentsubscription>(context);
-        //    }
-        //}
+        public IGenericRepository<PaymentSubscription> PaymentsubscriptionRepository
+        {
+            get
+            {
+                return paymentsubscriptionRepository ??= new GenericRepository<PaymentSubscription>(context);
+            }
+        }
 
         public IGenericRepository<Product> ProductRepository
         {
@@ -99,11 +99,11 @@ namespace DataAccess.Base.Impl
             }
         }
 
-        public IGenericRepository<Productcategory> ProductcategoryRepository
+        public IGenericRepository<ProductCategory> ProductcategoryRepository
         {
             get
             {
-                return productcategoryRepository ??= new GenericRepository<Productcategory>(context);
+                return productcategoryRepository ??= new GenericRepository<ProductCategory>(context);
             }
         }
 
@@ -123,21 +123,21 @@ namespace DataAccess.Base.Impl
             }
         }
 
-        //public IGenericRepository<Subscription> SubscriptionRepository
-        //{
-        //    get
-        //    {
-        //        return subscriptionRepository ??= new GenericRepository<Subscription>(context);
-        //    }
-        //}
+        public IGenericRepository<Subscription> SubscriptionRepository
+        {
+            get
+            {
+                return subscriptionRepository ??= new GenericRepository<Subscription>(context);
+            }
+        }
 
-        //public IGenericRepository<User> UserRepository
-        //{
-        //    get
-        //    {
-        //        return userRepository ??= new GenericRepository<User>(context);
-        //    }
-        //}
+        public IGenericRepository<User> UserRepository
+        {
+            get
+            {
+                return userRepository ??= new GenericRepository<User>(context);
+            }
+        }
 
         public void Save()
         {
