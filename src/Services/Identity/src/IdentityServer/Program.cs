@@ -37,10 +37,10 @@ services.AddMassTransit(x =>
 {
     x.UsingRabbitMq((context, cfg) =>
     {
-        cfg.Host(configuration["RabbitMQ:Host"], "/", host =>
+        cfg.Host(builder.Configuration["RabbitMQ:Host"], 5672, "/", host =>
         {
-            host.Username(configuration["RabbitMQ:Username"]);
-            host.Password(configuration["RabbitMQ:Password"]);
+            host.Username(builder.Configuration["RabbitMQ:Username"]);
+            host.Password(builder.Configuration["RabbitMQ:Password"]);
         });
     });
 });
