@@ -3,6 +3,7 @@ using IdentityServer.Models;
 using IdentityServer.Services;
 using IdentityServer.Services.Interfaces;
 using MassTransit;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -56,7 +57,7 @@ services.AddMassTransit(x =>
 services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
 })
     .AddJwtBearer(options =>
     {
@@ -67,11 +68,34 @@ services.AddAuthentication(options =>
             ValidateAudience = true,
             ValidateIssuerSigningKey = true,
             ClockSkew = TimeSpan.Zero,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"]))
+            ValidIssuer = builder.Configuration["Authenticate:Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Authenticate:Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Authenticate:Jwt:SecretKey"]))
         };
+    })
+    .AddCookie(options =>
+    {
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+    })
+    .AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
+    {
+        options.ClientId = builder.Configuration["Authenticate:Google:ClientId"];
+        options.ClientSecret = builder.Configuration["Authenticate:Google:ClientSecret"];
+        options.CallbackPath = "/signin-google";
+        options.SaveTokens = true;
     });
+// Add Cors
+services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        builder =>
+        {
+            builder.AllowAnyOrigin()
+                   .AllowAnyMethod()
+                   .AllowAnyHeader();
+        });
+});
 
 // Add HttpContextAccessor
 services.AddHttpContextAccessor();
@@ -88,6 +112,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("AllowAll");
 
 app.UseRouting();
 

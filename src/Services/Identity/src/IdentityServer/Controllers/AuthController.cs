@@ -6,6 +6,7 @@ using IdentityServer.Models;
 using IdentityServer.Models.DTOs;
 using IdentityServer.Models.Response;
 using IdentityServer.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -182,7 +183,6 @@ namespace IdentityServer.Controllers
         public async Task<IActionResult> GetToken([FromBody] GetTokenDTO model)
         {
             var user = await _userManager.GetUserAsync(User);
-            var testUser = _currentUserService.UserId;
             if (user == null)
                 return Unauthorized(ResponseObject.Failure("Unauthorized!"));
 
@@ -227,6 +227,45 @@ namespace IdentityServer.Controllers
             }
 
             return BadRequest(ResponseObject.Failure(result.Errors.FirstOrDefault().Description));
+        }
+
+        [HttpGet("LoginGoogle")]
+        public IActionResult LoginGoogle(string returnUrl = "/")
+        {
+            var redirectUrl = Url.Action("GoogleResponse", "Auth", new { returnUrl });
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties(GoogleDefaults.AuthenticationScheme, redirectUrl);
+            return Challenge(properties, GoogleDefaults.AuthenticationScheme);
+        }
+
+        [HttpGet("GoogleResponse")]
+        public async Task<IActionResult> GoogleResponse(string returnUrl = "/")
+        {
+            var info = await _signInManager.GetExternalLoginInfoAsync();
+            if (info == null)
+            {
+                return BadRequest("Error loading external login information.");
+            }
+
+            // Sign in the user with this external login provider if the user already has a login.
+            var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false);
+            if (result.Succeeded)
+            {
+                return Ok(new { message = "Login successful" });
+            }
+
+            // If the user does not have an account, then create one.
+            var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+            var user = new ApplicationUser { UserName = email, Email = email };
+
+            var createResult = await _userManager.CreateAsync(user);
+            if (createResult.Succeeded)
+            {
+                await _userManager.AddLoginAsync(user, info);
+                await _signInManager.SignInAsync(user, isPersistent: false);
+                return Ok(new { message = "User created and logged in successfully" });
+            }
+
+            return BadRequest("Error during user creation.");
         }
 
         private async Task<string> GenerateRefreshToken(ApplicationUser user)
