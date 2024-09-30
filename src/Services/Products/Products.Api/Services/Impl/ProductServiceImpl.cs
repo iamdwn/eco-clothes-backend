@@ -18,7 +18,7 @@ namespace Products.Api.Services.Impl
         public async Task<IEnumerable<Product>> GetAllProductsAsync()
         {
             return _unitOfWork.ProductRepository.Get(
-                includeProperties: "SizeProducts,Size"
+                includeProperties: "SizeProducts"
                 ).ToList();
         }
 
@@ -66,16 +66,16 @@ namespace Products.Api.Services.Impl
                     amount += item.SizeQuantity;
                 };
 
-                existingProduct = _unitOfWork.ProductRepository.GetByID(insertProduct.ProductId);
-                existingProduct.Amount = amount;
-                _unitOfWork.ProductRepository.Update(existingProduct);
+                insertProduct = _unitOfWork.ProductRepository.GetByID(insertProduct.ProductId);
+                insertProduct.Amount = amount;
+                _unitOfWork.ProductRepository.Update(insertProduct);
                 _unitOfWork.Save();
 
                 return insertProduct;
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                throw new Exception($"Error: {ex.Message}, Inner Exception: {ex.InnerException?.Message}");
             }
         }
 
