@@ -1,11 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace DataAccess.Models;
 
 public partial class SizeProduct
 {
-    [Key]
     public Guid SizeProductId { get; set; }
 
     public Guid? ProductId { get; set; }

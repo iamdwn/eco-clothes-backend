@@ -1,10 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DataAccess.Models;
 
 public partial class User
 {
-    [Key]
     public Guid UserId { get; set; }
 
     public string? FullName { get; set; }

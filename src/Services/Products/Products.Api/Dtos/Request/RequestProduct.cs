@@ -17,5 +17,7 @@
         public string? Description { get; set; }
 
         public List<SizeDto>? Sizes { get; set; }
+
+        public List<CategoryDto>? Categories { get; set; }
     }
 }

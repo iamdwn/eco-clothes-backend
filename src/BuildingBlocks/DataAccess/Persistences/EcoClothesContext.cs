@@ -1,5 +1,8 @@
-﻿using DataAccess.Models;
+﻿using System;
+using System.Collections.Generic;
+using DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
+using Pomelo.EntityFrameworkCore.MySql.Scaffolding.Internal;
 
 namespace DataAccess.Persistences;
 
@@ -173,9 +176,7 @@ public partial class EcoClothesContext : DbContext
 
             entity.Property(e => e.OrderItemId).HasColumnName("orderItemId");
             entity.Property(e => e.OrderId).HasColumnName("orderId");
-            entity.Property(e => e.ProductId)
-                .IsRequired()
-                .HasColumnName("productId");
+            entity.Property(e => e.ProductId).HasColumnName("productId");
             entity.Property(e => e.Quantity).HasColumnName("quantity");
             entity.Property(e => e.TotalPrice)
                 .HasPrecision(10, 2)
@@ -265,9 +266,7 @@ public partial class EcoClothesContext : DbContext
 
             entity.HasIndex(e => e.UserId, "userId");
 
-            entity.Property(e => e.ProductId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("productId");
+            entity.Property(e => e.ProductId).HasColumnName("productId");
             entity.Property(e => e.Amount).HasColumnName("amount");
             entity.Property(e => e.Description)
                 .HasColumnType("text")
@@ -286,12 +285,6 @@ public partial class EcoClothesContext : DbContext
                 .HasMaxLength(255)
                 .HasColumnName("productName");
             entity.Property(e => e.UserId).HasColumnName("userId");
-
-            entity.HasOne(d => d.ProductNavigation).WithOne(p => p.Product)
-                .HasPrincipalKey<OrderItem>(p => p.ProductId)
-                .HasForeignKey<Product>(d => d.ProductId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("Product_ibfk_1");
 
             entity.HasOne(d => d.User).WithMany(p => p.Products)
                 .HasForeignKey(d => d.UserId)
@@ -346,6 +339,7 @@ public partial class EcoClothesContext : DbContext
             entity.Property(e => e.SizeProductId).HasColumnName("sizeProductId");
             entity.Property(e => e.ProductId).HasColumnName("productId");
             entity.Property(e => e.SizeId).HasColumnName("sizeId");
+            entity.Property(e => e.SizeQuantity).HasColumnName("sizeQuantity");
 
             entity.HasOne(d => d.Product).WithMany(p => p.SizeProducts)
                 .HasForeignKey(d => d.ProductId)

@@ -18,6 +18,7 @@ namespace DataAccess.Base
         bool Delete(object id);
 
         void Delete(T entityToDelete);
+        void DeleteRange(IEnumerable<T> entities);
         bool Update(object id, T entityToUpdate);
         void Update(T entityToUpdate);
     }

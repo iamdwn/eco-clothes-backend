@@ -21,6 +21,7 @@ namespace Products.Api
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>(); // Register Unit of Work
             builder.Services.AddScoped<IProductService, ProductServiceImpl>(); // Register Product Service
             builder.Services.AddScoped<ISizeService, SizeServiceImpl>(); // Register Size Service
+            builder.Services.AddScoped<ICategoryService, CategoryServiceImpl>(); // Register Category Service
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

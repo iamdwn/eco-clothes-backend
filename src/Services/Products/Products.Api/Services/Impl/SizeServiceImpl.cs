@@ -13,6 +13,23 @@ namespace Products.Api.Services.Impl
             _unitOfWork = unitOfWork;
         }
 
+        public async Task DeleteSize(Guid productId)
+        {
+            var sizeProducts = _unitOfWork.SizeproductRepository
+                .Get(filter: sp => sp.ProductId == productId)
+                .ToList();
+
+            if (!sizeProducts.Any())
+            {
+                {
+                    throw new KeyNotFoundException($"SizeProduct with id {productId} not found.");
+                }
+            }
+            _unitOfWork.SizeproductRepository.DeleteRange(sizeProducts);
+
+            _unitOfWork.Save();
+        }
+
         public async Task<IEnumerable<Size>> GetAllSizesAsync()
         {
             return _unitOfWork.SizeRepository.Get().ToList();
