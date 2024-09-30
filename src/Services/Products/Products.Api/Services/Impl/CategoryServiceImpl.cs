@@ -56,31 +56,23 @@ namespace Products.Api.Services.Impl
             _unitOfWork.Save();
         }
 
-        public async Task UpdateCategory(CategoryDto item, Guid productId)
+        public async Task UpdateCategory(List<CategoryDto> categoryList, Guid productId)
         {
-            var pointCategory = _unitOfWork.CategoryRepository.Get(
-             filter: s => s.Name.Equals(item.CategoryName)
-             ).FirstOrDefault();
+            DeleteCategory(productId);
 
-            if (pointCategory == null)
+            foreach (var item in categoryList)
             {
-                throw new KeyNotFoundException($"Category with name {item.CategoryName} not found.");
+                var pointCategory = _unitOfWork.CategoryRepository.Get(
+                           filter: s => s.Name.Equals(item.CategoryName)
+                           ).FirstOrDefault();
+
+                if (pointCategory == null)
+                {
+                    throw new KeyNotFoundException($"Category with name {item.CategoryName} not found.");
+                }
+
+                InsertCategory(item, productId);
             }
-
-            var productCategory = _unitOfWork.ProductcategoryRepository.Get(
-                    filter: s => s.CategoryId.Equals(pointCategory.CategoryId)
-                                   && s.ProductId.Equals(productId))
-                    .FirstOrDefault();
-
-            if (productCategory == null)
-            {
-                throw new KeyNotFoundException($"ProductCategory not found.");
-            }
-
-            productCategory.CategoryId = pointCategory.CategoryId;
-
-            _unitOfWork.ProductcategoryRepository.Update(productCategory);
-            _unitOfWork.Save();
         }
     }
 }
