@@ -86,6 +86,18 @@ namespace DataAccess.Base.Impl
             _dbSet.Remove(entityToDelete);
         }
 
+        public void DeleteRange(IEnumerable<TEntity> entities)
+        {
+            foreach (var entity in entities)
+            {
+                if (_context.Entry(entity).State == EntityState.Detached)
+                {
+                    _dbSet.Attach(entity);
+                }
+            }
+            _dbSet.RemoveRange(entities);
+        }
+
         public virtual void Update(TEntity entityToUpdate)
         {
             var trackedEntities = _context.ChangeTracker.Entries<TEntity>().ToList();

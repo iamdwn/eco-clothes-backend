@@ -8,5 +8,6 @@ namespace Products.Api.Services
         Task<IEnumerable<Size>> GetAllSizesAsync();
         Task InsertSize(SizeDto sizeList, Guid productId);
         Task UpdateSize(SizeDto sizeList, Guid productId);
+        Task DeleteSize(Guid productId);
     }
 }

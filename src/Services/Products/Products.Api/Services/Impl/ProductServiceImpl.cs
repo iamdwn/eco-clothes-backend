@@ -24,7 +24,9 @@ namespace Products.Api.Services.Impl
 
         public async Task<Product> GetProductByIdAsync(Guid id)
         {
-            var existingProduct = _unitOfWork.ProductRepository.GetByID(id);
+            var existingProduct = _unitOfWork.ProductRepository.Get(
+                includeProperties: "SizeProducts"
+                ).FirstOrDefault();
             if (existingProduct == null)
             {
                 throw new KeyNotFoundException($"Product with ID {id} not found.");
@@ -62,7 +64,7 @@ namespace Products.Api.Services.Impl
 
                 foreach (var item in product.Sizes)
                 {
-                    _sizeService.InsertSize(item, insertProduct.ProductId);
+                    await _sizeService.InsertSize(item, insertProduct.ProductId);
                     amount += item.SizeQuantity;
                 };
 
@@ -94,7 +96,7 @@ namespace Products.Api.Services.Impl
 
                 foreach (var item in product.Sizes)
                 {
-                    _sizeService.UpdateSize(item, existingProduct.ProductId);
+                    await _sizeService.UpdateSize(item, existingProduct.ProductId);
                 };
 
                 existingProduct.ProductName = product.ProductName ?? existingProduct.ProductName;
@@ -117,10 +119,13 @@ namespace Products.Api.Services.Impl
         public async Task DeleteProductAsync(Guid id)
         {
             var existingProduct = _unitOfWork.ProductRepository.GetByID(id);
+
             if (existingProduct == null)
             {
                 throw new KeyNotFoundException($"Product with ID {id} not found.");
             }
+
+            await _sizeService.DeleteSize(existingProduct.ProductId);
 
             _unitOfWork.ProductRepository.Delete(id);
             _unitOfWork.Save();
