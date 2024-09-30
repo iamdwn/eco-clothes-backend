@@ -7,7 +7,7 @@ namespace Products.Api.Services
     {
         Task<IEnumerable<Category>> GetAllCategoriesAsync();
         Task InsertCategory(CategoryDto categoryList, Guid productId);
-        Task UpdateCategory(CategoryDto categoryList, Guid productId);
+        Task UpdateCategory(List<CategoryDto>? categoryList, Guid productId);
         Task DeleteCategory(Guid productId);
     }
 }

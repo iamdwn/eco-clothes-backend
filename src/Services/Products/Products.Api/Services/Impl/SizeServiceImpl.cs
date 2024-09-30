@@ -57,31 +57,23 @@ namespace Products.Api.Services.Impl
             _unitOfWork.Save();
         }
 
-        public async Task UpdateSize(SizeDto item, Guid productId)
+        public async Task UpdateSize(List<SizeDto> sizeList, Guid productId)
         {
-            var pointSize = _unitOfWork.SizeRepository.Get(
-                       filter: s => s.Name.Equals(item.SizeName)
-                       ).FirstOrDefault();
+            DeleteSize(productId);
 
-            if (pointSize == null)
+            foreach (var item in sizeList)
             {
-                throw new KeyNotFoundException($"Size with name {item.SizeName} not found.");
+                var pointSize = _unitOfWork.SizeRepository.Get(
+                           filter: s => s.Name.Equals(item.SizeName)
+                           ).FirstOrDefault();
+
+                if (pointSize == null)
+                {
+                    throw new KeyNotFoundException($"Size with name {item.SizeName} not found.");
+                }
+
+                InsertSize(item, productId);
             }
-
-            var sizeProduct = _unitOfWork.SizeproductRepository.Get(
-                    filter: s => s.SizeId.Equals(pointSize.SizeId)
-                                   && s.ProductId.Equals(productId))
-                    .FirstOrDefault();
-
-            if (sizeProduct == null)
-            {
-                throw new KeyNotFoundException($"SizeProduct not found.");
-            }
-
-            sizeProduct.SizeQuantity = item.SizeQuantity;
-
-            _unitOfWork.SizeproductRepository.Update(sizeProduct);
-            _unitOfWork.Save();
         }
     }
 }

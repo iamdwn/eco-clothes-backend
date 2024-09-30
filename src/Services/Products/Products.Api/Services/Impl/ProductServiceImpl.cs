@@ -102,10 +102,8 @@ namespace Products.Api.Services.Impl
 
                 var newAmount = product.Sizes.Sum(s => s.SizeQuantity);
 
-                foreach (var item in product.Sizes)
-                {
-                    _sizeService.UpdateSize(item, existingProduct.ProductId);
-                };
+                _sizeService.UpdateSize(product.Sizes, existingProduct.ProductId);
+                _categoryService.UpdateCategory(product.Categories, existingProduct.ProductId);
 
                 existingProduct.ProductName = product.ProductName ?? existingProduct.ProductName;
                 existingProduct.OldPrice = product.OldPrice ?? existingProduct.OldPrice;
