@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace DataAccess.Models;
 
 public partial class Subscription
 {
+    [Key]
     public Guid SubscriptionId { get; set; }
 
     public string? Name { get; set; }

@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace DataAccess.Models;
 
 public partial class OrderItem
 {
+    [Key]
     public Guid OrderItemId { get; set; }
 
     public Guid? OrderId { get; set; }

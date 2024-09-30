@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace DataAccess.Models;
 
 public partial class Favorite
 {
+    [Key]
     public Guid FavoriteId { get; set; }
 
     public Guid? UserId { get; set; }
