@@ -27,8 +27,10 @@ namespace Products.Api.Services.Impl
         public async Task<Product> GetProductByIdAsync(Guid id)
         {
             var existingProduct = _unitOfWork.ProductRepository.Get(
+                filter: p => p.ProductId.Equals(id),
                 includeProperties: "SizeProducts"
                 ).FirstOrDefault();
+
             if (existingProduct == null)
             {
                 throw new KeyNotFoundException($"Product with ID {id} not found.");
@@ -141,6 +143,20 @@ namespace Products.Api.Services.Impl
         private bool ProductExists(Guid id)
         {
             return _unitOfWork.ProductRepository.GetByID(id) != null ? true : false;
+        }
+
+        public async Task<IEnumerable<Product>> GetProductBySellerIdAsync(Guid userId)
+        {
+            var existingProduct = _unitOfWork.ProductRepository.Get(
+                filter: p => p.UserId.Equals(userId),
+                includeProperties: "SizeProducts"
+                ).ToList();
+
+            if (existingProduct == null)
+            {
+                throw new KeyNotFoundException($"Products of user has ID is {userId} not found.");
+            }
+            return existingProduct;
         }
     }
 

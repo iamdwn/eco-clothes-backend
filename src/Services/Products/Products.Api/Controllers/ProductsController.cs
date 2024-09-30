@@ -27,6 +27,12 @@ namespace Products.Api.Controllers
             return await _productService.GetProductByIdAsync(id);
         }
 
+        [HttpGet("{userId}")]
+        public async Task<IEnumerable<Product>> GetProductBySellerId(Guid userId)
+        {
+            return await _productService.GetProductBySellerIdAsync(userId);
+        }
+
         [HttpPost]
         public async Task<ActionResult<Product>> CreateProduct(RequestProduct product)
         {
