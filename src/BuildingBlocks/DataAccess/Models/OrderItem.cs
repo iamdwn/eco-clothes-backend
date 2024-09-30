@@ -1,10 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DataAccess.Models;
 
 public partial class OrderItem
 {
-    [Key]
     public Guid OrderItemId { get; set; }
 
     public Guid? OrderId { get; set; }
@@ -20,6 +20,4 @@ public partial class OrderItem
     public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
 
     public virtual Order? Order { get; set; }
-
-    public virtual Product? Product { get; set; }
 }

@@ -1,10 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DataAccess.Models;
 
 public partial class Product
 {
-    [Key]
     public Guid ProductId { get; set; }
 
     public string? ProductName { get; set; }
@@ -28,8 +28,6 @@ public partial class Product
     public virtual ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();
 
     public virtual ICollection<ProductCategory> ProductCategories { get; set; } = new List<ProductCategory>();
-
-    public virtual OrderItem ProductNavigation { get; set; } = null!;
 
     public virtual ICollection<SizeProduct> SizeProducts { get; set; } = new List<SizeProduct>();
 

@@ -8,11 +8,13 @@ namespace Products.Api.Services.Impl
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISizeService _sizeService;
+        private readonly ICategoryService _categoryService;
 
-        public ProductServiceImpl(IUnitOfWork unitOfWork, ISizeService sizeService)
+        public ProductServiceImpl(IUnitOfWork unitOfWork, ISizeService sizeService, ICategoryService categoryService)
         {
             _unitOfWork = unitOfWork;
             _sizeService = sizeService;
+            _categoryService = categoryService;
         }
 
         public async Task<IEnumerable<Product>> GetAllProductsAsync()
@@ -53,6 +55,7 @@ namespace Products.Api.Services.Impl
                     OldPrice = product.OldPrice,
                     NewPrice = product.NewPrice,
                     NumberOfSold = 0,
+                    Amount = 0,
                     ImgUrl = product.ImgUrl,
                     Description = product.Description
                 };
@@ -64,8 +67,13 @@ namespace Products.Api.Services.Impl
 
                 foreach (var item in product.Sizes)
                 {
-                    await _sizeService.InsertSize(item, insertProduct.ProductId);
+                    _sizeService.InsertSize(item, insertProduct.ProductId);
                     amount += item.SizeQuantity;
+                };
+
+                foreach (var item in product.Categories)
+                {
+                    _categoryService.InsertCategory(item, insertProduct.ProductId);
                 };
 
                 insertProduct = _unitOfWork.ProductRepository.GetByID(insertProduct.ProductId);
@@ -96,7 +104,7 @@ namespace Products.Api.Services.Impl
 
                 foreach (var item in product.Sizes)
                 {
-                    await _sizeService.UpdateSize(item, existingProduct.ProductId);
+                    _sizeService.UpdateSize(item, existingProduct.ProductId);
                 };
 
                 existingProduct.ProductName = product.ProductName ?? existingProduct.ProductName;
@@ -126,6 +134,7 @@ namespace Products.Api.Services.Impl
             }
 
             await _sizeService.DeleteSize(existingProduct.ProductId);
+            await _categoryService.DeleteCategory(existingProduct.ProductId);
 
             _unitOfWork.ProductRepository.Delete(id);
             _unitOfWork.Save();

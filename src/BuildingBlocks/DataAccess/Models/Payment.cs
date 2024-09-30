@@ -1,10 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DataAccess.Models;
 
 public partial class Payment
 {
-    [Key]
     public Guid PaymentId { get; set; }
 
     public decimal? Amount { get; set; }

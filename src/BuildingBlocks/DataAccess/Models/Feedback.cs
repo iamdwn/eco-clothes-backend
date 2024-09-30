@@ -1,10 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DataAccess.Models;
 
 public partial class Feedback
 {
-    [Key]
     public Guid FeedbackId { get; set; }
 
     public Guid? OrderItemId { get; set; }

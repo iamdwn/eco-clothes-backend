@@ -1,10 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DataAccess.Models;
 
 public partial class Cart
 {
-    [Key]
     public Guid CartId { get; set; }
 
     public Guid? UserId { get; set; }
