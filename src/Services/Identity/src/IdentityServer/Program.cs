@@ -22,7 +22,14 @@ services.AddEndpointsApiExplorer();
 services.AddSwaggerGen();
 // Add DbContext
 services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseMySQL(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseMySQL(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        options => options.EnableRetryOnFailure(
+                    maxRetryCount: 5,
+                    maxRetryDelay: TimeSpan.FromSeconds(30),
+                    errorNumbersToAdd: null)
+        )
+    );
 
 // Add Identity
 services.AddIdentity<ApplicationUser, IdentityRole>(opt => opt.SignIn.RequireConfirmedAccount = true)
@@ -66,6 +73,10 @@ services.AddAuthentication(options =>
         };
     });
 
+// Add HttpContextAccessor
+services.AddHttpContextAccessor();
+
+services.AddTransient<ICurrentUserService, CurrentUserService>();
 services.AddScoped<IMassTransitService, MassTransitService>();
 services.AddScoped<IJwtService, JwtService>();
 

@@ -7,7 +7,7 @@ namespace IdentityServer.Models
     {
         public string FullName { get; set; }
         public string ImgUrl { get; set; }
-        public bool IsDeleted { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public DateTimeOffset? DeletedWhen { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public bool IsDeleted { get; set; }
+        public DateTimeOffset? DeletedWhen { get; set; }
     }
 }
