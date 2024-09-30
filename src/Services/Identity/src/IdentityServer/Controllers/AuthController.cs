@@ -216,6 +216,16 @@ namespace IdentityServer.Controllers
             return BadRequest(ResponseObject.Failure("Invalid request!"));
         }
 
+        [Authorize]
+        [HttpGet("CurrentUser")]
+        public async Task<IActionResult> CurrentUser()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized(ResponseObject.Failure("Invalid request!"));
+
+            return Ok(ResponseObject.Success<ApplicationUser>(user, "Password has been changed successfully"));
+        }
+
         [Authorize(Roles = "ADMIN")]
         [HttpPost("AddRole")]
         public async Task<IActionResult> AddRole([FromBody] AddRoleDTO model)
