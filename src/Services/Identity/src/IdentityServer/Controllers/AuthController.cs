@@ -25,10 +25,11 @@ namespace IdentityServer.Controllers
         private readonly ApplicationDbContext _context;
 
         private readonly IMassTransitService _massTransitService;
+        private readonly ICurrentUserService _currentUserService;
         private readonly IJwtService _jwtService;
         private readonly IMapper _mapper;
 
-        public AuthController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IMassTransitService massTransitService, IJwtService jwtService, RoleManager<IdentityRole> roleManager, IMapper mapper, ApplicationDbContext context)
+        public AuthController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IMassTransitService massTransitService, IJwtService jwtService, RoleManager<IdentityRole> roleManager, IMapper mapper, ApplicationDbContext context, ICurrentUserService currentUserService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -37,6 +38,7 @@ namespace IdentityServer.Controllers
             _roleManager = roleManager;
             _mapper = mapper;
             _context = context;
+            _currentUserService = currentUserService;
         }
 
         [HttpPost("Login")]
@@ -180,6 +182,7 @@ namespace IdentityServer.Controllers
         public async Task<IActionResult> GetToken([FromBody] GetTokenDTO model)
         {
             var user = await _userManager.GetUserAsync(User);
+            var testUser = _currentUserService.UserId;
             if (user == null)
                 return Unauthorized(ResponseObject.Failure("Unauthorized!"));
 
@@ -205,11 +208,9 @@ namespace IdentityServer.Controllers
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDTO model)
         {
             var user = await _userManager.GetUserAsync(User);
-
             if (user == null) return Unauthorized(ResponseObject.Failure("Invalid request!"));
 
             var result = await _userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
-
             if (result.Succeeded) return Ok(ResponseObject.Success("Password has been changed successfully"));
 
             return BadRequest(ResponseObject.Failure("Invalid request!"));
