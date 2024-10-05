@@ -1,7 +1,6 @@
 ﻿using System.Net;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace EventBus.Response
+namespace DataAccess.Models.Response
 {
     public class ResponseObject
     {
