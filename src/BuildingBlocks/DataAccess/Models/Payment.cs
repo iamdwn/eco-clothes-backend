@@ -17,9 +17,7 @@ public partial class Payment
 
     public Guid? UserId { get; set; }
 
-    public virtual PaymentSubscription Payment1 { get; set; } = null!;
-
-    public virtual Order PaymentNavigation { get; set; } = null!;
+    public virtual PaymentSubscription PaymentNavigation { get; set; } = null!;
 
     public virtual User? User { get; set; }
 }

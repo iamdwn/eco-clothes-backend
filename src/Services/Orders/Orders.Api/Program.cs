@@ -1,11 +1,13 @@
+
 using DataAccess.Base;
 using DataAccess.Base.Impl;
 using DataAccess.Persistences;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
-using Products.Api.Services;
-using Products.Api.Services.Impl;
+using Orders.Api.Services;
+using Orders.Api.Services.Impl;
 
-namespace Products.Api
+namespace Orders.Api
 {
     public class Program
     {
@@ -18,15 +20,27 @@ namespace Products.Api
                 options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
                 new MySqlServerVersion(new Version(8, 0, 23))));
 
-            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>(); // Register Unit of Work
-            builder.Services.AddScoped<IProductService, ProductServiceImpl>(); // Register Product Service
-            builder.Services.AddScoped<ISizeService, SizeServiceImpl>(); // Register Size Service
-            builder.Services.AddScoped<ICategoryService, CategoryServiceImpl>(); // Register Category Service
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<IMassTransitService, MassTransitServiceImpl>();
+            builder.Services.AddScoped<IOrderService, OrderServiceImpl>();
+            builder.Services.AddScoped<IOrderItemService, OrderItemServiceImpl>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            builder.Services.AddMassTransit(x =>
+            {
+                x.UsingRabbitMq((context, cfg) =>
+                {
+                    cfg.Host(builder.Configuration["RabbitMQ:Host"], 5672, "/", host =>
+                    {
+                        host.Username(builder.Configuration["RabbitMQ:Username"]);
+                        host.Password(builder.Configuration["RabbitMQ:Password"]);
+                    });
+                });
+            });
 
             var app = builder.Build();
 
@@ -40,6 +54,7 @@ namespace Products.Api
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
+
 
             app.MapControllers();
 

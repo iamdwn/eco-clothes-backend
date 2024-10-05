@@ -153,9 +153,7 @@ public partial class EcoClothesContext : DbContext
                 .HasColumnType("text")
                 .HasColumnName("address");
             entity.Property(e => e.EndDate).HasColumnName("endDate");
-            entity.Property(e => e.PaymentId)
-                .IsRequired()
-                .HasColumnName("paymentId");
+            entity.Property(e => e.PaymentId).HasColumnName("paymentId");
             entity.Property(e => e.StartDate).HasColumnName("startDate");
             entity.Property(e => e.UserId).HasColumnName("userId");
 
@@ -170,9 +168,7 @@ public partial class EcoClothesContext : DbContext
 
             entity.ToTable("OrderItem");
 
-            entity.HasIndex(e => e.OrderId, "orderId");
-
-            entity.HasIndex(e => e.ProductId, "productId").IsUnique();
+            entity.HasIndex(e => new { e.OrderId, e.ProductId }, "order_product_unique").IsUnique();
 
             entity.Property(e => e.OrderItemId).HasColumnName("orderItemId");
             entity.Property(e => e.OrderId).HasColumnName("orderId");
@@ -216,12 +212,6 @@ public partial class EcoClothesContext : DbContext
             entity.Property(e => e.UserId).HasColumnName("userId");
 
             entity.HasOne(d => d.PaymentNavigation).WithOne(p => p.Payment)
-                .HasPrincipalKey<Order>(p => p.PaymentId)
-                .HasForeignKey<Payment>(d => d.PaymentId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("Payment_ibfk_3");
-
-            entity.HasOne(d => d.Payment1).WithOne(p => p.Payment)
                 .HasPrincipalKey<PaymentSubscription>(p => p.PaymentId)
                 .HasForeignKey<Payment>(d => d.PaymentId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -288,7 +278,7 @@ public partial class EcoClothesContext : DbContext
 
             entity.HasOne(d => d.User).WithMany(p => p.Products)
                 .HasForeignKey(d => d.UserId)
-                .HasConstraintName("Product_ibfk_2");
+                .HasConstraintName("Product_ibfk_1");
         });
 
         modelBuilder.Entity<ProductCategory>(entity =>
@@ -356,9 +346,7 @@ public partial class EcoClothesContext : DbContext
 
             entity.ToTable("Subscription");
 
-            entity.Property(e => e.SubscriptionId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("subscriptionId");
+            entity.Property(e => e.SubscriptionId).HasColumnName("subscriptionId");
             entity.Property(e => e.Description)
                 .HasColumnType("text")
                 .HasColumnName("description");
@@ -369,12 +357,6 @@ public partial class EcoClothesContext : DbContext
             entity.Property(e => e.Price)
                 .HasPrecision(10, 2)
                 .HasColumnName("price");
-
-            entity.HasOne(d => d.SubscriptionNavigation).WithOne(p => p.Subscription)
-                .HasPrincipalKey<User>(p => p.SubscriptionId)
-                .HasForeignKey<Subscription>(d => d.SubscriptionId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("Subscription_ibfk_1");
         });
 
         modelBuilder.Entity<User>(entity =>
@@ -383,7 +365,7 @@ public partial class EcoClothesContext : DbContext
 
             entity.ToTable("User");
 
-            entity.HasIndex(e => e.SubscriptionId, "subscriptionId").IsUnique();
+            entity.HasIndex(e => new { e.UserId, e.SubscriptionId }, "user_subscription_unique").IsUnique();
 
             entity.Property(e => e.UserId).HasColumnName("userId");
             entity.Property(e => e.Email)
@@ -404,9 +386,7 @@ public partial class EcoClothesContext : DbContext
             entity.Property(e => e.Role)
                 .HasMaxLength(50)
                 .HasColumnName("role");
-            entity.Property(e => e.SubscriptionId)
-                .IsRequired()
-                .HasColumnName("subscriptionId");
+            entity.Property(e => e.SubscriptionId).HasColumnName("subscriptionId");
         });
 
         OnModelCreatingPartial(modelBuilder);

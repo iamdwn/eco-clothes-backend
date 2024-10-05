@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Text.Json.Serialization;
 
 namespace DataAccess.Models;
 
@@ -19,5 +18,6 @@ public partial class OrderItem
 
     public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
 
+    [JsonIgnore]
     public virtual Order? Order { get; set; }
 }

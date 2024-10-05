@@ -1,4 +1,4 @@
-﻿using DataAccess.Models;
+using DataAccess.Models;
 using Payments.Api.Models.DTOs;
 using Payments.Api.Services.Interfaces;
 using System.Net;
