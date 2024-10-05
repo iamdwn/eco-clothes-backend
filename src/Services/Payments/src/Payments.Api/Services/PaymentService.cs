@@ -1,4 +1,4 @@
-﻿using Payments.Api.Models.DTOs;
+using Payments.Api.Models.DTOs;
 using Payments.Api.Services.Interfaces;
 
 namespace Payments.Api.Services

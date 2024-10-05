@@ -16,6 +16,4 @@ public partial class Subscription
     public DateOnly? Period { get; set; }
 
     public virtual PaymentSubscription? PaymentSubscription { get; set; }
-
-    public virtual User SubscriptionNavigation { get; set; } = null!;
 }
