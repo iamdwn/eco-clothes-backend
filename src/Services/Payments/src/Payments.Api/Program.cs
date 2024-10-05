@@ -14,6 +14,9 @@ services.AddSwaggerGen();
 // Add VnPayService
 services.AddScoped<IVnPayService, VnPayService>();
 
+// Add PaymentService
+services.AddScoped<IPaymentService, PaymentService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

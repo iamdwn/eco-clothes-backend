@@ -1,6 +1,6 @@
 using DataAccess.Models.Response;
 using Microsoft.AspNetCore.Mvc;
-
+using Payments.Api.Services;
 using Payments.Api.Services.Interfaces;
 
 namespace Payments.Api.Controllers
@@ -11,31 +11,33 @@ namespace Payments.Api.Controllers
     {
         private readonly IVnPayService _vnPayService;
         private readonly IConfiguration _configuration;
+        private readonly IPaymentService _paymentService;
 
-        public PaymentController(IVnPayService vpnPayService, IConfiguration configuration)
+        public PaymentController(IVnPayService vpnPayService, IConfiguration configuration, IPaymentService paymentService)
         {
             _vnPayService = vpnPayService;
             _configuration = configuration;
+            _paymentService = paymentService;
         }
 
         [HttpPost("CreatePayment")]
-        public IActionResult CreatePayment(decimal amount, string orderId)
+        public async Task<IActionResult> CreatePayment([FromBody] CreatePaymentDTO model)
         {
-            _vnPayService.AddRequestData("vnp_Version", "2.1.0");
-            _vnPayService.AddRequestData("vnp_Command", "pay");
-            _vnPayService.AddRequestData("vnp_TmnCode", _configuration["Payment:VNPay:TmnCode"]);
-            _vnPayService.AddRequestData("vnp_Amount", (amount * 100).ToString()); // Số tiền cần nhân với 100
-            _vnPayService.AddRequestData("vnp_CurrCode", "VND");
-            _vnPayService.AddRequestData("vnp_TxnRef", orderId);
-            _vnPayService.AddRequestData("vnp_OrderInfo", $"Thanh toan don hang {orderId}");
-            _vnPayService.AddRequestData("vnp_OrderType", "other");
-            _vnPayService.AddRequestData("vnp_Locale", "vn");
-            _vnPayService.AddRequestData("vnp_ReturnUrl", "https://localhost:7135/api/Payment/VnPayResponse"); // URL callback khi thanh toán xong
-            _vnPayService.AddRequestData("vnp_IpAddr", Request.HttpContext.Connection.RemoteIpAddress?.ToString());
-            _vnPayService.AddRequestData("vnp_CreateDate", DateTime.Now.ToString("yyyyMMddHHmmss"));
+            //_vnPayService.AddRequestData("vnp_Version", "2.1.0");
+            //_vnPayService.AddRequestData("vnp_Command", "pay");
+            //_vnPayService.AddRequestData("vnp_TmnCode", _configuration["Payment:VNPay:TmnCode"]);
+            //_vnPayService.AddRequestData("vnp_Amount", (amount * 100).ToString()); // Số tiền cần nhân với 100
+            //_vnPayService.AddRequestData("vnp_CurrCode", "VND");
+            //_vnPayService.AddRequestData("vnp_TxnRef", orderId);
+            //_vnPayService.AddRequestData("vnp_OrderInfo", $"Thanh toan don hang {orderId}");
+            //_vnPayService.AddRequestData("vnp_OrderType", "other");
+            //_vnPayService.AddRequestData("vnp_Locale", "vn");
+            //_vnPayService.AddRequestData("vnp_ReturnUrl", "https://localhost:7135/api/Payment/VnPayResponse"); // URL callback khi thanh toán xong
+            //_vnPayService.AddRequestData("vnp_IpAddr", Request.HttpContext.Connection.RemoteIpAddress?.ToString());
+            //_vnPayService.AddRequestData("vnp_CreateDate", DateTime.Now.ToString("yyyyMMddHHmmss"));
 
-            string paymentUrl = _vnPayService.CreateRequestUrl(_configuration["Payment:VNPay:Url"], _configuration["Payment:VNPay:HashSecret"]);
-            return Ok(ResponseObject.Success<string>(paymentUrl));
+            //string paymentUrl = _vnPayService.CreateRequestUrl(_configuration["Payment:VNPay:Url"], _configuration["Payment:VNPay:HashSecret"]);
+            return Ok(ResponseObject.Success<string>(await _paymentService.CreatePayment(model)));
         }
 
         [HttpGet("VnPayResponse")]
