@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Components.Forms;
-using Payments.Api.Services.Interfaces;
+﻿using Payments.Api.Services.Interfaces;
 using System.Globalization;
 using System.Net;
 using System.Security.Cryptography;
@@ -99,17 +98,11 @@ namespace Payments.Api.Services
             return data.ToString();
         }
 
-        public bool ValidateSignature(Dictionary<string, string> queryParams, string inputHash)
+        public bool ValidateSignature(string inputHash, string secretKey)
         {
-            foreach (var param in queryParams)
-            {
-                AddResponseData(param.Key, param.Value);
-            }
-
-            string rawHash = string.Join("&", _responseData.Select(kv => kv.Key + "=" + kv.Value));
-            string computedHash = Utils.HmacSHA512(_configuration["VNPay:HashSecret"], rawHash);
-
-            return computedHash.Equals(inputHash, StringComparison.InvariantCultureIgnoreCase);
+            string rspRaw = GetResponseData();
+            string myChecksum = Utils.HmacSHA512(secretKey, rspRaw);
+            return myChecksum.Equals(inputHash, StringComparison.InvariantCultureIgnoreCase);
         }
     }
 
