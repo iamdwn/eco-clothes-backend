@@ -1,5 +1,8 @@
-﻿using DataAccess.Models;
+﻿using System;
+using System.Collections.Generic;
+using DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
+using Pomelo.EntityFrameworkCore.MySql.Scaffolding.Internal;
 
 namespace DataAccess.Persistences;
 
@@ -343,9 +346,7 @@ public partial class EcoClothesContext : DbContext
 
             entity.ToTable("Subscription");
 
-            entity.Property(e => e.SubscriptionId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("subscriptionId");
+            entity.Property(e => e.SubscriptionId).HasColumnName("subscriptionId");
             entity.Property(e => e.Description)
                 .HasColumnType("text")
                 .HasColumnName("description");
@@ -356,12 +357,6 @@ public partial class EcoClothesContext : DbContext
             entity.Property(e => e.Price)
                 .HasPrecision(10, 2)
                 .HasColumnName("price");
-
-            entity.HasOne(d => d.SubscriptionNavigation).WithOne(p => p.Subscription)
-                .HasPrincipalKey<User>(p => p.SubscriptionId)
-                .HasForeignKey<Subscription>(d => d.SubscriptionId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("Subscription_ibfk_1");
         });
 
         modelBuilder.Entity<User>(entity =>
@@ -370,7 +365,7 @@ public partial class EcoClothesContext : DbContext
 
             entity.ToTable("User");
 
-            entity.HasIndex(e => e.SubscriptionId, "subscriptionId").IsUnique();
+            entity.HasIndex(e => new { e.UserId, e.SubscriptionId }, "user_subscription_unique").IsUnique();
 
             entity.Property(e => e.UserId).HasColumnName("userId");
             entity.Property(e => e.Email)
@@ -391,9 +386,7 @@ public partial class EcoClothesContext : DbContext
             entity.Property(e => e.Role)
                 .HasMaxLength(50)
                 .HasColumnName("role");
-            entity.Property(e => e.SubscriptionId)
-                .IsRequired()
-                .HasColumnName("subscriptionId");
+            entity.Property(e => e.SubscriptionId).HasColumnName("subscriptionId");
         });
 
         OnModelCreatingPartial(modelBuilder);
