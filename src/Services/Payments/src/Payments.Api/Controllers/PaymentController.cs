@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DataAccess.Models.Response;
+using Microsoft.AspNetCore.Mvc;
 using Payments.Api.Services;
 using Payments.Api.Services.Interfaces;
 
