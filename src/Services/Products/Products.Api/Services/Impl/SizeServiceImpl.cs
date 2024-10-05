@@ -59,7 +59,7 @@ namespace Products.Api.Services.Impl
 
         public async Task UpdateSize(List<SizeDto> sizeList, Guid productId)
         {
-            DeleteSize(productId);
+            await DeleteSize(productId);
 
             foreach (var item in sizeList)
             {
@@ -72,7 +72,7 @@ namespace Products.Api.Services.Impl
                     throw new KeyNotFoundException($"Size with name {item.SizeName} not found.");
                 }
 
-                InsertSize(item, productId);
+                await InsertSize(item, productId);
             }
         }
     }

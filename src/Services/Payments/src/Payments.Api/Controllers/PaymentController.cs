@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Payments.Api.Services;
 using Payments.Api.Services.Interfaces;
 
 namespace Payments.Api.Controllers

@@ -27,7 +27,7 @@ namespace Products.Api.Controllers
             return await _productService.GetProductByIdAsync(id);
         }
 
-        [HttpGet("{userId}")]
+        [HttpGet("by-seller/{userId}")]
         public async Task<IEnumerable<Product>> GetProductBySellerId(Guid userId)
         {
             return await _productService.GetProductBySellerIdAsync(userId);
