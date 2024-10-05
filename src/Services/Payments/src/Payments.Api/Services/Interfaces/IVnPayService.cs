@@ -9,7 +9,7 @@ namespace Payments.Api.Services.Interfaces
         public void AddResponseData(string key, string value);
         public string GetResponseData(string key);
         public string CreateRequestUrl(string baseUrl, string vnp_HashSecret);
-        public bool ValidateSignature(Dictionary<string, string> queryParams, string inputHash);
+        public bool ValidateSignature(string inputHash, string secretKey);
         public string GetResponseData();
     }
 }
