@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DataAccess.Models;
 
@@ -14,6 +15,5 @@ public partial class Feedback
 
     public DateOnly? Date { get; set; }
 
-    [JsonIgnore]
     public virtual OrderItem? OrderItem { get; set; }
 }

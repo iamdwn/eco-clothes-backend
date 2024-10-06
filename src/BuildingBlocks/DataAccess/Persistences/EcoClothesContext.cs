@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using DataAccess.Models;
+﻿using DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
-using Pomelo.EntityFrameworkCore.MySql.Scaffolding.Internal;
 
 namespace DataAccess.Persistences;
 
@@ -47,7 +44,7 @@ public partial class EcoClothesContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseMySql("server=database.hdang09.me;database=eco_clothes_schema;uid=root;pwd=my-secret-pw", ServerVersion.Parse("9.0.1-mysql"));
+        => optionsBuilder.UseMySql("server=database.hdang09.me;database=eco_clothes_schema;uid=root;pwd=my-secret-pw", Microsoft.EntityFrameworkCore.ServerVersion.Parse("9.0.1-mysql"));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -144,7 +141,7 @@ public partial class EcoClothesContext : DbContext
 
             entity.ToTable("Order");
 
-            entity.HasIndex(e => e.PaymentId, "paymentId").IsUnique();
+            entity.HasIndex(e => new { e.OrderId, e.PaymentId }, "order_payment_unique").IsUnique();
 
             entity.HasIndex(e => e.UserId, "userId");
 
@@ -168,7 +165,7 @@ public partial class EcoClothesContext : DbContext
 
             entity.ToTable("OrderItem");
 
-            entity.HasIndex(e => new { e.OrderId, e.ProductId }, "order_product_unique").IsUnique();
+            entity.HasIndex(e => new { e.OrderId, e.ProductId }, "orderItem_product_unique").IsUnique();
 
             entity.Property(e => e.OrderItemId).HasColumnName("orderItemId");
             entity.Property(e => e.OrderId).HasColumnName("orderId");
@@ -194,9 +191,7 @@ public partial class EcoClothesContext : DbContext
 
             entity.HasIndex(e => e.UserId, "userId");
 
-            entity.Property(e => e.PaymentId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("paymentId");
+            entity.Property(e => e.PaymentId).HasColumnName("paymentId");
             entity.Property(e => e.Amount)
                 .HasPrecision(10, 2)
                 .HasColumnName("amount");
@@ -211,15 +206,9 @@ public partial class EcoClothesContext : DbContext
                 .HasColumnName("transactionId");
             entity.Property(e => e.UserId).HasColumnName("userId");
 
-            entity.HasOne(d => d.PaymentNavigation).WithOne(p => p.Payment)
-                .HasPrincipalKey<PaymentSubscription>(p => p.PaymentId)
-                .HasForeignKey<Payment>(d => d.PaymentId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("Payment_ibfk_1");
-
             entity.HasOne(d => d.User).WithMany(p => p.Payments)
                 .HasForeignKey(d => d.UserId)
-                .HasConstraintName("Payment_ibfk_2");
+                .HasConstraintName("Payment_ibfk_1");
         });
 
         modelBuilder.Entity<PaymentSubscription>(entity =>
@@ -228,24 +217,18 @@ public partial class EcoClothesContext : DbContext
 
             entity.ToTable("PaymentSubscription");
 
-            entity.HasIndex(e => e.PaymentId, "paymentId").IsUnique();
+            entity.HasIndex(e => new { e.PaymentSubscriptionId, e.PaymentId }, "paymentSubscription_payment_unique").IsUnique();
 
-            entity.HasIndex(e => e.SubscriptionId, "subscriptionId").IsUnique();
+            entity.HasIndex(e => new { e.PaymentSubscriptionId, e.SubscriptionId }, "subscription_payment_unique").IsUnique();
 
             entity.Property(e => e.PaymentSubscriptionId).HasColumnName("paymentSubscriptionId");
             entity.Property(e => e.EndDate).HasColumnName("endDate");
-            entity.Property(e => e.PaymentId)
-                .IsRequired()
-                .HasColumnName("paymentId");
+            entity.Property(e => e.PaymentId).HasColumnName("paymentId");
             entity.Property(e => e.Price)
                 .HasPrecision(10, 2)
                 .HasColumnName("price");
             entity.Property(e => e.StartDate).HasColumnName("startDate");
             entity.Property(e => e.SubscriptionId).HasColumnName("subscriptionId");
-
-            entity.HasOne(d => d.Subscription).WithOne(p => p.PaymentSubscription)
-                .HasForeignKey<PaymentSubscription>(d => d.SubscriptionId)
-                .HasConstraintName("PaymentSubscription_ibfk_1");
         });
 
         modelBuilder.Entity<Product>(entity =>
