@@ -1,3 +1,4 @@
+using DataAccess.Base;
 using DataAccess.Models;
 using Microsoft.AspNetCore.Components.Forms;
 using Payments.Api.Models.DTOs;
@@ -12,13 +13,15 @@ namespace Payments.Api.Services
 {
     public class PaymentService : IPaymentService
     {
-        private readonly IConfiguration _configuration;
         private readonly ILogger<PaymentService> _logger;
+        private readonly IConfiguration _configuration;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public PaymentService(IConfiguration configuration, ILogger<PaymentService> logger)
+        public PaymentService(IConfiguration configuration, ILogger<PaymentService> logger, IUnitOfWork unitOfWork)
         {
             _configuration = configuration;
             _logger = logger;
+            _unitOfWork = unitOfWork;
         }
 
         public string CreatePayment(CreatePaymentDTO model)
@@ -79,6 +82,15 @@ namespace Payments.Api.Services
                 {
                     case "00":
                         _logger.LogInformation("Giao dich thanh cong");
+                        var payment = new Payment
+                        {
+                            Amount = decimal.Parse(vnp_Responses["vnp_Amount"]),
+                            Method = "VNPay",
+                            Status = vnp_Responses["vnp_TransactionStatus"],
+                            TransactionId = vnp_Responses["vnp_TransactionNo"]
+                        };
+                        _unitOfWork.PaymentRepository.Insert(payment);
+                        _unitOfWork.Save();
                         break;
 
                     case "01":
