@@ -14,6 +14,4 @@ public partial class Subscription
     public string? Description { get; set; }
 
     public DateOnly? Period { get; set; }
-
-    public virtual PaymentSubscription? PaymentSubscription { get; set; }
 }
