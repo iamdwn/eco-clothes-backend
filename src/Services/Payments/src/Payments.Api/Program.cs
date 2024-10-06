@@ -11,9 +11,6 @@ services.AddControllers();
 services.AddEndpointsApiExplorer();
 services.AddSwaggerGen();
 
-// Add VnPayService
-services.AddScoped<IVnPayService, VnPayService>();
-
 // Add PaymentService
 services.AddScoped<IPaymentService, PaymentService>();
 
