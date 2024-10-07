@@ -25,8 +25,8 @@ namespace Payments.Api.Controllers
         [HttpGet("VnPayResponse")]
         public IActionResult VnPayResponse([FromQuery] Dictionary<string, string> queryParams)
         {
-            _paymentService.VNPayResponse(queryParams);
-            return Ok(ResponseObject.Success());
+            string url = _paymentService.VNPayResponse(queryParams);
+            return Redirect(url);
         }
     }
 }

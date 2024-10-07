@@ -42,8 +42,10 @@ namespace Payments.Api.Services
             throw new NotImplementedException();
         }
 
-        public void VNPayResponse(Dictionary<string, string> queryParams)
+        public string VNPayResponse(Dictionary<string, string> queryParams)
         {
+            string baseUrl = "http://localhost:3000";
+
             SortedList<string, string> vnp_Responses = new SortedList<string, string>(new VnPayCompare());
             foreach (var s in queryParams.Keys)
             {
@@ -78,34 +80,22 @@ namespace Payments.Api.Services
             var isValidSignature = CheckVNPayPayment(queryParams["vnp_SecureHash"], data.ToString());
             if (isValidSignature)
             {
-                switch (vnp_Responses["vnp_ResponseCode"])
+                if (vnp_Responses["vnp_ResponseCode"] == "00" && vnp_Responses["vnp_TransactionStatus"] == "00")
                 {
-                    case "00":
-                        _logger.LogInformation("Giao dich thanh cong");
-                        var payment = new Payment
-                        {
-                            Amount = decimal.Parse(vnp_Responses["vnp_Amount"]),
-                            Method = "VNPay",
-                            Status = vnp_Responses["vnp_TransactionStatus"],
-                            TransactionId = vnp_Responses["vnp_TransactionNo"]
-                        };
-                        _unitOfWork.PaymentRepository.Insert(payment);
-                        _unitOfWork.Save();
-                        break;
-
-                    case "01":
-                        _logger.LogInformation("Giao dich chua hoan tat");
-                        break;
-
-                    case "02":
-                        _logger.LogInformation("Giao dich bi loi");
-                        break;
-
-                    default:
-                        _logger.LogInformation("Co loi xay ra");
-                        break;
+                    var payment = new Payment
+                    {
+                        Amount = decimal.Parse(vnp_Responses["vnp_Amount"]),
+                        Method = "VNPay",
+                        Status = vnp_Responses["vnp_TransactionStatus"],
+                        TransactionId = vnp_Responses["vnp_TransactionNo"]
+                    };
+                    _unitOfWork.PaymentRepository.Insert(payment);
+                    _unitOfWork.Save();
+                    return baseUrl + $"?amount={vnp_Responses["vnp_Amount"]}&createDate={vnp_Responses["vnp_PayDate"]}&status={true}";
                 }
+                return baseUrl + $"?status={false}&errorMessage={"Something went wrong in process payment"}&errorCode={vnp_Responses["vnp_ResponseCode"]}";
             }
+            return baseUrl + $"?status={false}&errorMessage={"Invalid signature"}";
         }
 
         private string PayWithVNPay(double amount, string id)
