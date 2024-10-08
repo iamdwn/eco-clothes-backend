@@ -11,15 +11,13 @@ public partial class Payment
 
     public string? Method { get; set; }
 
+    public DateTime? Date { get; set; }
+
     public string? Status { get; set; }
 
     public string? TransactionId { get; set; }
 
     public Guid? UserId { get; set; }
-
-    public virtual PaymentSubscription Payment1 { get; set; } = null!;
-
-    public virtual Order PaymentNavigation { get; set; } = null!;
 
     public virtual User? User { get; set; }
 }
