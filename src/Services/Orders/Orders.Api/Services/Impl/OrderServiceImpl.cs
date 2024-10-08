@@ -41,46 +41,6 @@ namespace Orders.Api.Services.Impl
 
                 foreach (var item in order.OrderItems)
                 {
-                    amount += item.Quantity;
-
-                    size = _unitOfWork.SizeRepository.Get(
-                        filter: s => s.Name.Equals(item.SizeName)
-                        ).FirstOrDefault();
-
-                    productBySize = _unitOfWork.SizeproductRepository.Get(
-                        filter: p => p.ProductId.Equals(item.ProductId) && p.SizeId.Equals(size.SizeId)
-                        ).FirstOrDefault();
-
-                    existingProduct = _unitOfWork.ProductRepository.Get(
-                        filter: p => p.ProductId.Equals(item.ProductId)
-                        ).FirstOrDefault();
-
-                    if (size == null)
-                    {
-                        throw new Exception($"Size not found.");
-                    }
-
-                    if (productBySize == null)
-                    {
-
-                        throw new Exception($"Product with ID {item.ProductId} and size {size.SizeId} not found.");
-                    }
-
-                    if (existingProduct == null)
-                    {
-                        throw new KeyNotFoundException($"Product with id {item.ProductId} is not found.");
-                    }
-
-                    if (item.Quantity > existingProduct.Amount)
-                    {
-                        throw new Exception("Not enough amount of product.");
-                    }
-
-                    if (item.Quantity > productBySize.SizeQuantity)
-                    {
-                        throw new Exception($"Not enough size quantity {size.Name} of product.");
-                    }
-
                     await _orderItemService.InsertOrderItem(item, insertOrder.OrderId);
 
                     await _publishEndpoint.Publish(new OrderCreatedEvent
@@ -88,14 +48,9 @@ namespace Orders.Api.Services.Impl
                         OrderItem = item,
                         SizeEntity = size,
                         ProductBySize = productBySize,
-                        ExistingProduct = existingProduct,
-                        Amount = amount
+                        ExistingProduct = existingProduct
                     });
                 }
-
-                existingProduct.Amount -= amount;
-                _unitOfWork.ProductRepository.Update(existingProduct);
-                _unitOfWork.Save();
 
                 return insertOrder;
             }
