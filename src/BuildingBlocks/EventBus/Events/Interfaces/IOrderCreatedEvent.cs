@@ -8,7 +8,6 @@ namespace EventBus.Events.Interfaces
         Size SizeEntity { get; set; }
         SizeProduct ProductBySize { get; set; }
         Product ExistingProduct { get; set; }
-        int Amount { get; set; }
     }
 
     public class OrderItemDto

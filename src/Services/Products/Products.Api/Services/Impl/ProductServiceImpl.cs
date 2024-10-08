@@ -1,4 +1,4 @@
-﻿using DataAccess.Base;
+using DataAccess.Base;
 using DataAccess.Models;
 using Products.Api.Dtos.Request;
 
@@ -59,8 +59,7 @@ namespace Products.Api.Services.Impl
                     NumberOfSold = 0,
                     Amount = 0,
                     ImgUrl = product.ImgUrl,
-                    DateCreated = DateOnly.FromDateTime(DateTime.Now),
-                    Description = product.Description
+                    Description = product.Description,
                 };
 
                 _unitOfWork.ProductRepository.Insert(insertProduct);
