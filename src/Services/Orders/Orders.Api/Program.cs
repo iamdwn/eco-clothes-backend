@@ -2,6 +2,7 @@
 using DataAccess.Base;
 using DataAccess.Base.Impl;
 using DataAccess.Persistences;
+using EventBus.Constants;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Orders.Api.Services;
@@ -32,12 +33,18 @@ namespace Orders.Api
 
             builder.Services.AddMassTransit(x =>
             {
+                x.AddConsumer<StorageServiceImpl>();
                 x.UsingRabbitMq((context, cfg) =>
                 {
                     cfg.Host(builder.Configuration["RabbitMQ:Host"], 5672, "/", host =>
                     {
                         host.Username(builder.Configuration["RabbitMQ:Username"]);
                         host.Password(builder.Configuration["RabbitMQ:Password"]);
+                    });
+
+                    cfg.ReceiveEndpoint(QueuesConsts.OrderCreated, e =>
+                    {
+                        e.ConfigureConsumer<StorageServiceImpl>(context);
                     });
                 });
             });

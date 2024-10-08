@@ -1,5 +1,7 @@
 ﻿using DataAccess.Base;
 using DataAccess.Models;
+using EventBus.Events;
+using MassTransit;
 using Orders.Api.Dtos;
 
 namespace Orders.Api.Services.Impl
@@ -8,17 +10,24 @@ namespace Orders.Api.Services.Impl
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IOrderItemService _orderItemService;
+        private readonly IPublishEndpoint _publishEndpoint;
 
-        public OrderServiceImpl(IUnitOfWork unitOfWork, IOrderItemService orderItemService)
+        public OrderServiceImpl(IUnitOfWork unitOfWork, IOrderItemService orderItemService, IPublishEndpoint publishEndpoint)
         {
             _unitOfWork = unitOfWork;
             _orderItemService = orderItemService;
+            _publishEndpoint = publishEndpoint;
         }
 
         public async Task<Order> CreateOrderAsync(OrderDto order)
         {
             try
             {
+                int amount = 0;
+                Size? size = null;
+                SizeProduct? productBySize = null;
+                Product? existingProduct = null;
+
                 var insertOrder = new Order()
                 {
                     UserId = order.UserId,
@@ -32,8 +41,61 @@ namespace Orders.Api.Services.Impl
 
                 foreach (var item in order.OrderItems)
                 {
+                    amount += item.Quantity;
+
+                    size = _unitOfWork.SizeRepository.Get(
+                        filter: s => s.Name.Equals(item.SizeName)
+                        ).FirstOrDefault();
+
+                    productBySize = _unitOfWork.SizeproductRepository.Get(
+                        filter: p => p.ProductId.Equals(item.ProductId) && p.SizeId.Equals(size.SizeId)
+                        ).FirstOrDefault();
+
+                    existingProduct = _unitOfWork.ProductRepository.Get(
+                        filter: p => p.ProductId.Equals(item.ProductId)
+                        ).FirstOrDefault();
+
+                    if (size == null)
+                    {
+                        throw new Exception($"Size not found.");
+                    }
+
+                    if (productBySize == null)
+                    {
+
+                        throw new Exception($"Product with ID {item.ProductId} and size {size.SizeId} not found.");
+                    }
+
+                    if (existingProduct == null)
+                    {
+                        throw new KeyNotFoundException($"Product with id {item.ProductId} is not found.");
+                    }
+
+                    if (item.Quantity > existingProduct.Amount)
+                    {
+                        throw new Exception("Not enough amount of product.");
+                    }
+
+                    if (item.Quantity > productBySize.SizeQuantity)
+                    {
+                        throw new Exception($"Not enough size quantity {size.Name} of product.");
+                    }
+
                     await _orderItemService.InsertOrderItem(item, insertOrder.OrderId);
+
+                    await _publishEndpoint.Publish(new OrderCreatedEvent
+                    {
+                        OrderItem = item,
+                        SizeEntity = size,
+                        ProductBySize = productBySize,
+                        ExistingProduct = existingProduct,
+                        Amount = amount
+                    });
                 }
+
+                existingProduct.Amount -= amount;
+                _unitOfWork.ProductRepository.Update(existingProduct);
+                _unitOfWork.Save();
 
                 return insertOrder;
             }
