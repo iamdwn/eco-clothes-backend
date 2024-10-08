@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DataAccess.Models;
 
@@ -28,12 +29,9 @@ public partial class User
 
     public virtual ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();
 
-    [JsonIgnore]
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 
-    [JsonIgnore]
     public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
 
-    [JsonIgnore]
     public virtual ICollection<Product> Products { get; set; } = new List<Product>();
 }

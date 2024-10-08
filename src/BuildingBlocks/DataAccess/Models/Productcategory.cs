@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DataAccess.Models;
 
@@ -10,9 +11,7 @@ public partial class ProductCategory
 
     public Guid? CategoryId { get; set; }
 
-    [JsonIgnore]
     public virtual Category? Category { get; set; }
 
-    [JsonIgnore]
     public virtual Product? Product { get; set; }
 }
