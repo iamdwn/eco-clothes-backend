@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DataAccess.Models;
 
@@ -12,9 +13,7 @@ public partial class SizeProduct
 
     public Guid? SizeId { get; set; }
 
-    [JsonIgnore]
     public virtual Product? Product { get; set; }
 
-    [JsonIgnore]
     public virtual Size? Size { get; set; }
 }
