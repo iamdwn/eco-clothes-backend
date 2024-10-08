@@ -9,7 +9,8 @@ namespace DataAccess.Base
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
             string includeProperties = "",
             int? pageIndex = null,
-            int? pageSize = null);
+            int? pageSize = null,
+            bool noTracking = false);
 
         T GetByID(object id);
 
