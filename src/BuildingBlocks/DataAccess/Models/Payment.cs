@@ -11,7 +11,7 @@ public partial class Payment
 
     public string? Method { get; set; }
 
-    public DateOnly? Date { get; set; }
+    public DateTime? Date { get; set; }
 
     public string? Status { get; set; }
 

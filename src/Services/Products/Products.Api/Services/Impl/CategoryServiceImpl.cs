@@ -16,8 +16,8 @@ namespace Products.Api.Services.Impl
         public async Task DeleteCategory(Guid productId)
         {
             var productCategories = _unitOfWork.ProductcategoryRepository
-                 .Get(filter: sp => sp.ProductId == productId)
-                 .ToList();
+                     .Get(filter: sp => sp.ProductId == productId)
+                     .ToList();
 
             if (!productCategories.Any())
             {
