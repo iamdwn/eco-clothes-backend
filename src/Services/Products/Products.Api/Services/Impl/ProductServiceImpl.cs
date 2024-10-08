@@ -1,4 +1,4 @@
-﻿using DataAccess.Base;
+using DataAccess.Base;
 using DataAccess.Models;
 using Products.Api.Dtos.Request;
 

@@ -1,5 +1,8 @@
-﻿using DataAccess.Models;
+﻿using System;
+using System.Collections.Generic;
+using DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
+using Pomelo.EntityFrameworkCore.MySql.Scaffolding.Internal;
 
 namespace DataAccess.Persistences;
 
@@ -200,10 +203,12 @@ public partial class EcoClothesContext : DbContext
             entity.Property(e => e.Amount)
                 .HasPrecision(10, 2)
                 .HasColumnName("amount");
+
             entity.Property(e => e.Date)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime")
                 .HasColumnName("date");
+                
             entity.Property(e => e.Method)
                 .HasMaxLength(50)
                 .HasColumnName("method");
@@ -246,10 +251,12 @@ public partial class EcoClothesContext : DbContext
 
             entity.Property(e => e.ProductId).HasColumnName("productId");
             entity.Property(e => e.Amount).HasColumnName("amount");
+
             entity.Property(e => e.DateCreated)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime")
                 .HasColumnName("dateCreated");
+
             entity.Property(e => e.Description)
                 .HasColumnType("text")
                 .HasColumnName("description");
@@ -358,6 +365,7 @@ public partial class EcoClothesContext : DbContext
             entity.ToTable("User");
 
             entity.Property(e => e.UserId).HasColumnName("userId");
+            
             entity.Property(e => e.DateCreated)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime")
