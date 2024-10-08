@@ -1,6 +1,7 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace DataAccess.Models;
+
 
 public partial class Product
 {
