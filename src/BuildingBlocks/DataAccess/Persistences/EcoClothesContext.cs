@@ -153,6 +153,10 @@ public partial class EcoClothesContext : DbContext
             entity.Property(e => e.EndDate).HasColumnName("endDate");
             entity.Property(e => e.PaymentId).HasColumnName("paymentId");
             entity.Property(e => e.StartDate).HasColumnName("startDate");
+            entity.Property(e => e.Status)
+                .HasMaxLength(20)
+                .HasDefaultValueSql("'Pending'")
+                .HasColumnName("status");
             entity.Property(e => e.UserId).HasColumnName("userId");
 
             entity.HasOne(d => d.User).WithMany(p => p.Orders)
