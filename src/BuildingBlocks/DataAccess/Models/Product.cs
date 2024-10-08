@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Text.Json.Serialization;
 
 namespace DataAccess.Models;
 
@@ -29,8 +28,10 @@ public partial class Product
 
     public virtual ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();
 
+    [JsonIgnore]
     public virtual ICollection<ProductCategory> ProductCategories { get; set; } = new List<ProductCategory>();
 
+    [JsonIgnore]
     public virtual ICollection<SizeProduct> SizeProducts { get; set; } = new List<SizeProduct>();
 
     public virtual User? User { get; set; }
