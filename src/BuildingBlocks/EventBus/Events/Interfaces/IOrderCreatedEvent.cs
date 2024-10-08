@@ -4,10 +4,11 @@ namespace EventBus.Events.Interfaces
 {
     public interface IOrderCreatedEvent
     {
-        List<OrderItemDto>? OrderItems { get; set; }
+        OrderItemDto OrderItem { get; set; }
         Size SizeEntity { get; set; }
         SizeProduct ProductBySize { get; set; }
         Product ExistingProduct { get; set; }
+        int Amount { get; set; }
     }
 
     public class OrderItemDto

@@ -5,9 +5,10 @@ namespace EventBus.Events
 {
     public class OrderCreatedEvent : IOrderCreatedEvent
     {
-        public List<OrderItemDto>? OrderItems { get; set; }
-        public Size SizeEntity { get; set; }
-        public SizeProduct ProductBySize { get; set; }
-        public Product ExistingProduct { get; set; }
+        public OrderItemDto? OrderItem { get; set; }
+        public Size? SizeEntity { get; set; }
+        public SizeProduct? ProductBySize { get; set; }
+        public Product? ExistingProduct { get; set; }
+        public int Amount { get; set; }
     }
 }

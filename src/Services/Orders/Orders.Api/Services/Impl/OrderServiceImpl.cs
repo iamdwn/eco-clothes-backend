@@ -1,5 +1,6 @@
 ﻿using DataAccess.Base;
 using DataAccess.Models;
+using EventBus.Events;
 using MassTransit;
 using Orders.Api.Dtos;
 
@@ -22,12 +23,26 @@ namespace Orders.Api.Services.Impl
         {
             try
             {
-                Size size = null;
-                SizeProduct productBySize = null;
-                Product existingProduct = null;
+                int amount = 0;
+                Size? size = null;
+                SizeProduct? productBySize = null;
+                Product? existingProduct = null;
+
+                var insertOrder = new Order()
+                {
+                    UserId = order.UserId,
+                    StartDate = order.StartDate,
+                    EndDate = order.EndDate,
+                    Address = order.Address
+                };
+
+                _unitOfWork.OrderRepository.Insert(insertOrder);
+                _unitOfWork.Save();
 
                 foreach (var item in order.OrderItems)
                 {
+                    amount += item.Quantity;
+
                     size = _unitOfWork.SizeRepository.Get(
                         filter: s => s.Name.Equals(item.SizeName)
                         ).FirstOrDefault();
@@ -36,7 +51,20 @@ namespace Orders.Api.Services.Impl
                         filter: p => p.ProductId.Equals(item.ProductId) && p.SizeId.Equals(size.SizeId)
                         ).FirstOrDefault();
 
-                    existingProduct = _unitOfWork.ProductRepository.GetByID(item.ProductId);
+                    existingProduct = _unitOfWork.ProductRepository.Get(
+                        filter: p => p.ProductId.Equals(item.ProductId)
+                        ).FirstOrDefault();
+
+                    if (size == null)
+                    {
+                        throw new Exception($"Size not found.");
+                    }
+
+                    if (productBySize == null)
+                    {
+
+                        throw new Exception($"Product with ID {item.ProductId} and size {size.SizeId} not found.");
+                    }
 
                     if (existingProduct == null)
                     {
@@ -52,31 +80,22 @@ namespace Orders.Api.Services.Impl
                     {
                         throw new Exception($"Not enough size quantity {size.Name} of product.");
                     }
-                }
 
-                var insertOrder = new Order()
-                {
-                    UserId = order.UserId,
-                    StartDate = order.StartDate,
-                    EndDate = order.EndDate,
-                    Address = order.Address
-                };
-
-                _unitOfWork.OrderRepository.Insert(insertOrder);
-                _unitOfWork.Save();
-
-                foreach (var item in order.OrderItems)
-                {
                     await _orderItemService.InsertOrderItem(item, insertOrder.OrderId);
+
+                    await _publishEndpoint.Publish(new OrderCreatedEvent
+                    {
+                        OrderItem = item,
+                        SizeEntity = size,
+                        ProductBySize = productBySize,
+                        ExistingProduct = existingProduct,
+                        Amount = amount
+                    });
                 }
 
-                //await _publishEndpoint.Publish(new OrderCreatedEvent
-                //{
-                //    OrderItems = order.OrderItems,
-                //    SizeEntity = size,
-                //    ProductBySize = productBySize,
-                //    ExistingProduct = existingProduct
-                //});
+                existingProduct.Amount -= amount;
+                _unitOfWork.ProductRepository.Update(existingProduct);
+                _unitOfWork.Save();
 
                 return insertOrder;
             }

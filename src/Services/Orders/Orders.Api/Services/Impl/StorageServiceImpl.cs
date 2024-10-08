@@ -16,31 +16,22 @@ namespace Orders.Api.Services.Impl
 
         public async Task Consume(ConsumeContext<IOrderCreatedEvent> context)
         {
-            var orderItems = context.Message.OrderItems;
+            var item = context.Message.OrderItem;
             var size = context.Message.SizeEntity;
             var productBySize = context.Message.ProductBySize;
             var existingProduct = context.Message.ExistingProduct;
+            var amount = context.Message.Amount;
 
-            await SaveOrderToStorage(orderItems, size, productBySize, existingProduct);
+            await SaveOrderToStorage(item, size, productBySize, existingProduct, amount);
         }
 
-        private async Task SaveOrderToStorage(List<OrderItemDto> orderItems, Size size, SizeProduct productBySize, Product existingProduct)
+        private async Task SaveOrderToStorage(OrderItemDto item, Size size, SizeProduct productBySize, Product existingProduct, int amount)
         {
             try
             {
-                int amount = 0;
-                foreach (var item in orderItems)
-                {
-                    amount += item.Quantity;
+                productBySize.SizeQuantity -= item.Quantity;
 
-                    productBySize.SizeQuantity -= item.Quantity;
-
-                    _unitOfWork.SizeproductRepository.Update(productBySize);
-                    _unitOfWork.Save();
-                }
-
-                existingProduct.Amount -= amount;
-                _unitOfWork.ProductRepository.Update(existingProduct);
+                _unitOfWork.SizeproductRepository.Update(productBySize);
                 _unitOfWork.Save();
             }
             catch (Exception ex)
