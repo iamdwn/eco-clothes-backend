@@ -1,5 +1,5 @@
 ﻿using DataAccess.Models;
-using Orders.Api.Dtos;
+using EventBus.Events.Interfaces;
 
 namespace Orders.Api.Services
 {

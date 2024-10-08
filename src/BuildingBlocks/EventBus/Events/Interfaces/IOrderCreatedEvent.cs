@@ -1,0 +1,21 @@
+﻿using DataAccess.Models;
+
+namespace EventBus.Events.Interfaces
+{
+    public interface IOrderCreatedEvent
+    {
+        List<OrderItemDto>? OrderItems { get; set; }
+        Size SizeEntity { get; set; }
+        SizeProduct ProductBySize { get; set; }
+        Product ExistingProduct { get; set; }
+    }
+
+    public class OrderItemDto
+    {
+        public Guid ProductId { get; set; }
+        public int Quantity { get; set; }
+        public decimal UnitPrice { get; set; }
+        public decimal TotalPrice { get; set; }
+        public string? SizeName { get; set; }
+    }
+}

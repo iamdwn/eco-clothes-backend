@@ -1,5 +1,6 @@
 ﻿using DataAccess.Base;
 using DataAccess.Models;
+using MassTransit;
 using Orders.Api.Dtos;
 
 namespace Orders.Api.Services.Impl
@@ -8,17 +9,51 @@ namespace Orders.Api.Services.Impl
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IOrderItemService _orderItemService;
+        private readonly IPublishEndpoint _publishEndpoint;
 
-        public OrderServiceImpl(IUnitOfWork unitOfWork, IOrderItemService orderItemService)
+        public OrderServiceImpl(IUnitOfWork unitOfWork, IOrderItemService orderItemService, IPublishEndpoint publishEndpoint)
         {
             _unitOfWork = unitOfWork;
             _orderItemService = orderItemService;
+            _publishEndpoint = publishEndpoint;
         }
 
         public async Task<Order> CreateOrderAsync(OrderDto order)
         {
             try
             {
+                Size size = null;
+                SizeProduct productBySize = null;
+                Product existingProduct = null;
+
+                foreach (var item in order.OrderItems)
+                {
+                    size = _unitOfWork.SizeRepository.Get(
+                        filter: s => s.Name.Equals(item.SizeName)
+                        ).FirstOrDefault();
+
+                    productBySize = _unitOfWork.SizeproductRepository.Get(
+                        filter: p => p.ProductId.Equals(item.ProductId) && p.SizeId.Equals(size.SizeId)
+                        ).FirstOrDefault();
+
+                    existingProduct = _unitOfWork.ProductRepository.GetByID(item.ProductId);
+
+                    if (existingProduct == null)
+                    {
+                        throw new KeyNotFoundException($"Product with id {item.ProductId} is not found.");
+                    }
+
+                    if (item.Quantity > existingProduct.Amount)
+                    {
+                        throw new Exception("Not enough amount of product.");
+                    }
+
+                    if (item.Quantity > productBySize.SizeQuantity)
+                    {
+                        throw new Exception($"Not enough size quantity {size.Name} of product.");
+                    }
+                }
+
                 var insertOrder = new Order()
                 {
                     UserId = order.UserId,
@@ -34,6 +69,14 @@ namespace Orders.Api.Services.Impl
                 {
                     await _orderItemService.InsertOrderItem(item, insertOrder.OrderId);
                 }
+
+                //await _publishEndpoint.Publish(new OrderCreatedEvent
+                //{
+                //    OrderItems = order.OrderItems,
+                //    SizeEntity = size,
+                //    ProductBySize = productBySize,
+                //    ExistingProduct = existingProduct
+                //});
 
                 return insertOrder;
             }

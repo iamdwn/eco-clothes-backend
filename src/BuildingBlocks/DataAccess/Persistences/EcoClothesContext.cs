@@ -141,8 +141,6 @@ public partial class EcoClothesContext : DbContext
 
             entity.ToTable("Order");
 
-            entity.HasIndex(e => new { e.OrderId, e.PaymentId }, "order_payment_unique").IsUnique();
-
             entity.HasIndex(e => e.UserId, "userId");
 
             entity.Property(e => e.OrderId).HasColumnName("orderId");
@@ -165,12 +163,15 @@ public partial class EcoClothesContext : DbContext
 
             entity.ToTable("OrderItem");
 
-            entity.HasIndex(e => new { e.OrderId, e.ProductId }, "orderItem_product_unique").IsUnique();
+            entity.HasIndex(e => e.OrderId, "orderId");
+
+            entity.HasIndex(e => e.SizeId, "sizeId");
 
             entity.Property(e => e.OrderItemId).HasColumnName("orderItemId");
             entity.Property(e => e.OrderId).HasColumnName("orderId");
             entity.Property(e => e.ProductId).HasColumnName("productId");
             entity.Property(e => e.Quantity).HasColumnName("quantity");
+            entity.Property(e => e.SizeId).HasColumnName("sizeId");
             entity.Property(e => e.TotalPrice)
                 .HasPrecision(10, 2)
                 .HasColumnName("totalPrice");
@@ -181,6 +182,10 @@ public partial class EcoClothesContext : DbContext
             entity.HasOne(d => d.Order).WithMany(p => p.OrderItems)
                 .HasForeignKey(d => d.OrderId)
                 .HasConstraintName("OrderItem_ibfk_1");
+
+            entity.HasOne(d => d.Size).WithMany(p => p.OrderItems)
+                .HasForeignKey(d => d.SizeId)
+                .HasConstraintName("OrderItem_ibfk_2");
         });
 
         modelBuilder.Entity<Payment>(entity =>
@@ -216,10 +221,6 @@ public partial class EcoClothesContext : DbContext
             entity.HasKey(e => e.PaymentSubscriptionId).HasName("PRIMARY");
 
             entity.ToTable("PaymentSubscription");
-
-            entity.HasIndex(e => new { e.PaymentSubscriptionId, e.PaymentId }, "paymentSubscription_payment_unique").IsUnique();
-
-            entity.HasIndex(e => new { e.PaymentSubscriptionId, e.SubscriptionId }, "subscription_payment_unique").IsUnique();
 
             entity.Property(e => e.PaymentSubscriptionId).HasColumnName("paymentSubscriptionId");
             entity.Property(e => e.EndDate).HasColumnName("endDate");
@@ -347,8 +348,6 @@ public partial class EcoClothesContext : DbContext
             entity.HasKey(e => e.UserId).HasName("PRIMARY");
 
             entity.ToTable("User");
-
-            entity.HasIndex(e => new { e.UserId, e.SubscriptionId }, "user_subscription_unique").IsUnique();
 
             entity.Property(e => e.UserId).HasColumnName("userId");
             entity.Property(e => e.Email)
