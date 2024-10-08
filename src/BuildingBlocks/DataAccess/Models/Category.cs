@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace DataAccess.Models;
+﻿namespace DataAccess.Models;
 
 public partial class Category
 {
@@ -10,6 +8,5 @@ public partial class Category
 
     public string? Description { get; set; }
 
-    [JsonIgnore]
     public virtual ICollection<ProductCategory> ProductCategories { get; set; } = new List<ProductCategory>();
 }

@@ -14,6 +14,8 @@ public partial class Product
 
     public string? ImgUrl { get; set; }
 
+    public DateTime? DateCreated { get; set; }
+
     public int? Amount { get; set; }
 
     public string? Description { get; set; }

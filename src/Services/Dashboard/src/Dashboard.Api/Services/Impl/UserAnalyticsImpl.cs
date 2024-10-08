@@ -29,12 +29,12 @@ namespace Dashboard.Api.Services.Impl
 
         public async Task<IEnumerable<User>> GetNewUsersThisMonthAsync()
         {
-            var currentDate = DateOnly.FromDateTime(DateTime.Now);
+            var currentDate = DateTime.Now;
             var startOfMonth = new DateTime(currentDate.Year, currentDate.Month, 1);
-            var endOfMonth = DateOnly.FromDateTime(startOfMonth).AddMonths(1).AddDays(-1);
+            var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);
 
             return _unitOfWork.UserRepository.Get(
-                filter: u => u.DateCreated >= DateOnly.FromDateTime(startOfMonth) && u.DateCreated <= endOfMonth
+                filter: u => u.DateCreated >= startOfMonth && u.DateCreated <= endOfMonth
             ).ToList();
         }
 

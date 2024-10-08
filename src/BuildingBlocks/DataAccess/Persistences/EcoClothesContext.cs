@@ -44,7 +44,7 @@ public partial class EcoClothesContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseMySql("server=database.hdang09.me;database=eco_clothes_schema;uid=root;pwd=my-secret-pw", Microsoft.EntityFrameworkCore.ServerVersion.Parse("9.0.1-mysql"));
+        => optionsBuilder.UseMySql("server=database.hdang09.me;database=eco_clothes_schema;uid=root;pwd=my-secret-pw", ServerVersion.Parse("9.0.1-mysql"));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -200,6 +200,10 @@ public partial class EcoClothesContext : DbContext
             entity.Property(e => e.Amount)
                 .HasPrecision(10, 2)
                 .HasColumnName("amount");
+            entity.Property(e => e.Date)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("datetime")
+                .HasColumnName("date");
             entity.Property(e => e.Method)
                 .HasMaxLength(50)
                 .HasColumnName("method");
@@ -242,6 +246,10 @@ public partial class EcoClothesContext : DbContext
 
             entity.Property(e => e.ProductId).HasColumnName("productId");
             entity.Property(e => e.Amount).HasColumnName("amount");
+            entity.Property(e => e.DateCreated)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("datetime")
+                .HasColumnName("dateCreated");
             entity.Property(e => e.Description)
                 .HasColumnType("text")
                 .HasColumnName("description");
@@ -350,6 +358,10 @@ public partial class EcoClothesContext : DbContext
             entity.ToTable("User");
 
             entity.Property(e => e.UserId).HasColumnName("userId");
+            entity.Property(e => e.DateCreated)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("datetime")
+                .HasColumnName("dateCreated");
             entity.Property(e => e.Email)
                 .HasMaxLength(255)
                 .HasColumnName("email");
@@ -369,8 +381,8 @@ public partial class EcoClothesContext : DbContext
                 .HasMaxLength(50)
                 .HasColumnName("role");
             entity.Property(e => e.Status)
-                .HasColumnName("status")
-                .HasDefaultValue(true);
+                .HasDefaultValueSql("'1'")
+                .HasColumnName("status");
             entity.Property(e => e.SubscriptionId).HasColumnName("subscriptionId");
         });
 
