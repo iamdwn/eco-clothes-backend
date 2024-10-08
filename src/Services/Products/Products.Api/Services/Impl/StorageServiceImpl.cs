@@ -33,12 +33,12 @@ namespace Orders.Api.Services.Impl
                         ).FirstOrDefault();
 
                 productBySize = _unitOfWork.SizeproductRepository.Get(
-                    filter: p => p.ProductId.Equals(item.ProductId) && p.SizeId.Equals(size.SizeId)
+                    filter: p => p.ProductId.Equals(item.ProductId) && p.SizeId.Equals(size.SizeId),
+                    noTracking: true
                     ).FirstOrDefault();
 
                 existingProduct = _unitOfWork.ProductRepository.Get(
-                    filter: p => p.ProductId.Equals(item.ProductId),
-                    noTracking: true
+                    filter: p => p.ProductId.Equals(item.ProductId)
                     ).FirstOrDefault();
 
                 if (size == null)
