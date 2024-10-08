@@ -368,6 +368,9 @@ public partial class EcoClothesContext : DbContext
             entity.Property(e => e.Role)
                 .HasMaxLength(50)
                 .HasColumnName("role");
+            entity.Property(e => e.Status)
+                .HasColumnName("status")
+                .HasDefaultValue(true);
             entity.Property(e => e.SubscriptionId).HasColumnName("subscriptionId");
         });
 

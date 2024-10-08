@@ -16,8 +16,8 @@ namespace Products.Api.Services.Impl
         public async Task DeleteSize(Guid productId)
         {
             var sizeProducts = _unitOfWork.SizeproductRepository
-                .Get(filter: sp => sp.ProductId == productId)
-                .ToList();
+                    .Get(filter: sp => sp.ProductId == productId)
+                    .ToList();
 
             if (!sizeProducts.Any())
             {

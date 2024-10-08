@@ -16,9 +16,13 @@ public partial class User
 
     public string? Role { get; set; }
 
+    public DateOnly? DateCreated { get; set; }
+
     public Guid? SubscriptionId { get; set; }
 
     public string? ImgUrl { get; set; }
+
+    public bool? Status { get; set; }
 
     public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
 
