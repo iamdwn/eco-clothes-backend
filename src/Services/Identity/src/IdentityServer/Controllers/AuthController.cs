@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using EventBus.Events;
-using EventBus.Response;
+using DataAccess.Models.Response;
 using IdentityServer.Data;
 using IdentityServer.Models;
 using IdentityServer.Models.DTOs;

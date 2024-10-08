@@ -1,4 +1,4 @@
-﻿using DataAccess.Base;
+using DataAccess.Base;
 using DataAccess.Models;
 using Products.Api.Dtos.Request;
 
@@ -59,7 +59,7 @@ namespace Products.Api.Services.Impl
                     NumberOfSold = 0,
                     Amount = 0,
                     ImgUrl = product.ImgUrl,
-                    Description = product.Description
+                    Description = product.Description,
                 };
 
                 _unitOfWork.ProductRepository.Insert(insertProduct);
@@ -69,13 +69,13 @@ namespace Products.Api.Services.Impl
 
                 foreach (var item in product.Sizes)
                 {
-                    _sizeService.InsertSize(item, insertProduct.ProductId);
+                    await _sizeService.InsertSize(item, insertProduct.ProductId);
                     amount += item.SizeQuantity;
                 };
 
                 foreach (var item in product.Categories)
                 {
-                    _categoryService.InsertCategory(item, insertProduct.ProductId);
+                    await _categoryService.InsertCategory(item, insertProduct.ProductId);
                 };
 
                 insertProduct = _unitOfWork.ProductRepository.GetByID(insertProduct.ProductId);
@@ -104,8 +104,8 @@ namespace Products.Api.Services.Impl
 
                 var newAmount = product.Sizes.Sum(s => s.SizeQuantity);
 
-                _sizeService.UpdateSize(product.Sizes, existingProduct.ProductId);
-                _categoryService.UpdateCategory(product.Categories, existingProduct.ProductId);
+                await _sizeService.UpdateSize(product.Sizes, existingProduct.ProductId);
+                await _categoryService.UpdateCategory(product.Categories, existingProduct.ProductId);
 
                 existingProduct.ProductName = product.ProductName ?? existingProduct.ProductName;
                 existingProduct.OldPrice = product.OldPrice ?? existingProduct.OldPrice;

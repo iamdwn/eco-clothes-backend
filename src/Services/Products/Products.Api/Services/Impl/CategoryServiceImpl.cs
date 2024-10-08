@@ -16,8 +16,8 @@ namespace Products.Api.Services.Impl
         public async Task DeleteCategory(Guid productId)
         {
             var productCategories = _unitOfWork.ProductcategoryRepository
-                 .Get(filter: sp => sp.ProductId == productId)
-                 .ToList();
+                     .Get(filter: sp => sp.ProductId == productId)
+                     .ToList();
 
             if (!productCategories.Any())
             {
@@ -58,7 +58,7 @@ namespace Products.Api.Services.Impl
 
         public async Task UpdateCategory(List<CategoryDto> categoryList, Guid productId)
         {
-            DeleteCategory(productId);
+            await DeleteCategory(productId);
 
             foreach (var item in categoryList)
             {
@@ -71,7 +71,7 @@ namespace Products.Api.Services.Impl
                     throw new KeyNotFoundException($"Category with name {item.CategoryName} not found.");
                 }
 
-                InsertCategory(item, productId);
+                await InsertCategory(item, productId);
             }
         }
     }

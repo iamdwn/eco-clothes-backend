@@ -16,8 +16,4 @@ public partial class PaymentSubscription
     public DateOnly? EndDate { get; set; }
 
     public decimal? Price { get; set; }
-
-    public virtual Payment? Payment { get; set; }
-
-    public virtual Subscription? Subscription { get; set; }
 }
