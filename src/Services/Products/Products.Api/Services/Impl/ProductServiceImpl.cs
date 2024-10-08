@@ -59,6 +59,7 @@ namespace Products.Api.Services.Impl
                     NumberOfSold = 0,
                     Amount = 0,
                     ImgUrl = product.ImgUrl,
+                    DateCreated = DateOnly.FromDateTime(DateTime.Now),
                     Description = product.Description
                 };
 
