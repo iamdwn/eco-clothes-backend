@@ -1,4 +1,6 @@
-﻿namespace Orders.Api.Dtos
+﻿using EventBus.Events.Interfaces;
+
+namespace Orders.Api.Dtos
 {
     public class OrderDto
     {

@@ -1,6 +1,6 @@
 ﻿using DataAccess.Base;
 using DataAccess.Models;
-using Orders.Api.Dtos;
+using EventBus.Events.Interfaces;
 
 namespace Orders.Api.Services.Impl
 {
@@ -37,9 +37,14 @@ namespace Orders.Api.Services.Impl
 
         public async Task InsertOrderItem(OrderItemDto item, Guid orderId)
         {
-            //check stock ??
             try
             {
+                var size = _unitOfWork.SizeRepository.Get(
+                    filter: s => s.Name.Equals(item.SizeName)
+                    ).FirstOrDefault();
+
+                if (size == null) throw new Exception($"Not found size with name {item.SizeName}");
+
                 var insertOrderItem = new OrderItem()
                 {
                     OrderId = orderId,
@@ -47,6 +52,7 @@ namespace Orders.Api.Services.Impl
                     Quantity = item.Quantity,
                     UnitPrice = item.UnitPrice,
                     TotalPrice = item.TotalPrice,
+                    SizeId = size.SizeId
                 };
 
                 _unitOfWork.OrderitemRepository.Insert(insertOrderItem);
@@ -54,7 +60,7 @@ namespace Orders.Api.Services.Impl
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                throw new Exception(ex.InnerException?.Message ?? ex.Message);
             }
         }
 
@@ -64,8 +70,6 @@ namespace Orders.Api.Services.Impl
 
             foreach (var item in orderItemList)
             {
-                //check stock ??
-
                 await InsertOrderItem(item, orderId);
             }
         }

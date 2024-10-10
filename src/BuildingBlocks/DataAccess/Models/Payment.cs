@@ -11,6 +11,8 @@ public partial class Payment
 
     public string? Method { get; set; }
 
+    public DateTime? Date { get; set; }
+
     public string? Status { get; set; }
 
     public string? TransactionId { get; set; }

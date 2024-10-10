@@ -1,5 +1,7 @@
 ﻿using DataAccess.Base;
 using DataAccess.Models;
+using EventBus.Events;
+using MassTransit;
 using Orders.Api.Dtos;
 
 namespace Orders.Api.Services.Impl
@@ -8,17 +10,24 @@ namespace Orders.Api.Services.Impl
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IOrderItemService _orderItemService;
+        private readonly IPublishEndpoint _publishEndpoint;
 
-        public OrderServiceImpl(IUnitOfWork unitOfWork, IOrderItemService orderItemService)
+        public OrderServiceImpl(IUnitOfWork unitOfWork, IOrderItemService orderItemService, IPublishEndpoint publishEndpoint)
         {
             _unitOfWork = unitOfWork;
             _orderItemService = orderItemService;
+            _publishEndpoint = publishEndpoint;
         }
 
         public async Task<Order> CreateOrderAsync(OrderDto order)
         {
             try
             {
+                int amount = 0;
+                Size? size = null;
+                SizeProduct? productBySize = null;
+                Product? existingProduct = null;
+
                 var insertOrder = new Order()
                 {
                     UserId = order.UserId,
@@ -33,6 +42,14 @@ namespace Orders.Api.Services.Impl
                 foreach (var item in order.OrderItems)
                 {
                     await _orderItemService.InsertOrderItem(item, insertOrder.OrderId);
+
+                    await _publishEndpoint.Publish(new OrderCreatedEvent
+                    {
+                        OrderItem = item,
+                        SizeEntity = size,
+                        ProductBySize = productBySize,
+                        ExistingProduct = existingProduct
+                    });
                 }
 
                 return insertOrder;

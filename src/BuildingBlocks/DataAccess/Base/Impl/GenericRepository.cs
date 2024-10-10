@@ -20,7 +20,8 @@ namespace DataAccess.Base.Impl
            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
            string includeProperties = "",
            int? pageIndex = null,
-           int? pageSize = null)
+           int? pageSize = null,
+           bool noTracking = false)
         {
             IQueryable<TEntity> query = _dbSet;
 
@@ -38,6 +39,11 @@ namespace DataAccess.Base.Impl
             if (orderBy != null)
             {
                 query = orderBy(query);
+            }
+
+            if (noTracking)
+            {
+                query = query.AsNoTracking();
             }
 
             if (pageIndex.HasValue && pageSize.HasValue)

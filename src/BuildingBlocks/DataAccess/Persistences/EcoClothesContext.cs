@@ -1,5 +1,8 @@
-﻿using DataAccess.Models;
+﻿using System;
+using System.Collections.Generic;
+using DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
+using Pomelo.EntityFrameworkCore.MySql.Scaffolding.Internal;
 
 namespace DataAccess.Persistences;
 
@@ -44,7 +47,7 @@ public partial class EcoClothesContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseMySql("server=database.hdang09.me;database=eco_clothes_schema;uid=root;pwd=my-secret-pw", Microsoft.EntityFrameworkCore.ServerVersion.Parse("9.0.1-mysql"));
+        => optionsBuilder.UseMySql("server=database.hdang09.me;database=eco_clothes_schema;uid=root;pwd=my-secret-pw", ServerVersion.Parse("9.0.1-mysql"));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -141,8 +144,6 @@ public partial class EcoClothesContext : DbContext
 
             entity.ToTable("Order");
 
-            entity.HasIndex(e => new { e.OrderId, e.PaymentId }, "order_payment_unique").IsUnique();
-
             entity.HasIndex(e => e.UserId, "userId");
 
             entity.Property(e => e.OrderId).HasColumnName("orderId");
@@ -152,6 +153,10 @@ public partial class EcoClothesContext : DbContext
             entity.Property(e => e.EndDate).HasColumnName("endDate");
             entity.Property(e => e.PaymentId).HasColumnName("paymentId");
             entity.Property(e => e.StartDate).HasColumnName("startDate");
+            entity.Property(e => e.Status)
+                .HasMaxLength(20)
+                .HasDefaultValueSql("'Pending'")
+                .HasColumnName("status");
             entity.Property(e => e.UserId).HasColumnName("userId");
 
             entity.HasOne(d => d.User).WithMany(p => p.Orders)
@@ -165,12 +170,15 @@ public partial class EcoClothesContext : DbContext
 
             entity.ToTable("OrderItem");
 
-            entity.HasIndex(e => new { e.OrderId, e.ProductId }, "orderItem_product_unique").IsUnique();
+            entity.HasIndex(e => e.OrderId, "orderId");
+
+            entity.HasIndex(e => e.SizeId, "sizeId");
 
             entity.Property(e => e.OrderItemId).HasColumnName("orderItemId");
             entity.Property(e => e.OrderId).HasColumnName("orderId");
             entity.Property(e => e.ProductId).HasColumnName("productId");
             entity.Property(e => e.Quantity).HasColumnName("quantity");
+            entity.Property(e => e.SizeId).HasColumnName("sizeId");
             entity.Property(e => e.TotalPrice)
                 .HasPrecision(10, 2)
                 .HasColumnName("totalPrice");
@@ -181,6 +189,10 @@ public partial class EcoClothesContext : DbContext
             entity.HasOne(d => d.Order).WithMany(p => p.OrderItems)
                 .HasForeignKey(d => d.OrderId)
                 .HasConstraintName("OrderItem_ibfk_1");
+
+            entity.HasOne(d => d.Size).WithMany(p => p.OrderItems)
+                .HasForeignKey(d => d.SizeId)
+                .HasConstraintName("OrderItem_ibfk_2");
         });
 
         modelBuilder.Entity<Payment>(entity =>
@@ -195,6 +207,10 @@ public partial class EcoClothesContext : DbContext
             entity.Property(e => e.Amount)
                 .HasPrecision(10, 2)
                 .HasColumnName("amount");
+            entity.Property(e => e.Date)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("datetime")
+                .HasColumnName("date");
             entity.Property(e => e.Method)
                 .HasMaxLength(50)
                 .HasColumnName("method");
@@ -217,10 +233,6 @@ public partial class EcoClothesContext : DbContext
 
             entity.ToTable("PaymentSubscription");
 
-            entity.HasIndex(e => new { e.PaymentSubscriptionId, e.PaymentId }, "paymentSubscription_payment_unique").IsUnique();
-
-            entity.HasIndex(e => new { e.PaymentSubscriptionId, e.SubscriptionId }, "subscription_payment_unique").IsUnique();
-
             entity.Property(e => e.PaymentSubscriptionId).HasColumnName("paymentSubscriptionId");
             entity.Property(e => e.EndDate).HasColumnName("endDate");
             entity.Property(e => e.PaymentId).HasColumnName("paymentId");
@@ -241,6 +253,10 @@ public partial class EcoClothesContext : DbContext
 
             entity.Property(e => e.ProductId).HasColumnName("productId");
             entity.Property(e => e.Amount).HasColumnName("amount");
+            entity.Property(e => e.DateCreated)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("datetime")
+                .HasColumnName("dateCreated");
             entity.Property(e => e.Description)
                 .HasColumnType("text")
                 .HasColumnName("description");
@@ -348,9 +364,11 @@ public partial class EcoClothesContext : DbContext
 
             entity.ToTable("User");
 
-            entity.HasIndex(e => new { e.UserId, e.SubscriptionId }, "user_subscription_unique").IsUnique();
-
             entity.Property(e => e.UserId).HasColumnName("userId");
+            entity.Property(e => e.DateCreated)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("datetime")
+                .HasColumnName("dateCreated");
             entity.Property(e => e.Email)
                 .HasMaxLength(255)
                 .HasColumnName("email");
@@ -369,6 +387,9 @@ public partial class EcoClothesContext : DbContext
             entity.Property(e => e.Role)
                 .HasMaxLength(50)
                 .HasColumnName("role");
+            entity.Property(e => e.Status)
+                .HasDefaultValueSql("'1'")
+                .HasColumnName("status");
             entity.Property(e => e.SubscriptionId).HasColumnName("subscriptionId");
         });
 
