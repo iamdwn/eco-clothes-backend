@@ -1,14 +1,14 @@
 using DataAccess.Base;
 using DataAccess.Models;
 using EventBus.Events;
-using Microsoft.AspNetCore.Components.Forms;
+using Newtonsoft.Json;
 using Payments.Api.Models.DTOs;
 using Payments.Api.Services.Interfaces;
+using Payments.Api.Utils;
 using System.Globalization;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Payments.Api.Services
 {
@@ -27,22 +27,23 @@ namespace Payments.Api.Services
             _massTransitService = massTransitService;
         }
 
-        public string CreatePayment(CreatePaymentDTO model)
+        public async Task<string> CreatePayment(CreatePaymentDTO model)
         {
             switch (model.PaymentMethod)
             {
                 case PaymentMethod.VNPay:
                     return PayWithVNPay(model.Amount, model.Id);
                 case PaymentMethod.MoMo:
-                    return PayWithMoMo();
+                    return await PayWithMoMo(model.Amount, model.Id);
                 default:
                     throw new NotImplementedException();
             }
         }
 
-        public void MoMoResponse()
+        public Task<string> MoMoResponse(Dictionary<string, string> queryParams)
         {
-            throw new NotImplementedException();
+            string baseUrl = "http://localhost:3000";
+            return Task.FromResult("");
         }
 
         public async Task<string> VNPayResponse(Dictionary<string, string> queryParams)
@@ -120,7 +121,7 @@ namespace Payments.Api.Services
                 { "vnp_OrderInfo", $"Thanh toan don hang {id}" },
                 { "vnp_OrderType", "other" },
                 { "vnp_Locale", "vn" },
-                { "vnp_ReturnUrl", "https://localhost:7135/api/Payment/VnPayResponse" }, // URL callback khi thanh toán xong
+                { "vnp_ReturnUrl", _configuration["Payment:VNPay:ReturnUrl"] }, // URL callback khi thanh toán xong
                 { "vnp_IpAddr", "abc" },
                 { "vnp_CreateDate", DateTime.Now.ToString("yyyyMMddHHmmss") },
                 { "vnp_ExpireDate", DateTime.Now.AddMinutes(15).ToString("yyyyMMddHHmmss") }
@@ -146,43 +147,65 @@ namespace Payments.Api.Services
 
                 signData = signData.Remove(data.Length - 1, 1);
             }
-            string vnp_SecureHash = HmacSHA512(vnp_HashSecret, signData);
+            string vnp_SecureHash = GenerateHash.HmacSHA512(vnp_HashSecret, signData);
             baseUrl += "vnp_SecureHash=" + vnp_SecureHash;
 
             return baseUrl;
         }
 
-        private string PayWithMoMo()
+        private async Task<string> PayWithMoMo(double amount, string id)
         {
-            return "";
+            string orderInfo = "Eco-Clothes - Pay with MoMo";
+            string requestId = DateTime.UtcNow.Ticks.ToString();
+            var rawData =
+                $"partnerCode={_configuration["Payment:MoMo:PartnerCode"]}" +
+                $"&accessKey={_configuration["Payment:MoMo:AccessKey"]}" +
+                $"&requestId={requestId}" +
+                $"&amount={amount}" +
+                $"&orderId={id}" +
+                $"&orderInfo={orderInfo}" +
+                $"&returnUrl={_configuration["Payment:MoMo:ReturnUrl"]}" +
+                $"&notifyUrl={_configuration["Payment:MoMo:NotifyUrl"]}" +
+                $"&extraData=";
+
+            var signature = GenerateHash.HmacSHA256(_configuration["Payment:MoMo:SecretKey"], rawData);
+
+            var requestData = new
+            {
+                accessKey = _configuration["Payment:MoMo:AccessKey"],
+                partnerCode = _configuration["Payment:MoMo:PartnerCode"],
+                requestType = _configuration["Payment:MoMo:RequestType"],
+                notifyUrl = _configuration["Payment:MoMo:NotifyUrl"],
+                returnUrl = _configuration["Payment:MoMo:ReturnUrl"],
+                orderId = id,
+                amount = amount.ToString(),
+                orderInfo,
+                requestId,
+                extraData = "",
+                signature
+            };
+
+            using (var client = new HttpClient())
+            {
+                var jsonRequest = JsonConvert.SerializeObject(requestData);
+                var httpContent = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
+
+                var momoResponse = await client.PostAsync(_configuration["Payment:MoMo:Url"], httpContent);
+                var responseData = JsonConvert.DeserializeObject<Dictionary<string, string>>(await momoResponse.Content.ReadAsStringAsync());
+
+                return responseData["payUrl"] ?? "";
+            }
         }
 
         private bool CheckVNPayPayment(string inputHash, string rspRaw)
         {
-            string myChecksum = HmacSHA512(_configuration["Payment:VNPay:HashSecret"], rspRaw);
+            string myChecksum = GenerateHash.HmacSHA512(_configuration["Payment:VNPay:HashSecret"], rspRaw);
             return myChecksum.Equals(inputHash, StringComparison.InvariantCultureIgnoreCase);
         }
 
         private void CheckMoMoPayment()
         {
             throw new NotImplementedException();
-        }
-
-        private string HmacSHA512(string key, string inputData)
-        {
-            var hash = new StringBuilder();
-            byte[] keyBytes = Encoding.UTF8.GetBytes(key);
-            byte[] inputBytes = Encoding.UTF8.GetBytes(inputData);
-            using (var hmac = new HMACSHA512(keyBytes))
-            {
-                byte[] hashValue = hmac.ComputeHash(inputBytes);
-                foreach (var theByte in hashValue)
-                {
-                    hash.Append(theByte.ToString("x2"));
-                }
-            }
-
-            return hash.ToString();
         }
     }
 
