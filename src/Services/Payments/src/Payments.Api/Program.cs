@@ -4,6 +4,7 @@ using DataAccess.Persistences;
 using Microsoft.EntityFrameworkCore;
 using Payments.Api.Services;
 using Payments.Api.Services.Interfaces;
+using MassTransit;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,21 @@ services.AddScoped<IPaymentService, PaymentService>();
 
 // Add UnitOfWork
 services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+// Add MassTransit
+services.AddMassTransit(x =>
+{
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.Host(builder.Configuration["RabbitMQ:Host"], 5672, "/", host =>
+        {
+            host.Username(builder.Configuration["RabbitMQ:Username"]);
+            host.Password(builder.Configuration["RabbitMQ:Password"]);
+        });
+    });
+});
+
+services.AddScoped<IMassTransitService, MassTransitService>();
 
 var app = builder.Build();
 
