@@ -25,6 +25,7 @@ namespace Orders.Api
             builder.Services.AddScoped<IMassTransitService, MassTransitServiceImpl>();
             builder.Services.AddScoped<IOrderService, OrderServiceImpl>();
             builder.Services.AddScoped<IOrderItemService, OrderItemServiceImpl>();
+            builder.Services.AddScoped<OrderApprovalServiceImpl>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -33,7 +34,7 @@ namespace Orders.Api
 
             builder.Services.AddMassTransit(x =>
             {
-                x.AddConsumer<StorageServiceImpl>();
+                x.AddConsumer<OrderApprovalServiceImpl>();
                 x.UsingRabbitMq((context, cfg) =>
                 {
                     cfg.Host(builder.Configuration["RabbitMQ:Host"], 5672, "/", host =>
@@ -42,9 +43,9 @@ namespace Orders.Api
                         host.Password(builder.Configuration["RabbitMQ:Password"]);
                     });
 
-                    cfg.ReceiveEndpoint(QueuesConsts.OrderCreated, e =>
+                    cfg.ReceiveEndpoint(QueuesConsts.PaymentApproval, e =>
                     {
-                        e.ConfigureConsumer<StorageServiceImpl>(context);
+                        e.ConfigureConsumer<OrderApprovalServiceImpl>(context);
                     });
                 });
             });

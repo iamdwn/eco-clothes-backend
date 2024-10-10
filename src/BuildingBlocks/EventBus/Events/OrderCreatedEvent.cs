@@ -9,6 +9,5 @@ namespace EventBus.Events
         public Size? SizeEntity { get; set; }
         public SizeProduct? ProductBySize { get; set; }
         public Product? ExistingProduct { get; set; }
-        public int Amount { get; set; }
     }
 }
