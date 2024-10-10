@@ -96,10 +96,13 @@ namespace IdentityServer.Controllers
 
                     await _massTransitService.Publish(new UserCreatedEvent
                     {
-                        UserId = user.Id,
+                        UserId = Guid.Parse(user.Id),
                         Email = user.Email,
-                        UserName = user.UserName,
-                        CallbackUrl = callbackUrl,
+                        FullName = user.FullName,
+                        ImgUrl = user.ImgUrl,
+                        Phone = user.PhoneNumber,
+                        Role = model.RoleName,
+                        Password = user.PasswordHash,
                     });
 
                     await transaction.CommitAsync();

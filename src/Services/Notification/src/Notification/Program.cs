@@ -15,30 +15,30 @@ services.AddControllers();
 services.AddEndpointsApiExplorer();
 services.AddSwaggerGen();
 
-services.AddMassTransit(x =>
-{
-    x.AddConsumer<UserCreatedEventConsumer>();
-    x.AddConsumer<UserPasswordResetOccurredEventConsumer>();
+//services.AddMassTransit(x =>
+//{
+//    x.AddConsumer<UserCreatedEventConsumer>();
+//    x.AddConsumer<UserPasswordResetOccurredEventConsumer>();
 
-    x.UsingRabbitMq((context, cfg) =>
-    {
-        cfg.Host(configuration["RabbitMQ:Host"], "/", host =>
-        {
-            host.Username(configuration["RabbitMQ:Username"]);
-            host.Password(configuration["RabbitMQ:Password"]);
-        });
+//    x.UsingRabbitMq((context, cfg) =>
+//    {
+//        cfg.Host(configuration["RabbitMQ:Host"], "/", host =>
+//        {
+//            host.Username(configuration["RabbitMQ:Username"]);
+//            host.Password(configuration["RabbitMQ:Password"]);
+//        });
 
-        cfg.ReceiveEndpoint(QueuesConsts.UserCreatedEventQueueName, x =>
-        {
-            x.ConfigureConsumer<UserCreatedEventConsumer>(context);
-        });
+//        cfg.ReceiveEndpoint(QueuesConsts.UserCreatedEventQueueName + "-notification-service", x =>
+//        {
+//            x.ConfigureConsumer<UserCreatedEventConsumer>(context);
+//        });
 
-        cfg.ReceiveEndpoint(QueuesConsts.UserPasswordResetOccurredQueueName, x =>
-        {
-            x.ConfigureConsumer<UserPasswordResetOccurredEventConsumer>(context);
-        });
-    });
-});
+//        cfg.ReceiveEndpoint(QueuesConsts.UserPasswordResetOccurredQueueName, x =>
+//        {
+//            x.ConfigureConsumer<UserPasswordResetOccurredEventConsumer>(context);
+//        });
+//    });
+//});
 
 services.AddTransient<IEmailSender, MessageServices>();
 services.AddTransient<MessageServices>();
