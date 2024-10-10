@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
 using System.Security.Claims;
+using System.ComponentModel.DataAnnotations;
 
 namespace IdentityServer.Controllers
 {
@@ -58,7 +59,7 @@ namespace IdentityServer.Controllers
 
             await _signInManager.SignInAsync(user, isPersistent: false);
 
-            return Ok(ResponseObject.Success<object>(new TokenResponse { AccessToken = await GenerateAccessToken(user), RefreshToken = await GenerateRefreshToken(user) }, "Login success!"));
+            return Ok(ResponseObject.Success(new TokenResponse { AccessToken = await GenerateAccessToken(user), RefreshToken = await GenerateRefreshToken(user) }, "Login success!"));
         }
 
         [HttpPost("Register")]
@@ -103,7 +104,7 @@ namespace IdentityServer.Controllers
                     });
 
                     await transaction.CommitAsync();
-                    return Ok(ResponseObject.Success("User create account with password!"));
+                    return Ok(ResponseObject.Success(new TokenResponse { AccessToken = await GenerateAccessToken(user), RefreshToken = await GenerateRefreshToken(user) }, "User create account with password!"));
 
                 }
                 catch (Exception ex)
@@ -260,12 +261,27 @@ namespace IdentityServer.Controllers
             var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false);
             if (result.Succeeded)
             {
-                return Ok(new { message = "Login successful" });
+                return Ok(ResponseObject.Success("Login success!"));
             }
+            //     public string FullName { get; set; }
+            //public string Email { get; set; }
+            //public string Password { get; set; }
+
+            //[DataType(DataType.Password)]
+            //[Compare("Password", ErrorMessage = "Confirm Password does not match with Password")]
+            //public string ConfirmPassword { get; set; }
+            //public string PhoneNumber { get; set; }
+            ////public string Address { get; set; }
+            //public string ImgUrl { get; set; }
+            //public string RoleName { get; set; }
 
             // If the user does not have an account, then create one.
             var email = info.Principal.FindFirstValue(ClaimTypes.Email);
-            var user = new ApplicationUser { UserName = email, Email = email };
+            var name = info.Principal.FindFirstValue(ClaimTypes.Name);
+            var user = new ApplicationUser
+            {
+                Email = email,
+            };
 
             var createResult = await _userManager.CreateAsync(user);
             if (createResult.Succeeded)
@@ -275,7 +291,7 @@ namespace IdentityServer.Controllers
                 return Ok(new { message = "User created and logged in successfully" });
             }
 
-            return BadRequest("Error during user creation.");
+            return BadRequest(ResponseObject.Failure(createResult.Errors.ToString(), "Error during user creation!"));
         }
 
         private async Task<string> GenerateRefreshToken(ApplicationUser user)

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
+using System.Security.Claims;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,11 +25,11 @@ services.AddSwaggerGen();
 // Add DbContext
 services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySQL(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
-        options => options.EnableRetryOnFailure(
-                    maxRetryCount: 5,
-                    maxRetryDelay: TimeSpan.FromSeconds(30),
-                    errorNumbersToAdd: null)
+        builder.Configuration.GetConnectionString("DefaultConnection")
+        //options => options.EnableRetryOnFailure(
+        //            maxRetryCount: 5,
+        //            maxRetryDelay: TimeSpan.FromSeconds(30),
+        //            errorNumbersToAdd: null)
         )
     );
 
@@ -84,7 +85,15 @@ services.AddAuthentication(options =>
         options.ClientSecret = builder.Configuration["Authenticate:Google:ClientSecret"];
         options.CallbackPath = "/signin-google";
         options.SaveTokens = true;
+        options.Events.OnCreatingTicket = (context) =>
+        {
+            var picture = context.User.GetProperty("picture").GetString();
+            context.Identity.AddClaim(new Claim("picture", picture));
+
+            return Task.CompletedTask;
+        };
     });
+
 // Add Cors
 services.AddCors(options =>
 {
