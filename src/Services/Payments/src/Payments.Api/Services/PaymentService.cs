@@ -1,5 +1,6 @@
 using DataAccess.Base;
 using DataAccess.Models;
+using EventBus.Events;
 using Microsoft.AspNetCore.Components.Forms;
 using Payments.Api.Models.DTOs;
 using Payments.Api.Services.Interfaces;
@@ -13,15 +14,17 @@ namespace Payments.Api.Services
 {
     public class PaymentService : IPaymentService
     {
-        private readonly ILogger<PaymentService> _logger;
-        private readonly IConfiguration _configuration;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IConfiguration _configuration;
+        private readonly ILogger<PaymentService> _logger;
+        private readonly IMassTransitService _massTransitService;
 
-        public PaymentService(IConfiguration configuration, ILogger<PaymentService> logger, IUnitOfWork unitOfWork)
+        public PaymentService(IConfiguration configuration, ILogger<PaymentService> logger, IUnitOfWork unitOfWork, IMassTransitService massTransitService)
         {
             _configuration = configuration;
             _logger = logger;
             _unitOfWork = unitOfWork;
+            _massTransitService = massTransitService;
         }
 
         public string CreatePayment(CreatePaymentDTO model)
@@ -42,7 +45,7 @@ namespace Payments.Api.Services
             throw new NotImplementedException();
         }
 
-        public string VNPayResponse(Dictionary<string, string> queryParams)
+        public async Task<string> VNPayResponse(Dictionary<string, string> queryParams)
         {
             string baseUrl = "http://localhost:3000";
 
@@ -91,6 +94,12 @@ namespace Payments.Api.Services
                     };
                     _unitOfWork.PaymentRepository.Insert(payment);
                     _unitOfWork.Save();
+                    await _massTransitService.Publish(new PaymentResponseEvent
+                    {
+                        PaymentStatus = true,
+                        Transaction = vnp_Responses["vnp_TransactionNo"]
+                    });
+
                     return baseUrl + $"?amount={vnp_Responses["vnp_Amount"]}&createDate={vnp_Responses["vnp_PayDate"]}&status={true}";
                 }
                 return baseUrl + $"?status={false}&errorMessage={"Something went wrong in process payment"}&errorCode={vnp_Responses["vnp_ResponseCode"]}";
