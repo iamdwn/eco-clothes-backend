@@ -15,7 +15,7 @@ namespace EventBus.Events.Interfaces
         public Guid ProductId { get; set; }
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
-        public decimal TotalPrice { get; set; }
+        //public decimal TotalPrice { get; set; }
         public string? SizeName { get; set; }
     }
 }
