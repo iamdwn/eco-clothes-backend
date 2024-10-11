@@ -6,7 +6,7 @@
         //string Email { get; set; }
         //string UserName { get; set; }
         //string Address { get; set; }
-        //string CallbackUrl { get; set; }
+        string CallbackUrl { get; set; }
 
         public Guid UserId { get; set; }
 
