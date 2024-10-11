@@ -51,7 +51,7 @@ namespace Orders.Api.Services.Impl
                     ProductId = item.ProductId,
                     Quantity = item.Quantity,
                     UnitPrice = item.UnitPrice,
-                    TotalPrice = item.TotalPrice,
+                    TotalPrice = item.Quantity * item.UnitPrice,
                     SizeId = size.SizeId
                 };
 
