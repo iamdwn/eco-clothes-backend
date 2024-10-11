@@ -26,6 +26,11 @@ namespace Dashboard.Api.Services.Impl
                     ).Count();
         }
 
+        public async Task<int> CountTotalOrdersAsync()
+        {
+            return _unitOfWork.OrderRepository.Get().Count();
+        }
+
         public async Task<IEnumerable<Order>> GetOrdersBeingDeliveredAsync()
         {
             return _unitOfWork.OrderRepository.Get(
@@ -38,6 +43,11 @@ namespace Dashboard.Api.Services.Impl
             return _unitOfWork.OrderRepository.Get(
                     filter: u => u.Status.Equals("Đã Giao")
                     ).ToList();
+        }
+
+        public async Task<IEnumerable<Order>> GetTotalOrdersAsync()
+        {
+            return _unitOfWork.OrderRepository.Get().ToList();
         }
     }
 }

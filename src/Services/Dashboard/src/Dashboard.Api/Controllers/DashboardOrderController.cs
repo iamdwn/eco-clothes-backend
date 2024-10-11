@@ -27,6 +27,12 @@ namespace Dashboard.Api.Controllers
             return await _orderAnalytics.GetOrdersDeliveredAsync();
         }
 
+        [HttpGet("get-totals-orders")]
+        public async Task<IEnumerable<Order>> GetTotalOrders()
+        {
+            return await _orderAnalytics.GetTotalOrdersAsync();
+        }
+
         [HttpGet("count-orders-delivered")]
         public async Task<int> CountOrdersDelivered()
         {
@@ -37,6 +43,12 @@ namespace Dashboard.Api.Controllers
         public async Task<int> CountOrdersBeingDelivered()
         {
             return await _orderAnalytics.CountOrdersBeingDeliveredAsync();
+        }
+
+        [HttpGet("count-totals-orders")]
+        public async Task<int> CountTotalOrders()
+        {
+            return await _orderAnalytics.CountTotalOrdersAsync();
         }
     }
 }

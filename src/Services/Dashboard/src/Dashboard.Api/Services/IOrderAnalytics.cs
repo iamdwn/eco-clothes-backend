@@ -6,7 +6,9 @@ namespace Dashboard.Api.Services
     {
         Task<IEnumerable<Order>> GetOrdersDeliveredAsync();
         Task<IEnumerable<Order>> GetOrdersBeingDeliveredAsync();
+        Task<IEnumerable<Order>> GetTotalOrdersAsync();
         Task<int> CountOrdersDeliveredAsync();
         Task<int> CountOrdersBeingDeliveredAsync();
+        Task<int> CountTotalOrdersAsync();
     }
 }
