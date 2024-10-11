@@ -157,31 +157,37 @@ namespace Payments.Api.Services
         {
             string orderInfo = "Eco-Clothes - Pay with MoMo";
             string requestId = DateTime.UtcNow.Ticks.ToString();
+            var accessKey = _configuration["Payment:MoMo:AccessKey"];
+            var partnerCode = _configuration["Payment:MoMo:PartnerCode"];
+            var requestType = _configuration["Payment:MoMo:RequestType"];
+            var notifyUrl = _configuration["Payment:MoMo:NotifyUrl"];
+            var returnUrl = _configuration["Payment:MoMo:ReturnUrl"];
+            var extraData = "";
             var rawData =
-                $"partnerCode={_configuration["Payment:MoMo:PartnerCode"]}" +
-                $"&accessKey={_configuration["Payment:MoMo:AccessKey"]}" +
+                $"partnerCode={partnerCode}" +
+                $"&accessKey={accessKey}" +
                 $"&requestId={requestId}" +
                 $"&amount={amount}" +
                 $"&orderId={id}" +
                 $"&orderInfo={orderInfo}" +
-                $"&returnUrl={_configuration["Payment:MoMo:ReturnUrl"]}" +
-                $"&notifyUrl={_configuration["Payment:MoMo:NotifyUrl"]}" +
-                $"&extraData=";
+                $"&returnUrl={returnUrl}" +
+                $"&notifyUrl={notifyUrl}" +
+                $"&extraData={extraData}";
 
             var signature = GenerateHash.HmacSHA256(_configuration["Payment:MoMo:SecretKey"], rawData);
 
             var requestData = new
             {
-                accessKey = _configuration["Payment:MoMo:AccessKey"],
-                partnerCode = _configuration["Payment:MoMo:PartnerCode"],
-                requestType = _configuration["Payment:MoMo:RequestType"],
-                notifyUrl = _configuration["Payment:MoMo:NotifyUrl"],
-                returnUrl = _configuration["Payment:MoMo:ReturnUrl"],
+                accessKey,
+                partnerCode,
+                requestType,
+                notifyUrl,
+                returnUrl,
                 orderId = id,
                 amount = amount.ToString(),
                 orderInfo,
                 requestId,
-                extraData = "",
+                extraData,
                 signature
             };
 
