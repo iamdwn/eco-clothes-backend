@@ -6,10 +6,11 @@ namespace Dashboard.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class DashboardController : Controller
+    public class DashboardUserController : Controller
     {
         private readonly IUserAnalytics _userAnalytics;
-        public DashboardController(IUserAnalytics userAnalytics)
+
+        public DashboardUserController(IUserAnalytics userAnalytics)
         {
             _userAnalytics = userAnalytics;
         }

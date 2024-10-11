@@ -168,7 +168,7 @@ public partial class EcoClothesContext : DbContext
             entity.Property(e => e.StartDate).HasColumnName("startDate");
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
-                .HasDefaultValueSql("'Pending'")
+                .HasDefaultValueSql("'Đang Giao'")
                 .HasColumnName("status");
             entity.Property(e => e.UserId).HasColumnName("userId");
 
