@@ -11,6 +11,7 @@
     public enum PaymentMethod
     {
         VNPay,
-        MoMo
+        MoMo,
+        Unidentified
     }
 }

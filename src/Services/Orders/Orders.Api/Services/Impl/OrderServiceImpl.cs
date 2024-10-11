@@ -1,6 +1,7 @@
 ﻿using DataAccess.Base;
 using DataAccess.Models;
 using EventBus.Events;
+using EventBus.Events.Interfaces;
 using MassTransit;
 using Orders.Api.Dtos;
 
@@ -51,6 +52,18 @@ namespace Orders.Api.Services.Impl
                         ExistingProduct = existingProduct
                     });
                 }
+
+                await _publishEndpoint.Publish(new OrderInformationForPaymentEvent
+                {
+                    UserId = order.UserId.ToString(),
+                    Amount = amount,
+                    OrderId = order.OrderId.ToString(),
+                    PaymentMethod = order.PaymentMethod.Equals("VNPay")
+                                            ? PaymentMethod.VNPay
+                                            : (order.PaymentMethod.Equals("MoMo") ? PaymentMethod.MoMo
+                                                                                  : PaymentMethod.Unidentified)
+                }
+                    );
 
                 return insertOrder;
             }
