@@ -65,7 +65,19 @@ namespace Users.Api.Services
 
         public Task<bool> DeleteUser(string id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var existingUser = _unitOfWork.UserRepository.GetByID(id);
+                if (existingUser == null) return Task.FromResult(false);
+
+                _unitOfWork.UserRepository.Delete(existingUser);
+                _unitOfWork.Save();
+                return Task.FromResult(true);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
     }
 }
