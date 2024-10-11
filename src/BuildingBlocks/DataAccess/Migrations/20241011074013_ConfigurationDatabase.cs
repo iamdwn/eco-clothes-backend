@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DataAccess.Migrations
 {
     /// <inheritdoc />
-    public partial class AddBooleanStatusToUser : Migration
+    public partial class ConfigurationDatabase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -98,11 +98,11 @@ namespace DataAccess.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     role = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true, collation: "utf8mb4_0900_ai_ci")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    DateCreated = table.Column<DateOnly>(type: "date", nullable: true),
+                    dateCreated = table.Column<DateTime>(type: "datetime", nullable: true, defaultValueSql: "CURRENT_TIMESTAMP"),
                     subscriptionId = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
                     imgUrl = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true, collation: "utf8mb4_0900_ai_ci")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    status = table.Column<bool>(type: "tinyint(1)", nullable: true, defaultValue: true)
+                    status = table.Column<bool>(type: "tinyint(1)", nullable: true, defaultValueSql: "'1'")
                 },
                 constraints: table =>
                 {
@@ -121,6 +121,8 @@ namespace DataAccess.Migrations
                     endDate = table.Column<DateOnly>(type: "date", nullable: true),
                     paymentId = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
                     address = table.Column<string>(type: "text", nullable: true, collation: "utf8mb4_0900_ai_ci")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    status = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: true, defaultValueSql: "'Pending'", collation: "utf8mb4_0900_ai_ci")
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
@@ -143,6 +145,7 @@ namespace DataAccess.Migrations
                     amount = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: true),
                     method = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true, collation: "utf8mb4_0900_ai_ci")
                         .Annotation("MySql:CharSet", "utf8mb4"),
+                    date = table.Column<DateTime>(type: "datetime", nullable: true, defaultValueSql: "CURRENT_TIMESTAMP"),
                     status = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true, collation: "utf8mb4_0900_ai_ci")
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     transactionId = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true, collation: "utf8mb4_0900_ai_ci")
@@ -173,6 +176,7 @@ namespace DataAccess.Migrations
                     numberOfSold = table.Column<int>(type: "int", nullable: true),
                     imgUrl = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true, collation: "utf8mb4_0900_ai_ci")
                         .Annotation("MySql:CharSet", "utf8mb4"),
+                    dateCreated = table.Column<DateTime>(type: "datetime", nullable: true, defaultValueSql: "CURRENT_TIMESTAMP"),
                     amount = table.Column<int>(type: "int", nullable: true),
                     description = table.Column<string>(type: "text", nullable: true, collation: "utf8mb4_0900_ai_ci")
                         .Annotation("MySql:CharSet", "utf8mb4"),

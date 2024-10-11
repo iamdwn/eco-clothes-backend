@@ -1,9 +1,8 @@
-﻿using DataAccess.Interfaces;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace DataAccess.Models;
 
-public partial class User : ISoftDelete
+public partial class User
 {
     public Guid UserId { get; set; }
 
@@ -32,12 +31,9 @@ public partial class User : ISoftDelete
     [JsonIgnore]
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 
+    [JsonIgnore]
     public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
 
     [JsonIgnore]
     public virtual ICollection<Product> Products { get; set; } = new List<Product>();
-
-    public bool IsDeleted { get; set; }
-
-    public DateTimeOffset? DeletedWhen { get; set; }
 }
