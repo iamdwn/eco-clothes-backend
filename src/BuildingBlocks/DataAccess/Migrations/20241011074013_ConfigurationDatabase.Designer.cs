@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(EcoClothesContext))]
-    [Migration("20241010084156_AddISoftDeleteToUser")]
-    partial class AddISoftDeleteToUser
+    [Migration("20241011074013_ConfigurationDatabase")]
+    partial class ConfigurationDatabase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -479,9 +479,6 @@ namespace DataAccess.Migrations
                         .HasColumnName("dateCreated")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-                    b.Property<DateTimeOffset?>("DeletedWhen")
-                        .HasColumnType("datetime(6)");
-
                     b.Property<string>("Email")
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)")
@@ -496,9 +493,6 @@ namespace DataAccess.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)")
                         .HasColumnName("imgUrl");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Password")
                         .HasMaxLength(255)
