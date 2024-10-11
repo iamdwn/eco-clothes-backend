@@ -1,6 +1,8 @@
-﻿using DataAccess.Interfaces;
+﻿using System;
+using System.Collections.Generic;
 using DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
+using Pomelo.EntityFrameworkCore.MySql.Scaffolding.Internal;
 
 namespace DataAccess.Persistences;
 
@@ -42,21 +44,6 @@ public partial class EcoClothesContext : DbContext
     public virtual DbSet<Subscription> Subscriptions { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
-
-    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
-        foreach (var entry in ChangeTracker.Entries())
-        {
-            if (entry is { State: EntityState.Deleted, Entity: ISoftDelete delete })
-            {
-                entry.State = EntityState.Modified;
-                delete.IsDeleted = true;
-                delete.DeletedWhen = DateTimeOffset.UtcNow;
-            }
-        }
-
-        return base.SaveChangesAsync(cancellationToken);
-    }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
