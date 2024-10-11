@@ -4,8 +4,8 @@ namespace Payments.Api.Services.Interfaces
 {
     public interface IPaymentService
     {
-        string CreatePayment(CreatePaymentDTO model);
-        void VNPayResponse(Dictionary<string, string> queryParams);
-        void MoMoResponse();
+        Task<string> CreatePayment(CreatePaymentDTO model);
+        Task<string> VNPayResponse(Dictionary<string, string> queryParams);
+        Task<string> MoMoResponse(Dictionary<string, string> queryParams);
     }
 }

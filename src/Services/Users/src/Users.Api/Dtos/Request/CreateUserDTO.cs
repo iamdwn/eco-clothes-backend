@@ -1,13 +1,7 @@
-﻿namespace EventBus.Events.Interfaces
+﻿namespace Users.Api.Dtos.Request
 {
-    public interface IUserCreatedEvent
+    public class CreateUserDTO
     {
-        //string UserId { get; set; }
-        //string Email { get; set; }
-        //string UserName { get; set; }
-        //string Address { get; set; }
-        string CallbackUrl { get; set; }
-
         public Guid UserId { get; set; }
 
         public string? FullName { get; set; }
