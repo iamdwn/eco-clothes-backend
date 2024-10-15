@@ -38,5 +38,11 @@ namespace Dashboard.Api.Controllers
         {
             return await _productAnalytics.CountInStockProductsAsync();
         }
+
+        [HttpGet("count-daily-products")]
+        public async Task<int> CountDailyProducts(DateTime dateTime)
+        {
+            return await _productAnalytics.CountDailyProductsAsync(dateTime);
+        }
     }
 }

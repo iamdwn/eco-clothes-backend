@@ -8,5 +8,6 @@ namespace Dashboard.Api.Services
         Task<IEnumerable<Product>> GetInStockProductsAsync();
         Task<int> CountInStockProductsAsync();
         Task<int> CountProductsAsync();
+        Task<int> CountDailyProductsAsync(DateTime dateTime);
     }
 }
