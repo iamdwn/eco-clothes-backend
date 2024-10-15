@@ -12,14 +12,20 @@ namespace Dashboard.Api.Services.Impl
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<int> CountDailyOrdersBeingDeliveredAsync()
+        public async Task<int> CountDailyOrdersBeingDeliveredAsync(DateTime dateTime)
         {
-            throw new NotImplementedException();
+            return _unitOfWork.OrderRepository.Get(
+                    filter: u => u.Status.Equals("Đang Giao")
+                                && u.StartDate.Equals(DateOnly.FromDateTime(dateTime))
+                    ).Count();
         }
 
-        public async Task<int> CountDailyOrdersDeliveredAsync()
+        public async Task<int> CountDailyOrdersDeliveredAsync(DateTime dateTime)
         {
-            throw new NotImplementedException();
+            return _unitOfWork.OrderRepository.Get(
+                    filter: u => u.Status.Equals("Đã Giao")
+                                && u.StartDate.Equals(DateOnly.FromDateTime(dateTime))
+                    ).Count();
         }
 
         public async Task<int> CountOrdersBeingDeliveredAsync()
