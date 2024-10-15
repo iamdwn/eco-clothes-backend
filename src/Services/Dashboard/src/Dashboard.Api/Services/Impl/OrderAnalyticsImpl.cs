@@ -12,6 +12,16 @@ namespace Dashboard.Api.Services.Impl
             _unitOfWork = unitOfWork;
         }
 
+        public async Task<int> CountDailyOrdersBeingDeliveredAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<int> CountDailyOrdersDeliveredAsync()
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<int> CountOrdersBeingDeliveredAsync()
         {
             return _unitOfWork.OrderRepository.Get(

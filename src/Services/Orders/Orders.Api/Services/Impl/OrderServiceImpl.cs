@@ -32,8 +32,8 @@ namespace Orders.Api.Services.Impl
                 var insertOrder = new Order()
                 {
                     UserId = order.UserId,
-                    StartDate = order.StartDate,
-                    EndDate = order.EndDate,
+                    StartDate = DateOnly.FromDateTime(DateTime.Now),
+                    EndDate = DateOnly.FromDateTime(DateTime.Now).AddDays(7),
                     Address = order.Address
                 };
 
