@@ -75,9 +75,19 @@ namespace Dashboard.Api.Services.Impl
             throw new NotImplementedException();
         }
 
-        public Task<decimal> GetTotalRevenue()
+        public async Task<decimal> GetTotalRevenue()
         {
-            throw new NotImplementedException();
+            var orders = _unitOfWork.OrderRepository.Get(
+                filter: o => o.Status == "Đã Giao",
+                includeProperties: "OrderItems"
+            );
+
+            var totalRevenue = orders
+                .SelectMany(order => order.OrderItems)
+                .Sum(orderItem => orderItem.TotalPrice ?? 0);
+
+            return totalRevenue;
+            ;
         }
     }
 }
