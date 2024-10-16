@@ -48,7 +48,7 @@ namespace Dashboard.Api.Services.Impl
         public async Task<decimal> GetRevenueByDateRange(DateTime startDate, DateTime endDate)
         {
             var orders = _unitOfWork.OrderRepository.Get(
-                filter: o => o.Status == "delivered" &&
+                filter: o => o.Status == "Đã Giao" &&
                              o.EndDate >= DateOnly.FromDateTime(startDate) &&
                              o.EndDate <= DateOnly.FromDateTime(endDate),
                 includeProperties: "OrderItems"
@@ -70,10 +70,39 @@ namespace Dashboard.Api.Services.Impl
             return await GetRevenueByDateRange(startDate, endDate);
         }
 
-        public Task<IEnumerable<Product>> GetTopSellingProducts()
+        public async Task<IEnumerable<Product>> GetTopSellingProducts()
         {
-            throw new NotImplementedException();
+            var orderItems = _unitOfWork.OrderitemRepository.Get(
+                filter: oi => oi.Order.Status == "Đã Giao"
+            );
+
+            var productIds = orderItems.Select(oi => oi.ProductId).Distinct();
+
+            var products = _unitOfWork.ProductRepository.Get(
+                filter: p => productIds.Contains(p.ProductId)
+            );
+
+            var topProducts = orderItems
+                .GroupBy(oi => oi.ProductId)
+                .Select(group => new
+                {
+                    ProductId = group.Key,
+                    TotalQuantitySold = group.Sum(oi => oi.Quantity ?? 0)
+                })
+                .OrderByDescending(x => x.TotalQuantitySold)
+                .Take(10)
+                .ToList();
+
+            var topSellingProducts = topProducts
+                .Join(products,
+                      topProduct => topProduct.ProductId,
+                      product => product.ProductId,
+                      (topProduct, product) => product)
+                .ToList();
+
+            return topSellingProducts;
         }
+
 
         public async Task<decimal> GetTotalRevenue()
         {
