@@ -45,10 +45,22 @@ namespace Dashboard.Api.Services.Impl
             return revenueByCategory;
         }
 
-        public Task<decimal> GetRevenueByDateRange(DateTime startDate, DateTime endDate)
+        public async Task<decimal> GetRevenueByDateRange(DateTime startDate, DateTime endDate)
         {
-            throw new NotImplementedException();
+            var orders = _unitOfWork.OrderRepository.Get(
+                filter: o => o.Status == "delivered" &&
+                             o.EndDate >= DateOnly.FromDateTime(startDate) &&
+                             o.EndDate <= DateOnly.FromDateTime(endDate),
+                includeProperties: "OrderItems"
+            );
+
+            var totalRevenue = orders
+                .SelectMany(order => order.OrderItems)
+                .Sum(orderItem => orderItem.TotalPrice ?? 0);
+
+            return totalRevenue;
         }
+
 
         public Task<decimal> GetRevenueThisMonth()
         {
