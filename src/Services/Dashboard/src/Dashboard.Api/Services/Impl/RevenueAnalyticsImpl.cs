@@ -62,9 +62,12 @@ namespace Dashboard.Api.Services.Impl
         }
 
 
-        public Task<decimal> GetRevenueThisMonth()
+        public async Task<decimal> GetRevenueThisMonth()
         {
-            throw new NotImplementedException();
+            var startDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
+
+            return await GetRevenueByDateRange(startDate, endDate);
         }
 
         public Task<IEnumerable<Product>> GetTopSellingProducts()
