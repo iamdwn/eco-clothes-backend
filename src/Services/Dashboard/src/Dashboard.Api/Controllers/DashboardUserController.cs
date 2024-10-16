@@ -38,5 +38,11 @@ namespace Dashboard.Api.Controllers
         {
             return await _userAnalytics.CountActiveUsersAsync();
         }
+
+        [HttpGet("count-daily-users")]
+        public async Task<int> CountDailyUsers(DateTime dateTime)
+        {
+            return await _userAnalytics.CountDailyUsersAsync(dateTime);
+        }
     }
 }

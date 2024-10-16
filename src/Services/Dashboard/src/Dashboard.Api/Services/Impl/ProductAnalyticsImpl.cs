@@ -12,6 +12,14 @@ namespace Dashboard.Api.Services.Impl
             _unitOfWork = unitOfWork;
         }
 
+        public async Task<int> CountDailyProductsAsync(DateTime dateTime)
+        {
+            return _unitOfWork.ProductRepository.Get(
+                 filter: u => u.Amount > 0
+                     && u.DateCreated.Equals(DateOnly.FromDateTime(dateTime))
+                 ).Count();
+        }
+
         public async Task<int> CountInStockProductsAsync()
         {
             return _unitOfWork.ProductRepository.Get(

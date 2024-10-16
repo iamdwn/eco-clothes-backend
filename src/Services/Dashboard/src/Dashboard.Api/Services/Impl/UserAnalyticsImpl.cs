@@ -20,6 +20,14 @@ namespace Dashboard.Api.Services.Impl
                 ).Count();
         }
 
+        public async Task<int> CountDailyUsersAsync(DateTime dateTime)
+        {
+            return _unitOfWork.UserRepository.Get(
+                filter: u => u.Status.Equals(true)
+                            && u.DateCreated.Equals(DateOnly.FromDateTime(dateTime))
+                ).Count();
+        }
+
         public async Task<IEnumerable<User>> GetActiveUsersAsync()
         {
             return _unitOfWork.UserRepository.Get(
