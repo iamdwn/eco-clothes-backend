@@ -15,7 +15,7 @@ namespace Dashboard.Api.Services.Impl
             _orderAnalytics = orderAnalytics;
         }
 
-        public IEnumerable<CategoryRevenueDto> GetRevenueByCategory()
+        public IEnumerable<CategoryRevenueDto> GetRevenueByCategoryAsync()
         {
             var orderItems = _unitOfWork.OrderitemRepository.Get(
                 filter: oi => oi.Order.Status == "Đã Giao",
@@ -45,7 +45,7 @@ namespace Dashboard.Api.Services.Impl
             return revenueByCategory;
         }
 
-        public async Task<decimal> GetRevenueByDateRange(DateTime startDate, DateTime endDate)
+        public async Task<decimal> GetRevenueByDateRangeAsync(DateTime startDate, DateTime endDate)
         {
             var orders = _unitOfWork.OrderRepository.Get(
                 filter: o => o.Status == "Đã Giao" &&
@@ -62,15 +62,15 @@ namespace Dashboard.Api.Services.Impl
         }
 
 
-        public async Task<decimal> GetRevenueThisMonth()
+        public async Task<decimal> GetRevenueThisMonthAsync()
         {
             var startDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
 
-            return await GetRevenueByDateRange(startDate, endDate);
+            return await GetRevenueByDateRangeAsync(startDate, endDate);
         }
 
-        public async Task<IEnumerable<Product>> GetTopSellingProducts()
+        public async Task<IEnumerable<Product>> GetTopSellingProductsAsync()
         {
             var orderItems = _unitOfWork.OrderitemRepository.Get(
                 filter: oi => oi.Order.Status == "Đã Giao"
@@ -104,7 +104,7 @@ namespace Dashboard.Api.Services.Impl
         }
 
 
-        public async Task<decimal> GetTotalRevenue()
+        public async Task<decimal> GetTotalRevenueAsync()
         {
             var orders = _unitOfWork.OrderRepository.Get(
                 filter: o => o.Status == "Đã Giao",
@@ -116,7 +116,6 @@ namespace Dashboard.Api.Services.Impl
                 .Sum(orderItem => orderItem.TotalPrice ?? 0);
 
             return totalRevenue;
-            ;
         }
     }
 }
