@@ -25,6 +25,7 @@ namespace Dashboard.Api
             builder.Services.AddScoped<IProductAnalytics, ProductAnalyticsImpl>();
             builder.Services.AddScoped<IRevenueAnalytics, RevenueAnalyticsImpl>();
             builder.Services.AddScoped<IOrderAnalytics, OrderAnalyticsImpl>();
+            builder.Services.AddScoped<IGrowthAnalytics, GrowthAnalyticsImpl>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
