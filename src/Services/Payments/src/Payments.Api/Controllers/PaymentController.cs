@@ -19,14 +19,21 @@ namespace Payments.Api.Controllers
         [HttpPost("CreatePayment")]
         public async Task<IActionResult> CreatePayment([FromBody] CreatePaymentDTO model)
         {
-            return Ok(ResponseObject.Success<string>(_paymentService.CreatePayment(model)));
+            return Ok(ResponseObject.Success<string>(await _paymentService.CreatePayment(model)));
         }
 
         [HttpGet("VnPayResponse")]
-        public IActionResult VnPayResponse([FromQuery] Dictionary<string, string> queryParams)
+        public async Task<IActionResult> VnPayResponse([FromQuery] Dictionary<string, string> queryParams)
         {
-            _paymentService.VNPayResponse(queryParams);
-            return Ok(ResponseObject.Success());
+            string url = await _paymentService.VNPayResponse(queryParams);
+            return Redirect(url);
+        }
+
+        [HttpGet("MoMoResponse")]
+        public async Task<IActionResult> MoMoResponse([FromQuery] Dictionary<string, string> queryParams)
+        {
+            string url = await _paymentService.MoMoResponse(queryParams);
+            return Redirect(url);
         }
     }
 }

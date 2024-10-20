@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(EcoClothesContext))]
-    [Migration("20241008103303_AddBooleanStatusToUser")]
-    partial class AddBooleanStatusToUser
+    [Migration("20241010090430_AddISoftDeleteToUser")]
+    partial class AddISoftDeleteToUser
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -159,6 +159,13 @@ namespace DataAccess.Migrations
                         .HasColumnType("date")
                         .HasColumnName("startDate");
 
+                    b.Property<string>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("status")
+                        .HasDefaultValueSql("'Pending'");
+
                     b.Property<Guid?>("UserId")
                         .HasColumnType("char(36)")
                         .HasColumnName("userId");
@@ -226,6 +233,12 @@ namespace DataAccess.Migrations
                         .HasPrecision(10, 2)
                         .HasColumnType("decimal(10,2)")
                         .HasColumnName("amount");
+
+                    b.Property<DateTime?>("Date")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasColumnName("date")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<string>("Method")
                         .HasMaxLength(50)
@@ -299,6 +312,12 @@ namespace DataAccess.Migrations
                     b.Property<int?>("Amount")
                         .HasColumnType("int")
                         .HasColumnName("amount");
+
+                    b.Property<DateTime?>("DateCreated")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasColumnName("dateCreated")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<string>("Description")
                         .HasColumnType("text")
@@ -454,8 +473,14 @@ namespace DataAccess.Migrations
                         .HasColumnType("char(36)")
                         .HasColumnName("userId");
 
-                    b.Property<DateOnly?>("DateCreated")
-                        .HasColumnType("date");
+                    b.Property<DateTime?>("DateCreated")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasColumnName("dateCreated")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<DateTimeOffset?>("DeletedWhen")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("Email")
                         .HasMaxLength(255)
@@ -471,6 +496,9 @@ namespace DataAccess.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)")
                         .HasColumnName("imgUrl");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Password")
                         .HasMaxLength(255)
@@ -490,8 +518,8 @@ namespace DataAccess.Migrations
                     b.Property<bool?>("Status")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("tinyint(1)")
-                        .HasDefaultValue(true)
-                        .HasColumnName("status");
+                        .HasColumnName("status")
+                        .HasDefaultValueSql("'1'");
 
                     b.Property<Guid?>("SubscriptionId")
                         .HasColumnType("char(36)")

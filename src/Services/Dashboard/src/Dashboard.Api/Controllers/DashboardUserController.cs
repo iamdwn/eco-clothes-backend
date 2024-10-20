@@ -6,10 +6,11 @@ namespace Dashboard.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class DashboardController : Controller
+    public class DashboardUserController : Controller
     {
         private readonly IUserAnalytics _userAnalytics;
-        public DashboardController(IUserAnalytics userAnalytics)
+
+        public DashboardUserController(IUserAnalytics userAnalytics)
         {
             _userAnalytics = userAnalytics;
         }
@@ -36,6 +37,12 @@ namespace Dashboard.Api.Controllers
         public async Task<int> CountActiveUsers()
         {
             return await _userAnalytics.CountActiveUsersAsync();
+        }
+
+        [HttpGet("count-daily-users")]
+        public async Task<int> CountDailyUsers(DateTime dateTime)
+        {
+            return await _userAnalytics.CountDailyUsersAsync(dateTime);
         }
     }
 }

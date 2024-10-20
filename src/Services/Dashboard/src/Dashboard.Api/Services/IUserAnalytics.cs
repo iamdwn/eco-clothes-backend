@@ -8,5 +8,6 @@ namespace Dashboard.Api.Services
         Task<IEnumerable<User>> GetNewUsersThisMonthAsync();
         Task<IEnumerable<User>> GetActiveUsersAsync();
         Task<int> CountActiveUsersAsync();
+        Task<int> CountDailyUsersAsync(DateTime dateTime);
     }
 }
