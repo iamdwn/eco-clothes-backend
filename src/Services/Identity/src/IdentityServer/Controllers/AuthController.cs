@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
 using System.Security.Claims;
 using System.ComponentModel.DataAnnotations;
+using IdentityServer.Services;
 
 namespace IdentityServer.Controllers
 {
@@ -25,13 +26,14 @@ namespace IdentityServer.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ApplicationDbContext _context;
+        private readonly MessageService _messageService;
 
         private readonly IMassTransitService _massTransitService;
         private readonly ICurrentUserService _currentUserService;
         private readonly IJwtService _jwtService;
         private readonly IMapper _mapper;
 
-        public AuthController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IMassTransitService massTransitService, IJwtService jwtService, RoleManager<IdentityRole> roleManager, IMapper mapper, ApplicationDbContext context, ICurrentUserService currentUserService)
+        public AuthController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IMassTransitService massTransitService, IJwtService jwtService, RoleManager<IdentityRole> roleManager, IMapper mapper, ApplicationDbContext context, ICurrentUserService currentUserService, MessageService messageService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -41,6 +43,7 @@ namespace IdentityServer.Controllers
             _mapper = mapper;
             _context = context;
             _currentUserService = currentUserService;
+            _messageService = messageService;
         }
 
         [HttpPost("Login")]
@@ -82,7 +85,7 @@ namespace IdentityServer.Controllers
                     if (!userResult.Succeeded)
                     {
                         await transaction.RollbackAsync();
-                        return BadRequest(ResponseObject.Failure<object>(userResult.Errors.FirstOrDefault().Description, "User does not exist!"));
+                        return BadRequest(ResponseObject.Failure<object>(userResult.Errors.FirstOrDefault().Description, "User create failed!"));
                     }
 
                     var roleResult = await _userManager.AddToRoleAsync(user, model.RoleName);
@@ -95,12 +98,14 @@ namespace IdentityServer.Controllers
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     var callbackUrl = Url.Action("ConfirmEmail", "Auth", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
 
+                    await _messageService.SendEmailAsync(user.Email, "Confirm your account",
+                            "Please confirm your account by clicking this link: <a href=\"" + callbackUrl + "\">link</a>");
+
                     await _massTransitService.Publish(new UserCreatedEvent
                     {
                         UserId = user.Id,
                         Email = user.Email,
                         UserName = user.UserName,
-                        CallbackUrl = callbackUrl,
                     });
 
                     await transaction.CommitAsync();
@@ -123,21 +128,21 @@ namespace IdentityServer.Controllers
         }
 
         [HttpGet("ConfirmEmail")]
-        public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailDTO model)
+        public async Task<IActionResult> ConfirmEmail([FromQuery] string userId, [FromQuery] string code)
         {
-            if (model.UserId == null || model.Code == null)
+            if (userId == null || code == null)
             {
                 return BadRequest(ResponseObject.Failure<string>("Invalid request!"));
             }
 
-            var user = await _userManager.FindByIdAsync(model.UserId);
+            var user = await _userManager.FindByIdAsync(userId);
 
             if (user == null)
             {
                 return BadRequest(ResponseObject.Failure<string>("User does not exist!"));
             }
 
-            var result = await _userManager.ConfirmEmailAsync(user, model.Code);
+            var result = await _userManager.ConfirmEmailAsync(user, code);
             return result.Succeeded ? Ok(ResponseObject.Success("Confirm Email successfull!")) : BadRequest(ResponseObject.Failure<object>(result.Errors));
         }
 
@@ -274,12 +279,22 @@ namespace IdentityServer.Controllers
             ////public string Address { get; set; }
             //public string ImgUrl { get; set; }
             //public string RoleName { get; set; }
+            //            {
+            //                "fullName": "string",
+            //  "email": "string",
+            //  "password": "string",
+            //  "confirmPassword": "string",
+            //  "phoneNumber": "string",
+            //  "imgUrl": "string",
+            //  "roleName": "string"
+            //}
 
             // If the user does not have an account, then create one.
             var email = info.Principal.FindFirstValue(ClaimTypes.Email);
             var name = info.Principal.FindFirstValue(ClaimTypes.Name);
             var user = new ApplicationUser
             {
+                FullName = email,
                 Email = email,
             };
 

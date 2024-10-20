@@ -110,6 +110,8 @@ services.AddCors(options =>
 services.AddHttpContextAccessor();
 
 services.AddTransient<ICurrentUserService, CurrentUserService>();
+services.AddScoped<IEmailSender, MessageService>();
+services.AddScoped<MessageService>();
 services.AddScoped<IMassTransitService, MassTransitService>();
 services.AddScoped<IJwtService, JwtService>();
 
