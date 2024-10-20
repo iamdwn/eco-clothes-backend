@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
+using System.Security.Claims;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -84,7 +85,15 @@ services.AddAuthentication(options =>
         options.ClientSecret = builder.Configuration["Authenticate:Google:ClientSecret"];
         options.CallbackPath = "/signin-google";
         options.SaveTokens = true;
+        options.Events.OnCreatingTicket = (context) =>
+        {
+            var picture = context.User.GetProperty("picture").GetString();
+            context.Identity.AddClaim(new Claim("picture", picture));
+
+            return Task.CompletedTask;
+        };
     });
+
 // Add Cors
 services.AddCors(options =>
 {
@@ -101,6 +110,8 @@ services.AddCors(options =>
 services.AddHttpContextAccessor();
 
 services.AddTransient<ICurrentUserService, CurrentUserService>();
+services.AddScoped<IEmailSender, MessageService>();
+services.AddScoped<MessageService>();
 services.AddScoped<IMassTransitService, MassTransitService>();
 services.AddScoped<IJwtService, JwtService>();
 

@@ -18,8 +18,8 @@ namespace Notification.Consumers
         public async Task Consume(ConsumeContext<IUserCreatedEvent> context)
         {
             _logger.LogInformation("User created successfully!");
-            await _messageServices.SendEmailAsync(context.Message.Email, "Confirm your account",
-                "Please confirm your account by clicking this link: <a href=\"" + context.Message.CallbackUrl + "\">link</a>");
+            //await _messageServices.SendEmailAsync(context.Message.Email, "Confirm your account",
+            //    "Please confirm your account by clicking this link: <a href=\"" + context.Message.CallbackUrl + "\">link</a>");
         }
     }
 }
