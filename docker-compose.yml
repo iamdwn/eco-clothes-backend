@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  ocelot-gateway:
+    build:
+      context: ./src/ApiGateways/OcelotGateway
+      dockerfile: Dockerfile
+    ports:
+      - "5000:80"
+    depends_on:
+      - dashboard-api
+      - identity-server
+      - notification
+      - orders-api
+      - payments-api
+      - products-api
+      - users-api
+
+  dashboard-api:
+    build:
+      context: ./src/Services/Dashboard/src/Dashboard.Api
+      dockerfile: Dockerfile
+    ports:
+      - "5001:80"
+
+  identity-server:
+    build:
+      context: ./src/Services/Identity/src/IdentityServer
+      dockerfile: Dockerfile
+    ports:
+      - "5002:80"
+
+  notification:
+    build:
+      context: ./src/Services/Notification
+      dockerfile: Dockerfile
+    ports:
+      - "5003:80"
+
+  orders-api:
+    build:
+      context: ./src/Services/Orders/Orders.Api
+      dockerfile: Dockerfile
+    ports:
+      - "5004:80"
+
+  payments-api:
+    build:
+      context: ./src/Services/Payments/src/Payments.Api
+      dockerfile: Dockerfile
+    ports:
+      - "5005:80"
+
+  products-api:
+    build:
+      context: ./src/Services/Products/Products.Api
+      dockerfile: Dockerfile
+    ports:
+      - "5006:80"
+
+  users-api:
+    build:
+      context: ./src/Services/Users/src/Users.Api
+      dockerfile: Dockerfile
+    ports:
+      - "5007:80"
+
+# networks:
+#   default:
+#     external:
+#       name: your-predefined-network
