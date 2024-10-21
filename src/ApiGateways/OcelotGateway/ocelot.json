@@ -2,14 +2,32 @@
   "Routes": [
     {
       "DownstreamPathTemplate": "/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 5001
+          "Host": "dashboard.api",
+          "Port": 8080
         }
       ],
-      "UpstreamPathTemplate": "/api-gateway/{everything}",
+      "UpstreamPathTemplate": "/api-gateway/dashboard/{everything}",
+      "UpstreamHttpMethod": [
+        "GET"
+      ]
+      //"AuthenticationOptions": {
+      //  "AuthenticationProviderKey": "Bearer",
+      //  "AllowedScopes": []
+      //}
+    },
+    {
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "identityserver",
+          "Port": 8082
+        }
+      ],
+      "UpstreamPathTemplate": "/api-gateway/identityserver/{everything}",
       "UpstreamHttpMethod": [
         "GET",
         "POST"
@@ -21,6 +39,6 @@
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "https://localhost:5000"
+    "BaseUrl": "http://localhost:5000"
   }
 }

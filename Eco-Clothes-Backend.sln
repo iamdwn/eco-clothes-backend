@@ -4,9 +4,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2EA6ECD9-E40A-463A-81C4-8B5680F83419}"
-	ProjectSection(SolutionItems) = preProject
-		docker-compose.yml = docker-compose.yml
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ApiGateways", "ApiGateways", "{8DD7DDE1-01B1-4D1E-BFF0-AF431D9DA2C0}"
 EndProject
@@ -62,6 +59,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{5F505EE5-294
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Users.Api", "src\Services\Users\src\Users.Api\Users.Api.csproj", "{6BCEE688-B80E-4226-915C-4CB1ACF155B5}"
 EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{0FF640CA-7C53-4526-9FC3-403F8713AFCF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -108,6 +107,10 @@ Global
 		{6BCEE688-B80E-4226-915C-4CB1ACF155B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6BCEE688-B80E-4226-915C-4CB1ACF155B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6BCEE688-B80E-4226-915C-4CB1ACF155B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0FF640CA-7C53-4526-9FC3-403F8713AFCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FF640CA-7C53-4526-9FC3-403F8713AFCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FF640CA-7C53-4526-9FC3-403F8713AFCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FF640CA-7C53-4526-9FC3-403F8713AFCF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

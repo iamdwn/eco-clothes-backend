@@ -1,71 +1,50 @@
-version: '3.8'
+version: '3.4'
 
 services:
-  ocelot-gateway:
+  dashboard.api:
+    image: ${DOCKER_REGISTRY-}dashboardapi
     build:
-      context: ./src/ApiGateways/OcelotGateway
-      dockerfile: Dockerfile
-    ports:
-      - "5000:80"
-    depends_on:
-      - dashboard-api
-      - identity-server
-      - notification
-      - orders-api
-      - payments-api
-      - products-api
-      - users-api
+      context: .
+      dockerfile: src/Services/Dashboard/src/Dashboard.Api/Dockerfile
 
-  dashboard-api:
+  identityserver:
+    image: ${DOCKER_REGISTRY-}identityserver
     build:
-      context: ./src/Services/Dashboard/src/Dashboard.Api
-      dockerfile: Dockerfile
-    ports:
-      - "5001:80"
+      context: .
+      dockerfile: src/Services/Identity/src/IdentityServer/Dockerfile
 
-  identity-server:
+
+  # orders.api:
+  #   image: ${DOCKER_REGISTRY-}ordersapi
+  #   build:
+  #     context: .
+  #     dockerfile: src/Services/Orders/Orders.Api/Dockerfile
+
+
+  # payments.api:
+  #   image: ${DOCKER_REGISTRY-}paymentsapi
+  #   build:
+  #     context: .
+  #     dockerfile: src/Services/Payments/src/Payments.Api/Dockerfile
+
+
+  # products.api:
+  #   image: ${DOCKER_REGISTRY-}productsapi
+  #   build:
+  #     context: .
+  #     dockerfile: src/Services/Products/Products.Api/Dockerfile
+
+
+  # users.api:
+  #   image: ${DOCKER_REGISTRY-}usersapi
+  #   build:
+  #     context: .
+  #     dockerfile: src/Services/Users/src/Users.Api/Dockerfile
+
+
+  ocelotgateway:
+    image: ${DOCKER_REGISTRY-}ocelotgateway
     build:
-      context: ./src/Services/Identity/src/IdentityServer
-      dockerfile: Dockerfile
-    ports:
-      - "5002:80"
+      context: .
+      dockerfile: src/ApiGateways/OcelotGateway/Dockerfile
 
-  notification:
-    build:
-      context: ./src/Services/Notification
-      dockerfile: Dockerfile
-    ports:
-      - "5003:80"
-
-  orders-api:
-    build:
-      context: ./src/Services/Orders/Orders.Api
-      dockerfile: Dockerfile
-    ports:
-      - "5004:80"
-
-  payments-api:
-    build:
-      context: ./src/Services/Payments/src/Payments.Api
-      dockerfile: Dockerfile
-    ports:
-      - "5005:80"
-
-  products-api:
-    build:
-      context: ./src/Services/Products/Products.Api
-      dockerfile: Dockerfile
-    ports:
-      - "5006:80"
-
-  users-api:
-    build:
-      context: ./src/Services/Users/src/Users.Api
-      dockerfile: Dockerfile
-    ports:
-      - "5007:80"
-
-# networks:
-#   default:
-#     external:
-#       name: your-predefined-network
