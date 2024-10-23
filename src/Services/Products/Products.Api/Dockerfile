@@ -9,19 +9,19 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["src/Services/Identity/src/IdentityServer/IdentityServer.csproj", "src/Services/Identity/src/IdentityServer/"]
+COPY ["src/Services/Products/Products.Api/Products.Api.csproj", "src/Services/Products/Products.Api/"]
 COPY ["src/BuildingBlocks/DataAccess/DataAccess.csproj", "src/BuildingBlocks/DataAccess/"]
 COPY ["src/BuildingBlocks/EventBus/EventBus.csproj", "src/BuildingBlocks/EventBus/"]
-RUN dotnet restore "./src/Services/Identity/src/IdentityServer/IdentityServer.csproj"
+RUN dotnet restore "./src/Services/Products/Products.Api/Products.Api.csproj"
 COPY . .
-WORKDIR "/src/src/Services/Identity/src/IdentityServer"
-RUN dotnet build "./IdentityServer.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/src/Services/Products/Products.Api"
+RUN dotnet build "./Products.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./IdentityServer.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./Products.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "IdentityServer.dll"]
+ENTRYPOINT ["dotnet", "Products.Api.dll"]
