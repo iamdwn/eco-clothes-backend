@@ -24,10 +24,86 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "identityserver",
-          "Port": 8082
+          "Port": 8080
         }
       ],
       "UpstreamPathTemplate": "/api-gateway/identityserver/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST"
+      ]
+      //"AuthenticationOptions": {
+      //  "AuthenticationProviderKey": "Bearer",
+      //  "AllowedScopes": []
+      //}
+    },
+    {
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "orders.api",
+          "Port": 8080
+        }
+      ],
+      "UpstreamPathTemplate": "/api-gateway/orders/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST"
+      ]
+      //"AuthenticationOptions": {
+      //  "AuthenticationProviderKey": "Bearer",
+      //  "AllowedScopes": []
+      //}
+    },
+    {
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "payments.api",
+          "Port": 8080
+        }
+      ],
+      "UpstreamPathTemplate": "/api-gateway/payments/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST"
+      ]
+      //"AuthenticationOptions": {
+      //  "AuthenticationProviderKey": "Bearer",
+      //  "AllowedScopes": []
+      //}
+    },
+    {
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "products.api",
+          "Port": 8080
+        }
+      ],
+      "UpstreamPathTemplate": "/api-gateway/products/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST"
+      ]
+      //"AuthenticationOptions": {
+      //  "AuthenticationProviderKey": "Bearer",
+      //  "AllowedScopes": []
+      //}
+    },
+    {
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "users.api",
+          "Port": 8080
+        }
+      ],
+      "UpstreamPathTemplate": "/api-gateway/users/{everything}",
       "UpstreamHttpMethod": [
         "GET",
         "POST"

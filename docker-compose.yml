@@ -13,34 +13,29 @@ services:
       context: .
       dockerfile: src/Services/Identity/src/IdentityServer/Dockerfile
 
+  orders.api:
+    image: ${DOCKER_REGISTRY-}ordersapi
+    build:
+      context: .
+      dockerfile: src/Services/Orders/Orders.Api/Dockerfile
 
-  # orders.api:
-  #   image: ${DOCKER_REGISTRY-}ordersapi
-  #   build:
-  #     context: .
-  #     dockerfile: src/Services/Orders/Orders.Api/Dockerfile
+  payments.api:
+    image: ${DOCKER_REGISTRY-}paymentsapi
+    build:
+      context: .
+      dockerfile: src/Services/Payments/src/Payments.Api/Dockerfile
 
+  products.api:
+    image: ${DOCKER_REGISTRY-}productsapi
+    build:
+      context: .
+      dockerfile: src/Services/Products/Products.Api/Dockerfile
 
-  # payments.api:
-  #   image: ${DOCKER_REGISTRY-}paymentsapi
-  #   build:
-  #     context: .
-  #     dockerfile: src/Services/Payments/src/Payments.Api/Dockerfile
-
-
-  # products.api:
-  #   image: ${DOCKER_REGISTRY-}productsapi
-  #   build:
-  #     context: .
-  #     dockerfile: src/Services/Products/Products.Api/Dockerfile
-
-
-  # users.api:
-  #   image: ${DOCKER_REGISTRY-}usersapi
-  #   build:
-  #     context: .
-  #     dockerfile: src/Services/Users/src/Users.Api/Dockerfile
-
+  users.api:
+    image: ${DOCKER_REGISTRY-}usersapi
+    build:
+      context: .
+      dockerfile: src/Services/Users/src/Users.Api/Dockerfile
 
   ocelotgateway:
     image: ${DOCKER_REGISTRY-}ocelotgateway
