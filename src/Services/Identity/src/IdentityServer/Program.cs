@@ -25,7 +25,7 @@ services.AddSwaggerGen();
 // Add DbContext
 services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySQL(
-        builder.Configuration.GetConnectionString("DefaultConnection")
+        builder.Configuration.GetConnectionString("DefaultConnection"),
         options => options.EnableRetryOnFailure(
                     maxRetryCount: 5,
                     maxRetryDelay: TimeSpan.FromSeconds(30),

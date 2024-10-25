@@ -1,45 +1,122 @@
-version: '3.4'
+networks:
+  backend:
 
 services:
   dashboard.api:
-    image: ${DOCKER_REGISTRY-}dashboardapi
+    image: dungphase172122124/dashboardapi:latest
     build:
       context: .
       dockerfile: src/Services/Dashboard/src/Dashboard.Api/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+    ports:
+      - "8080"  # Exposing port
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+    networks:
+      - backend
 
   identityserver:
-    image: ${DOCKER_REGISTRY-}identityserver
+    image: dungphase172122124/identityserver:latest
     build:
       context: .
       dockerfile: src/Services/Identity/src/IdentityServer/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+    ports:
+      - "8080"  # Exposing port
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+    networks:
+      - backend
 
   orders.api:
-    image: ${DOCKER_REGISTRY-}ordersapi
+    image: dungphase172122124/ordersapi:latest
     build:
       context: .
       dockerfile: src/Services/Orders/Orders.Api/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+    ports:
+      - "8080"  # Exposing port
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+    networks:
+      - backend
 
   payments.api:
-    image: ${DOCKER_REGISTRY-}paymentsapi
+    image: dungphase172122124/paymentsapi:latest
     build:
       context: .
       dockerfile: src/Services/Payments/src/Payments.Api/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+    ports:
+      - "8080"  # Exposing port
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+    networks:
+      - backend
 
   products.api:
-    image: ${DOCKER_REGISTRY-}productsapi
+    image: dungphase172122124/productsapi:latest
     build:
       context: .
       dockerfile: src/Services/Products/Products.Api/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+    ports:
+      - "8080"  # Exposing port
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+    networks:
+      - backend
 
   users.api:
-    image: ${DOCKER_REGISTRY-}usersapi
+    image: dungphase172122124/usersapi:latest
     build:
       context: .
       dockerfile: src/Services/Users/src/Users.Api/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+    ports:
+      - "8080"  # Exposing port
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+    networks:
+      - backend
 
   ocelotgateway:
-    image: ${DOCKER_REGISTRY-}ocelotgateway
+    image: dungphase172122124/ocelotgateway:latest
     build:
       context: .
       dockerfile: src/ApiGateways/OcelotGateway/Dockerfile
-
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+    ports:
+      - "8080:8080"  # Exposing Ocelot gateway port
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+    depends_on:
+      - dashboard.api
+      - identityserver
+      - orders.api
+      - payments.api
+      - products.api
+      - users.api
+    networks:
+      - backend
