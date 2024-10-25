@@ -23,7 +23,7 @@ services.AddSwaggerGen();
 // Add DbContext
 services.AddDbContext<EcoClothesContext>(options =>
                 options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
-                new MySqlServerVersion(new Version(8, 0, 23))));
+                new MySqlServerVersion(new Version(8, 0, 23)), mySqlOptions => mySqlOptions.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null)));
 
 // Add MassTransit
 services.AddMassTransit(x =>

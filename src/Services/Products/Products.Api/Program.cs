@@ -19,7 +19,8 @@ namespace Products.Api
             // Add services to the container.
             builder.Services.AddDbContext<EcoClothesContext>(options =>
                 options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
-                new MySqlServerVersion(new Version(8, 0, 23))));
+                new MySqlServerVersion(new Version(8, 0, 23)), 
+                mySqlOptions => mySqlOptions.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null)));
 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>(); // Register Unit of Work
             builder.Services.AddScoped<IProductService, ProductServiceImpl>(); // Register Product Service
