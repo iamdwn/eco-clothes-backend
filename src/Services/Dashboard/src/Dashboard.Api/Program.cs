@@ -18,7 +18,12 @@ namespace Dashboard.Api
             // Add services to the container.
             builder.Services.AddDbContext<EcoClothesContext>(options =>
                 options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
-                new MySqlServerVersion(new Version(8, 0, 23))));
+                new MySqlServerVersion(new Version(8, 0, 23)),
+                mySqlOptions => mySqlOptions.EnableRetryOnFailure(
+                    maxRetryCount: 5, // Number of retry attempts
+                    maxRetryDelay: TimeSpan.FromSeconds(30), // Maximum delay between retries
+                    errorNumbersToAdd: null // Add specific error codes if necessary
+                )));
 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IUserAnalytics, UserAnalyticsImpl>();
