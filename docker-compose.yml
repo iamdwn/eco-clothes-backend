@@ -1,5 +1,5 @@
-networks:
-  backend:
+# networks:
+#   backend:
 
 services:
   dashboard.api:
@@ -15,8 +15,8 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-    networks:
-      - backend
+    # networks:
+    #   - backend
 
   identityserver:
     image: dungphase172122124/identityserver:latest
@@ -31,8 +31,8 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-    networks:
-      - backend
+    # networks:
+    #   - backend
 
   orders.api:
     image: dungphase172122124/ordersapi:latest
@@ -47,8 +47,8 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-    networks:
-      - backend
+    # networks:
+    #   - backend
 
   payments.api:
     image: dungphase172122124/paymentsapi:latest
@@ -63,8 +63,8 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-    networks:
-      - backend
+    # networks:
+    #   - backend
 
   products.api:
     image: dungphase172122124/productsapi:latest
@@ -79,8 +79,8 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-    networks:
-      - backend
+    # networks:
+    #   - backend
 
   users.api:
     image: dungphase172122124/usersapi:latest
@@ -95,8 +95,8 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-    networks:
-      - backend
+    # networks:
+    #   - backend
 
   ocelotgateway:
     image: dungphase172122124/ocelotgateway:latest
@@ -118,5 +118,5 @@ services:
       - payments.api
       - products.api
       - users.api
-    networks:
-      - backend
+    # networks:
+    #   - backend
