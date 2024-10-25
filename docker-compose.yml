@@ -1,7 +1,19 @@
-# networks:
-#   backend:
+version: '3.8'
 
 services:
+  mysql:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: my-secret-pw
+      MYSQL_DATABASE: my_database
+      MYSQL_USER: user
+      MYSQL_PASSWORD: my-secrect-pw
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
   dashboard.api:
     image: dungphase172122124/dashboardapi:latest
     build:
@@ -15,9 +27,8 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-    network_mode: host
-    # networks:
-    #   - backend
+    depends_on:
+      - mysql
 
   identityserver:
     image: dungphase172122124/identityserver:latest
@@ -32,9 +43,8 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-    network_mode: host
-    # networks:
-    #   - backend
+    depends_on:
+      - mysql
 
   orders.api:
     image: dungphase172122124/ordersapi:latest
@@ -49,9 +59,8 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-    network_mode: host
-    # networks:
-    #   - backend
+    depends_on:
+      - mysql
 
   payments.api:
     image: dungphase172122124/paymentsapi:latest
@@ -66,9 +75,8 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-    network_mode: host
-    # networks:
-    #   - backend
+    depends_on:
+      - mysql
 
   products.api:
     image: dungphase172122124/productsapi:latest
@@ -83,9 +91,8 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-    network_mode: host
-    # networks:
-    #   - backend
+    depends_on:
+      - mysql
 
   users.api:
     image: dungphase172122124/usersapi:latest
@@ -100,9 +107,8 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-    network_mode: host
-    # networks:
-    #   - backend
+    depends_on:
+      - mysql
 
   ocelotgateway:
     image: dungphase172122124/ocelotgateway:latest
@@ -118,12 +124,7 @@ services:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
     depends_on:
-      - dashboard.api
-      - identityserver
-      - orders.api
-      - payments.api
-      - products.api
-      - users.api
-    network_mode: host
-    # networks:
-    #   - backend
+      - mysql
+
+volumes:
+  mysql_data:
