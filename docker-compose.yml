@@ -1,18 +1,18 @@
 version: '3.8'
 
 services:
-  mysql:
-    image: mysql
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: my-secret-pw
-      MYSQL_DATABASE: my_database
-      MYSQL_USER: user
-      MYSQL_PASSWORD: my-secrect-pw
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
+  # mysql:
+  #   image: mysql
+  #   restart: always
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: my-secret-pw
+  #     MYSQL_DATABASE: my_database
+  #     MYSQL_USER: user
+  #     MYSQL_PASSWORD: my-secrect-pw
+  #   ports:
+  #     - "3306:3306"
+  #   volumes:
+  #     - mysql_data:/var/lib/mysql
 
   dashboard.api:
     image: dungphase172122124/dashboardapi:latest
