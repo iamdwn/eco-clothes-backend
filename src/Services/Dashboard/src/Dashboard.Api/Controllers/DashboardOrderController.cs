@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Dashboard.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("dashboard/api/[controller]")]
     [ApiController]
     public class DashboardOrderController : ControllerBase
     {
