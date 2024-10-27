@@ -9,7 +9,7 @@
           "Port": 8080
         }
       ],
-      "UpstreamPathTemplate": "/api-gateway/dashboard/{everything}",
+      "UpstreamPathTemplate": "/dashboard/{everything}",
       "UpstreamHttpMethod": [
         "GET"
       ]
@@ -27,7 +27,7 @@
           "Port": 8080
         }
       ],
-      "UpstreamPathTemplate": "/api-gateway/identityserver/{everything}",
+      "UpstreamPathTemplate": "/identityserver/{everything}",
       "UpstreamHttpMethod": [
         "GET",
         "POST"
@@ -46,7 +46,7 @@
           "Port": 8080
         }
       ],
-      "UpstreamPathTemplate": "/api-gateway/orders/{everything}",
+      "UpstreamPathTemplate": "/orders/{everything}",
       "UpstreamHttpMethod": [
         "GET",
         "POST"
@@ -65,7 +65,7 @@
           "Port": 8080
         }
       ],
-      "UpstreamPathTemplate": "/api-gateway/payments/{everything}",
+      "UpstreamPathTemplate": "/payments/{everything}",
       "UpstreamHttpMethod": [
         "GET",
         "POST"
@@ -84,7 +84,7 @@
           "Port": 8080
         }
       ],
-      "UpstreamPathTemplate": "/api-gateway/products/{everything}",
+      "UpstreamPathTemplate": "/products/{everything}",
       "UpstreamHttpMethod": [
         "GET",
         "POST"
@@ -103,7 +103,7 @@
           "Port": 8080
         }
       ],
-      "UpstreamPathTemplate": "/api-gateway/users/{everything}",
+      "UpstreamPathTemplate": "/users/{everything}",
       "UpstreamHttpMethod": [
         "GET",
         "POST"

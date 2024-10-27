@@ -46,7 +46,6 @@ namespace IdentityServer.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<string>("ImgUrl")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<bool>("IsDeleted")

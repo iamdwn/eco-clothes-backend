@@ -1,3 +1,5 @@
+using DataAccess.Base.Impl;
+using DataAccess.Base;
 using IdentityServer.Data;
 using IdentityServer.Models;
 using IdentityServer.Services;
@@ -11,6 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
 using System.Security.Claims;
 using System.Text;
+using DataAccess.Persistences;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,10 +29,10 @@ services.AddSwaggerGen();
 services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySQL(
         builder.Configuration.GetConnectionString("DefaultConnection")
-        options => options.EnableRetryOnFailure(
-                    maxRetryCount: 5,
-                    maxRetryDelay: TimeSpan.FromSeconds(30),
-                    errorNumbersToAdd: null)
+        //,options => options.EnableRetryOnFailure(
+        //            maxRetryCount: 5,
+        //            maxRetryDelay: TimeSpan.FromSeconds(30),
+        //            errorNumbersToAdd: null)
         )
     );
 
@@ -94,26 +97,25 @@ services.AddAuthentication(options =>
         };
     });
 
-// Add Cors
-services.AddCors(options =>
+// Add CORS policy
+builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll",
-        builder =>
-        {
-            builder.AllowAnyOrigin()
-                   .AllowAnyMethod()
-                   .AllowAnyHeader();
-        });
+    options.AddPolicy("AllowAllOrigins", builder =>
+    {
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+    });
 });
 
 // Add HttpContextAccessor
 services.AddHttpContextAccessor();
 
 services.AddTransient<ICurrentUserService, CurrentUserService>();
-services.AddScoped<IEmailSender, MessageService>();
-services.AddScoped<MessageService>();
 services.AddScoped<IMassTransitService, MassTransitService>();
 services.AddScoped<IJwtService, JwtService>();
+services.AddScoped<IEmailSender, MessageService>();
+services.AddScoped<MessageService>();
 
 var app = builder.Build();
 
@@ -124,7 +126,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors("AllowAll");
+app.UseCors("AllowAllOrigins");
 
 app.UseRouting();
 
