@@ -46,6 +46,17 @@ services.AddMassTransit(x =>
     });
 });
 
+// Add CORS policy
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins", builder =>
+    {
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+    });
+});
+
 services.AddScoped<IMassTransitService, MassTransitService>();
 
 var app = builder.Build();
@@ -57,7 +68,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+app.UseCors("AllowAllOrigins");
+
+//app.UseHttpsRedirection();
 
 app.UseAuthorization();
 

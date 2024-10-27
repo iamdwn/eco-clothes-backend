@@ -94,16 +94,15 @@ services.AddAuthentication(options =>
         };
     });
 
-// Add Cors
-services.AddCors(options =>
+// Add CORS policy
+builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll",
-        builder =>
-        {
-            builder.AllowAnyOrigin()
-                   .AllowAnyMethod()
-                   .AllowAnyHeader();
-        });
+    options.AddPolicy("AllowAllOrigins", builder =>
+    {
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+    });
 });
 
 // Add HttpContextAccessor
@@ -124,7 +123,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors("AllowAll");
+app.UseCors("AllowAllOrigins");
 
 app.UseRouting();
 
