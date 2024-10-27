@@ -98,3 +98,10 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+
+  favorites.api:
+    image: ${DOCKER_REGISTRY-}favoritesapi
+    build:
+      context: .
+      dockerfile: src/Services/Favorites/src/Favorites.Api/Dockerfile
+
