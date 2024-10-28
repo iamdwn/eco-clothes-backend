@@ -28,8 +28,14 @@ namespace Carts.Api.Services.Impl
 
             if (size == null) throw new Exception($"Not found size with name {cart.SizeName}");
 
+            var existingProduct = _unitOfWork.ProductRepository.Get(
+                        filter: p => p.ProductId.Equals(cart.ProductId)
+                        ).FirstOrDefault();
+
+            if (existingProduct == null) throw new Exception($"Not found Product with id {cart.ProductId}");
+
             var existingCart = _unitOfWork.CartRepository.Get(
-                         filter: p => p.UserId.Equals(cart.UserId)
+                         filter: p => p.ProductId.Equals(cart.ProductId) && p.UserId.Equals(cart.UserId)
                          ).FirstOrDefault();
 
             if (existingCart == null)
@@ -40,7 +46,7 @@ namespace Carts.Api.Services.Impl
                     ProductId = cart.ProductId,
                     SizeId = size.SizeId,
                     Quantity = cart.Quantity,
-                    Price = cart.Price
+                    Price = (double)existingProduct.NewPrice * cart.Quantity
                 };
 
                 _unitOfWork.CartRepository.Insert(insertCart);
@@ -53,23 +59,27 @@ namespace Carts.Api.Services.Impl
             existingCart.ProductId = cart.ProductId ?? existingCart.ProductId;
             existingCart.SizeId = size.SizeId;
             existingCart.Quantity = cart.Quantity ?? existingCart.Quantity;
-            existingCart.Price = cart.Price ?? existingCart.Price;
+            existingCart.Price = (double)existingProduct.NewPrice * cart.Quantity ?? existingCart.Price;
 
             _unitOfWork.CartRepository.Update(existingCart);
             _unitOfWork.Save();
             return existingCart;
         }
 
-        public async Task DeleteCartAsync(Guid id)
+        public async Task DeleteCartAsync(Guid userId)
         {
-            var existingCart = _unitOfWork.CartRepository.GetByID(id);
+            var cartItems = _unitOfWork.CartRepository
+                .Get(filter: o => o.UserId == userId)
+                .ToList();
 
-            if (existingCart == null)
+            if (!cartItems.Any())
             {
-                throw new KeyNotFoundException($"Cart with ID {id} not found.");
+                {
+                    throw new KeyNotFoundException($"CartItems with userId {userId} not found.");
+                }
             }
 
-            _unitOfWork.CartRepository.Delete(id);
+            _unitOfWork.CartRepository.DeleteRange(cartItems);
             _unitOfWork.Save();
         }
 

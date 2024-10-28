@@ -13,6 +13,6 @@ namespace Carts.Api.Services
         Task<double> ShippingFeeOfCartAsync(Guid userId);
         Task<Cart> AddToCartAsync(CartDto cart);
         //Task UpdateCartAsync(Cart cart);
-        Task DeleteCartAsync(Guid id);
+        Task DeleteCartAsync(Guid userId);
     }
 }

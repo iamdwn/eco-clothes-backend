@@ -57,10 +57,10 @@ namespace Carts.Api.Controllers
             return await _cartService.AddToCartAsync(cart);
         }
 
-        [HttpDelete("{id}")]
-        public async Task DeleteCart(Guid id)
+        [HttpDelete("{userId}")]
+        public async Task DeleteCart(Guid userId)
         {
-            await _cartService.DeleteCartAsync(id);
+            await _cartService.DeleteCartAsync(userId);
         }
     }
 }
