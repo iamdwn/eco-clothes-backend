@@ -27,7 +27,7 @@ namespace Dashboard.Api.Controllers
         }
 
         [HttpGet("growth-product")]
-        public async Task<double> GetProductGrowthComparedToYesterda()
+        public async Task<double> GetProductGrowthComparedToYesterday()
         {
             return await _growthAnalytics.GetProductGrowthComparedToYesterdayAsync();
         }
