@@ -1,4 +1,5 @@
-﻿using DataAccess.Models;
+﻿using Carts.Api.Dtos;
+using DataAccess.Models;
 
 namespace Carts.Api.Services
 {
@@ -10,8 +11,8 @@ namespace Carts.Api.Services
         Task<double> TotalPriceOfCartAsync(Guid userId);
         Task<int> CountProductsOfCartAsync(Guid userId);
         Task<double> ShippingFeeOfCartAsync(Guid userId);
-        Task<Cart> CreateCartAsync(Cart cart);
-        Task UpdateCartAsync(Cart cart);
+        Task<Cart> AddToCartAsync(CartDto cart);
+        //Task UpdateCartAsync(Cart cart);
         Task DeleteCartAsync(Guid id);
     }
 }

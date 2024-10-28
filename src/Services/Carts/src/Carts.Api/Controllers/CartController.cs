@@ -1,4 +1,5 @@
-﻿using Carts.Api.Services;
+﻿using Carts.Api.Dtos;
+using Carts.Api.Services;
 using DataAccess.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -51,15 +52,9 @@ namespace Carts.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Cart>> CreateCart(Cart cart)
+        public async Task<ActionResult<Cart>> AddToCart(CartDto cart)
         {
-            return await _cartService.CreateCartAsync(cart);
-        }
-
-        [HttpPut]
-        public async Task UpdateCart(Cart cart)
-        {
-            await _cartService.UpdateCartAsync(cart);
+            return await _cartService.AddToCartAsync(cart);
         }
 
         [HttpDelete("{id}")]
