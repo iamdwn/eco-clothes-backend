@@ -15,6 +15,7 @@ using Microsoft.IdentityModel.JsonWebTokens;
 using System.Security.Claims;
 using System.ComponentModel.DataAnnotations;
 using IdentityServer.Services;
+using System.Net;
 
 namespace IdentityServer.Controllers
 {
@@ -69,6 +70,7 @@ namespace IdentityServer.Controllers
         public async Task<IActionResult> Register([FromBody] RegisterDTO model)
         {
             var user = _mapper.Map<ApplicationUser>(model);
+            string baseUrl = "api-gateway.hdang09.me";
 
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
@@ -96,10 +98,37 @@ namespace IdentityServer.Controllers
                     }
 
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    var callbackUrl = Url.Action("ConfirmEmail", "Auth", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
+                    var callbackUrl = $"https://api-gateway.hdang09.me/identityserver/api/Auth/ConfirmEmail?userId={user.Id}&code={code}";
+                    //var callbackUrl = Url.Action("ConfirmEmail", "Auth", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
 
-                    await _messageService.SendEmailAsync(user.Email, "Confirm your account",
-                            "Please confirm your account by clicking this link: <a href=\"" + callbackUrl + "\">link</a>");
+                    await _messageService.SendEmailAsync(user.Email, "Confirm Your Account",
+                        $@"<div style='font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;'>
+                            <div style='max-width: 600px; margin: auto; background-color: #ffffff; padding: 20px; border-radius: 5px;'>
+                                <h2 style='color: #333333; text-align: center;'>Welcome to Eco-Clothes!</h2>
+                                <p style='color: #666666; font-size: 16px;'>
+                                    Hi {user.UserName},<br/><br/>
+                                    Thanks for signing up! Please confirm your email address by clicking the button below.
+                                </p>
+                                <div style='text-align: center; margin: 20px 0;'>
+                                    <a href='{callbackUrl}' style='background-color: #4CAF50; color: #ffffff; padding: 12px 20px; border-radius: 5px; text-decoration: none; font-weight: bold; display: inline-block;'>
+                                        Confirm Your Account
+                                    </a>
+                                </div>
+                                <p style='color: #666666; font-size: 16px;'>
+                                    Or, copy and paste the following URL into your browser:
+                                </p>
+                                <p style='color: #333333; font-size: 14px; word-break: break-all;'>
+                                    <a href='{callbackUrl}' style='color: #4CAF50;'>{callbackUrl}</a>
+                                </p>
+                                <hr style='border: none; border-top: 1px solid #dddddd; margin: 20px 0;' />
+                                <p style='color: #999999; font-size: 12px; text-align: center;'>
+                                    If you did not sign up for this account, you can ignore this email. <br/>
+                                    Thank you! <br/><br/>
+                                    Eco-Clothes
+                                </p>
+                            </div>
+                        </div>"
+                        );
 
                     await _massTransitService.Publish(new UserCreatedEvent
                     {
@@ -113,7 +142,7 @@ namespace IdentityServer.Controllers
                     });
 
                     await transaction.CommitAsync();
-                    return Ok(ResponseObject.Success(new TokenResponse { AccessToken = await GenerateAccessToken(user), RefreshToken = await GenerateRefreshToken(user) }, "User create account with password!"));
+                    return Ok(ResponseObject.Success(HttpStatusCode.Created, new TokenResponse { AccessToken = await GenerateAccessToken(user), RefreshToken = await GenerateRefreshToken(user) }, "Please check your email to confirm email!"));
 
                 }
                 catch (Exception ex)
@@ -233,7 +262,7 @@ namespace IdentityServer.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return Unauthorized(ResponseObject.Failure("Invalid request!"));
 
-            return Ok(ResponseObject.Success<ApplicationUser>(user, "Password has been changed successfully"));
+            return Ok(ResponseObject.Success(user, "Password has been changed successfully"));
         }
 
         [Authorize(Roles = "ADMIN")]
@@ -272,19 +301,8 @@ namespace IdentityServer.Controllers
             {
                 return Ok(ResponseObject.Success("Login success!"));
             }
-            //     public string FullName { get; set; }
-            //public string Email { get; set; }
-            //public string Password { get; set; }
-
-            //[DataType(DataType.Password)]
-            //[Compare("Password", ErrorMessage = "Confirm Password does not match with Password")]
-            //public string ConfirmPassword { get; set; }
-            //public string PhoneNumber { get; set; }
-            ////public string Address { get; set; }
-            //public string ImgUrl { get; set; }
-            //public string RoleName { get; set; }
-            //            {
-            //                "fullName": "string",
+            //{
+            //  "fullName": "string",
             //  "email": "string",
             //  "password": "string",
             //  "confirmPassword": "string",
@@ -298,9 +316,11 @@ namespace IdentityServer.Controllers
             var name = info.Principal.FindFirstValue(ClaimTypes.Name);
             var user = new ApplicationUser
             {
-                FullName = email,
+                FullName = name,
                 Email = email,
             };
+
+            var roleResult = await _userManager.AddToRoleAsync(user, "USER");
 
             var createResult = await _userManager.CreateAsync(user);
             if (createResult.Succeeded)
