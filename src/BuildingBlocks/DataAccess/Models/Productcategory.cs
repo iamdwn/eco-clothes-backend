@@ -10,6 +10,8 @@ public partial class ProductCategory
 
     public Guid? CategoryId { get; set; }
 
+    public string? CategoryName { get; set; }
+
     [JsonIgnore]
     public virtual Category? Category { get; set; }
 
