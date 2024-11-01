@@ -50,7 +50,8 @@ namespace Products.Api.Services.Impl
             {
                 ProductId = productId,
                 SizeId = pointSize.SizeId,
-                SizeQuantity = item.SizeQuantity
+                SizeQuantity = item.SizeQuantity,
+                SizeName = pointSize.Name
             };
 
             _unitOfWork.SizeproductRepository.Insert(insertSize);

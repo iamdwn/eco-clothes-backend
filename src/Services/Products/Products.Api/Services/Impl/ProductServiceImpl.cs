@@ -21,7 +21,7 @@ namespace Products.Api.Services.Impl
         public async Task<IEnumerable<Product>> GetAllProductsAsync()
         {
             return _unitOfWork.ProductRepository.Get(
-                includeProperties: "SizeProducts"
+                includeProperties: "SizeProducts,ProductCategories"
                 ).ToList();
         }
 
@@ -29,7 +29,7 @@ namespace Products.Api.Services.Impl
         {
             var existingProduct = _unitOfWork.ProductRepository.Get(
                 filter: p => p.ProductId.Equals(id),
-                includeProperties: "SizeProducts"
+                includeProperties: "SizeProducts,ProductCategories"
                 ).FirstOrDefault();
 
             if (existingProduct == null)

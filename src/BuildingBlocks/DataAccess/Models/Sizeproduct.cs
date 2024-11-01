@@ -12,6 +12,8 @@ public partial class SizeProduct
 
     public Guid? SizeId { get; set; }
 
+    public string? SizeName { get; set; }
+
     [JsonIgnore]
     public virtual Product? Product { get; set; }
 
