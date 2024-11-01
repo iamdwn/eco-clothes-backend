@@ -95,8 +95,9 @@ namespace IdentityServer.Controllers
                     }
 
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    var callbackUrl = $"https://{baseUrl}/identityserver/api/Auth/ConfirmEmail?userId={user.Id}&code={code}";
-                    //var callbackUrl = Url.Action("ConfirmEmail", "Auth", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
+                    //var callbackUrl = $"https://localhost:5001/api/Auth/ConfirmEmail?userId={user.Id}&code={code}";
+                    var callbackUrl = $"https://{baseUrl}/identityserver/api/Auth/ConfirmEmail?userId={user.Id}&code={Uri.EscapeDataString(code)}";
+                    //var callbackUrl = Url.Action("ConfirmEmail", "Auth", new { userId = user.Id, code }, protocol: HttpContext.Request.Scheme);
 
                     await _messageService.SendEmailAsync(user.Email, "Confirm Your Account",
                         $@"<div style='font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;'>
@@ -255,7 +256,8 @@ namespace IdentityServer.Controllers
         [HttpGet("CurrentUser")]
         public async Task<IActionResult> CurrentUser()
         {
-            var user = await _userManager.GetUserAsync(User);
+            var user = await _userManager.FindByIdAsync(User.Identity?.Name!);
+            //var user = await _userManager.GetUserAsync(User);
             if (user == null) return Unauthorized(ResponseObject.Failure(code: HttpStatusCode.Unauthorized, error: "Invalid request!"));
 
             var userDto = _mapper.Map<CurrentUserDTO>(user);
