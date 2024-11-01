@@ -39,6 +39,19 @@ namespace Products.Api.Controllers
             }
         }
 
+        [HttpGet("by-slug/{slug}")]
+        public async Task<ResponseObject> GetProductBySlug(string slug)
+        {
+            try
+            {
+                return ResponseObject.Success<Product>(await _productService.GetProductBySlugAsync(slug));
+            }
+            catch (Exception ex)
+            {
+                return ResponseObject.Failure(ex.Message);
+            }
+        }
+
         [HttpGet("by-seller/{userId}")]
         public async Task<ResponseObject> GetProductBySellerId(Guid userId)
         {
