@@ -1,4 +1,5 @@
 ﻿using DataAccess.Models;
+using DataAccess.Models.Response;
 using Microsoft.AspNetCore.Mvc;
 using Orders.Api.Dtos;
 using Orders.Api.Services;
@@ -22,33 +23,71 @@ namespace Orders.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Order>> GetOrder(Guid id)
+        public async Task<ActionResult<ResponseObject>> GetOrder(Guid id)
         {
-            return await _orderService.GetOrderByIdAsync(id);
+            try
+            {
+                return ResponseObject.Success<Order>(await _orderService.GetOrderByIdAsync(id));
+            }
+            catch (Exception ex)
+            {
+                return ResponseObject.Failure(ex.Message);
+            }
         }
 
         [HttpGet("by-buyer/{userId}")]
-        public async Task<IEnumerable<Order>> GetOrderByBuyerId(Guid userId)
+        public async Task<ResponseObject> GetOrderByBuyerId(Guid userId)
         {
-            return await _orderService.GetOrderByBuyerIdAsync(userId);
+            try
+            {
+                return ResponseObject.Success<IEnumerable<Order>>(await _orderService.GetOrderByBuyerIdAsync(userId));
+            }
+            catch (Exception ex)
+            {
+                return ResponseObject.Failure(ex.Message);
+            }
         }
 
         [HttpPost]
-        public async Task<ActionResult<Order>> CreateOrder(OrderDto order)
+        public async Task<ActionResult<ResponseObject>> CreateOrder(OrderDto order)
         {
-            return await _orderService.CreateOrderAsync(order);
+            try
+            {
+                return ResponseObject.Success<Order>(await _orderService.CreateOrderAsync(order));
+            }
+            catch (Exception ex)
+            {
+                return ResponseObject.Failure(ex.Message);
+            }
         }
 
         [HttpPut]
-        public async Task UpdateOrder(OrderDto order)
+        public async Task<ResponseObject> UpdateOrder(OrderDto order)
         {
-            await _orderService.UpdateOrderAsync(order);
+            try
+            {
+                await _orderService.UpdateOrderAsync(order);
+                return ResponseObject.Success();
+            }
+            catch (Exception ex)
+            {
+                return ResponseObject.Failure(ex.Message);
+            }
+
         }
 
         [HttpDelete("{id}")]
-        public async Task DeleteOrder(Guid id)
+        public async Task<ResponseObject> DeleteOrder(Guid id)
         {
-            await _orderService.DeleteOrderAsync(id);
+            try
+            {
+                await _orderService.DeleteOrderAsync(id);
+                return ResponseObject.Success();
+            }
+            catch (Exception ex)
+            {
+                return ResponseObject.Failure(ex.Message);
+            }
         }
     }
 }

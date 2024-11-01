@@ -69,9 +69,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7C2A8058-024
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A42A0D4C-3988-48A8-90CC-3AB5FB3370FF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Carts.Api", "src\Services\Carts\src\Carts.Api\Carts.Api.csproj", "{4DCE7647-D357-408F-96C2-4FC118094394}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Carts.Api", "src\Services\Carts\src\Carts.Api\Carts.Api.csproj", "{4DCE7647-D357-408F-96C2-4FC118094394}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Favorites.Api", "src\Services\Favorites\src\Favorites.Api\Favorites.Api.csproj", "{89E9DE35-0BD9-4A24-B3B6-B7C8A4B6366E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Favorites.Api", "src\Services\Favorites\src\Favorites.Api\Favorites.Api.csproj", "{89E9DE35-0BD9-4A24-B3B6-B7C8A4B6366E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

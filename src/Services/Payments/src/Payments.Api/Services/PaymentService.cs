@@ -110,6 +110,13 @@ namespace Payments.Api.Services
 
         private string PayWithVNPay(double amount, string id)
         {
+            // Define the time zone you want to use, for example, SE Asia Standard Time for Vietnam
+            TimeZoneInfo timeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            // Convert DateTime.Now to the specified time zone
+            DateTime createDate = TimeZoneInfo.ConvertTime(DateTime.Now, timeZone);
+            DateTime expireDate = createDate.AddMinutes(15);
+
             SortedList<string, string> vnp_Params = new SortedList<string, string>(new VnPayCompare())
             {
                 { "vnp_Version", "2.1.0" },
@@ -123,8 +130,8 @@ namespace Payments.Api.Services
                 { "vnp_Locale", "vn" },
                 { "vnp_ReturnUrl", _configuration["Payment:VNPay:ReturnUrl"] }, // URL callback khi thanh toán xong
                 { "vnp_IpAddr", "abc" },
-                { "vnp_CreateDate", DateTime.Now.ToString("yyyyMMddHHmmss") },
-                { "vnp_ExpireDate", DateTime.Now.AddMinutes(15).ToString("yyyyMMddHHmmss") }
+                { "vnp_CreateDate", createDate.ToString("yyyyMMddHHmmss") },
+                { "vnp_ExpireDate", expireDate.ToString("yyyyMMddHHmmss") }
             };
 
             string baseUrl = _configuration["Payment:VNPay:Url"];

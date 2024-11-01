@@ -87,7 +87,7 @@ namespace Products.Api.Services.Impl
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error: {ex.Message}, Inner Exception: {ex.InnerException?.Message}");
+                throw new Exception($"Error: {ex.Message}");
             }
         }
 

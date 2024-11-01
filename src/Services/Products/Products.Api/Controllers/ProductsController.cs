@@ -1,4 +1,5 @@
 ﻿using DataAccess.Models;
+using DataAccess.Models.Response;
 using Microsoft.AspNetCore.Mvc;
 using Products.Api.Dtos.Request;
 using Products.Api.Services;
@@ -10,9 +11,13 @@ namespace Products.Api.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly IProductService _productService;
-        public ProductsController(IProductService productService)
+        private readonly ISizeService _sizeService;
+        private readonly ICategoryService _categoryService;
+        public ProductsController(IProductService productService, ISizeService sizeService, ICategoryService categoryService)
         {
             _productService = productService;
+            _sizeService = sizeService;
+            _categoryService = categoryService;
         }
 
         [HttpGet]
@@ -22,33 +27,83 @@ namespace Products.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Product>> GetProduct(Guid id)
+        public async Task<ActionResult<ResponseObject>> GetProduct(Guid id)
         {
-            return await _productService.GetProductByIdAsync(id);
+            try
+            {
+                return ResponseObject.Success<Product>(await _productService.GetProductByIdAsync(id));
+            }
+            catch (Exception ex)
+            {
+                return ResponseObject.Failure(ex.Message);
+            }
         }
 
         [HttpGet("by-seller/{userId}")]
-        public async Task<IEnumerable<Product>> GetProductBySellerId(Guid userId)
+        public async Task<ResponseObject> GetProductBySellerId(Guid userId)
         {
-            return await _productService.GetProductBySellerIdAsync(userId);
+            try
+            {
+                return ResponseObject.Success<IEnumerable<Product>>(await _productService.GetProductBySellerIdAsync(userId));
+            }
+            catch (Exception ex)
+            {
+                return ResponseObject.Failure(ex.Message);
+            }
         }
 
         [HttpPost]
-        public async Task<ActionResult<Product>> CreateProduct(RequestProduct product)
+        public async Task<ActionResult<ResponseObject>> CreateProduct(RequestProduct product)
         {
-            return await _productService.CreateProductAsync(product);
+            try
+            {
+                return ResponseObject.Success<Product>(await _productService.CreateProductAsync(product));
+            }
+            catch (Exception ex)
+            {
+                return ResponseObject.Failure(ex.Message);
+            }
+
         }
 
         [HttpPut]
-        public async Task UpdateProduct(RequestProduct product)
+        public async Task<ResponseObject> UpdateProduct(RequestProduct product)
         {
-            await _productService.UpdateProductAsync(product);
+            try
+            {
+                await _productService.UpdateProductAsync(product);
+                return ResponseObject.Success();
+            }
+            catch (Exception ex)
+            {
+                return ResponseObject.Failure(ex.Message);
+            }
         }
 
         [HttpDelete("{id}")]
-        public async Task DeleteProduct(Guid id)
+        public async Task<ResponseObject> DeleteProduct(Guid id)
         {
-            await _productService.DeleteProductAsync(id);
+            try
+            {
+                await _productService.DeleteProductAsync(id);
+                return ResponseObject.Success();
+            }
+            catch (Exception ex)
+            {
+                return ResponseObject.Failure(ex.Message);
+            }
+        }
+
+        [HttpGet("product-sizes")]
+        public async Task<IEnumerable<Size>> GetSizes()
+        {
+            return await _sizeService.GetAllSizesAsync();
+        }
+
+        [HttpGet("product-categories")]
+        public async Task<IEnumerable<Category>> GetCategories()
+        {
+            return await _categoryService.GetAllCategoriesAsync();
         }
     }
 }

@@ -61,33 +61,6 @@ namespace DataAccess.Base.Impl
             context.SaveChanges();
         }
 
-        public async Task BeginTransactionAsync()
-        {
-            _transaction = await context.Database.BeginTransactionAsync();
-        }
-
-        // Commit transaction
-        public async Task CommitAsync()
-        {
-            if (_transaction != null)
-            {
-                await _transaction.CommitAsync();
-                await _transaction.DisposeAsync();
-                _transaction = null;
-            }
-        }
-
-        // Rollback transaction
-        public async Task RollbackAsync()
-        {
-            if (_transaction != null)
-            {
-                await _transaction.RollbackAsync();
-                await _transaction.DisposeAsync();
-                _transaction = null;
-            }
-        }
-
         private bool disposed = false;
 
         protected virtual void Dispose(bool disposing)

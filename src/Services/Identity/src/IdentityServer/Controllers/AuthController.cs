@@ -29,11 +29,10 @@ namespace IdentityServer.Controllers
         private readonly MessageService _messageService;
 
         private readonly IMassTransitService _massTransitService;
-        private readonly ICurrentUserService _currentUserService;
         private readonly IJwtService _jwtService;
         private readonly IMapper _mapper;
 
-        public AuthController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IMassTransitService massTransitService, IJwtService jwtService, RoleManager<IdentityRole> roleManager, IMapper mapper, ApplicationDbContext context, ICurrentUserService currentUserService, MessageService messageService)
+        public AuthController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IMassTransitService massTransitService, IJwtService jwtService, RoleManager<IdentityRole> roleManager, IMapper mapper, ApplicationDbContext context, MessageService messageService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -42,7 +41,6 @@ namespace IdentityServer.Controllers
             _roleManager = roleManager;
             _mapper = mapper;
             _context = context;
-            _currentUserService = currentUserService;
             _messageService = messageService;
         }
 
@@ -363,11 +361,11 @@ namespace IdentityServer.Controllers
         {
             var claimsIdentity = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id)
+                new Claim("sub", user.Id)
             };
 
             var userRoles = await _userManager.GetRolesAsync(user);
-            claimsIdentity.Add(new Claim(ClaimsIdentity.DefaultRoleClaimType, userRoles.FirstOrDefault()));
+            claimsIdentity.Add(new Claim("role", userRoles.FirstOrDefault()));
 
             var jwtToken = _jwtService.GenerateJwtToken(claimsIdentity);
 
