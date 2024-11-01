@@ -256,7 +256,8 @@ namespace IdentityServer.Controllers
         [HttpGet("CurrentUser")]
         public async Task<IActionResult> CurrentUser()
         {
-            var user = await _userManager.GetUserAsync(User);
+            var user = await _userManager.FindByIdAsync(User.Identity?.Name!);
+            //var user = await _userManager.GetUserAsync(User);
             if (user == null) return Unauthorized(ResponseObject.Failure(code: HttpStatusCode.Unauthorized, error: "Invalid request!"));
 
             var userDto = _mapper.Map<CurrentUserDTO>(user);
