@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Dashboard.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("dashboard/api/[controller]")]
     public class DashboardUserController : Controller
     {
         private readonly IUserAnalytics _userAnalytics;

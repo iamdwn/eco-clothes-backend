@@ -20,7 +20,12 @@ services.AddSwaggerGen();
 // Add DbContext
 services.AddDbContext<EcoClothesContext>(options =>
     options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
-    new MySqlServerVersion(new Version(8, 0, 23))));
+    new MySqlServerVersion(new Version(8, 0, 23)),
+    mySqlOptions => mySqlOptions.EnableRetryOnFailure(
+                    maxRetryCount: 5, // Number of retry attempts
+                    maxRetryDelay: TimeSpan.FromSeconds(30), // Maximum delay between retries
+                    errorNumbersToAdd: null // Add specific error codes if necessary
+                )));
 
 // Add PaymentService
 services.AddScoped<IPaymentService, PaymentService>();
@@ -41,6 +46,17 @@ services.AddMassTransit(x =>
     });
 });
 
+// Add CORS policy
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins", builder =>
+    {
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+    });
+});
+
 services.AddScoped<IMassTransitService, MassTransitService>();
 
 var app = builder.Build();
@@ -52,7 +68,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+app.UseCors("AllowAllOrigins");
+
+//app.UseHttpsRedirection();
 
 app.UseAuthorization();
 

@@ -1,4 +1,4 @@
-namespace Notification
+namespace Favorites.Api
 {
     public class WeatherForecast
     {

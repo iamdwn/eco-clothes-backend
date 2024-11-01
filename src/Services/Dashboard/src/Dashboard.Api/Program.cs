@@ -17,8 +17,9 @@ namespace Dashboard.Api
 
             // Add services to the container.
             builder.Services.AddDbContext<EcoClothesContext>(options =>
-                options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
-                new MySqlServerVersion(new Version(8, 0, 23))));
+                            options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
+                            new MySqlServerVersion(new Version(8, 0, 23)),
+                            mySqlOptions => mySqlOptions.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null)));
 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IUserAnalytics, UserAnalyticsImpl>();
@@ -36,6 +37,17 @@ namespace Dashboard.Api
                 c.EnableAnnotations();
             });
 
+            // Add CORS policy
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAllOrigins", builder =>
+                {
+                    builder.AllowAnyOrigin()
+                           .AllowAnyMethod()
+                           .AllowAnyHeader();
+                });
+            });
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -45,7 +57,9 @@ namespace Dashboard.Api
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
+            app.UseCors("AllowAllOrigins");
+
+            //app.UseHttpsRedirection();
 
             app.UseAuthorization();
 

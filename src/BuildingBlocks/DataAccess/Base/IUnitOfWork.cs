@@ -20,5 +20,8 @@ namespace DataAccess.Base
         IGenericRepository<User> UserRepository { get; }
 
         void Save();
+        Task CommitAsync();
+        Task RollbackAsync();
+        Task BeginTransactionAsync();
     }
 }

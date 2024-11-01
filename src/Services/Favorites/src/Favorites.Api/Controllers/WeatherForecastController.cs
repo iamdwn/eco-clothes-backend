@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace Notification.Controllers
+namespace Favorites.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]

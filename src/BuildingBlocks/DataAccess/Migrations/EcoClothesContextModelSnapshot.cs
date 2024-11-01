@@ -31,6 +31,9 @@ namespace DataAccess.Migrations
                         .HasColumnType("char(36)")
                         .HasColumnName("cartId");
 
+                    b.Property<double?>("Price")
+                        .HasColumnType("double");
+
                     b.Property<Guid?>("ProductId")
                         .HasColumnType("char(36)")
                         .HasColumnName("productId");
@@ -38,6 +41,9 @@ namespace DataAccess.Migrations
                     b.Property<int?>("Quantity")
                         .HasColumnType("int")
                         .HasColumnName("quantity");
+
+                    b.Property<Guid?>("SizeId")
+                        .HasColumnType("char(36)");
 
                     b.Property<Guid?>("UserId")
                         .HasColumnType("char(36)")
@@ -161,7 +167,7 @@ namespace DataAccess.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("varchar(20)")
                         .HasColumnName("status")
-                        .HasDefaultValueSql("'Pending'");
+                        .HasDefaultValueSql("'Đang Giao'");
 
                     b.Property<Guid?>("UserId")
                         .HasColumnType("char(36)")
