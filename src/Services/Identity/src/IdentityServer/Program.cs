@@ -14,6 +14,8 @@ using System.Reflection;
 using System.Security.Claims;
 using System.Text;
 using DataAccess.Persistences;
+using Microsoft.OpenApi.Models;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,7 +26,35 @@ var configuration = builder.Configuration;
 services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 services.AddEndpointsApiExplorer();
-services.AddSwaggerGen();
+services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Eco-Clothes API", Version = "v1" });
+    var securityScheme = new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Please enter JWT Token.",
+    };
+    c.AddSecurityDefinition("Bearer", securityScheme);
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        new string[] {}
+                    }
+                });
+});
+
 // Add DbContext
 services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySQL(
@@ -58,6 +88,7 @@ services.AddMassTransit(x =>
 });
 
 // Add Jwt
+JsonWebTokenHandler.DefaultInboundClaimTypeMap.Clear();
 services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -74,7 +105,9 @@ services.AddAuthentication(options =>
             ClockSkew = TimeSpan.Zero,
             ValidIssuer = builder.Configuration["Authenticate:Jwt:Issuer"],
             ValidAudience = builder.Configuration["Authenticate:Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Authenticate:Jwt:SecretKey"]))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Authenticate:Jwt:SecretKey"])),
+            NameClaimType = "sub",
+            RoleClaimType = "role"
         };
     })
     .AddCookie(options =>

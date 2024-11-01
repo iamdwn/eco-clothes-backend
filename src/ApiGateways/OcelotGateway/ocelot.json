@@ -112,6 +112,25 @@
       //  "AuthenticationProviderKey": "Bearer",
       //  "AllowedScopes": []
       //}
+    },
+    {
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "favorites.api",
+          "Port": 8080
+        }
+      ],
+      "UpstreamPathTemplate": "/favorites/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST"
+      ]
+      //"AuthenticationOptions": {
+      //  "AuthenticationProviderKey": "Bearer",
+      //  "AllowedScopes": []
+      //}
     }
   ],
   "GlobalConfiguration": {

@@ -10,7 +10,6 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["src/Services/Favorites/src/Favorites.Api/Favorites.Api.csproj", "src/Services/Favorites/src/Favorites.Api/"]
-COPY ["src/BuildingBlocks/DataAccess/DataAccess.csproj", "src/BuildingBlocks/DataAccess/"]
 RUN dotnet restore "./src/Services/Favorites/src/Favorites.Api/Favorites.Api.csproj"
 COPY . .
 WORKDIR "/src/src/Services/Favorites/src/Favorites.Api"
