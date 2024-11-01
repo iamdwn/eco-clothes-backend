@@ -261,7 +261,7 @@ namespace IdentityServer.Controllers
             if (user == null) return Unauthorized(ResponseObject.Failure(code: HttpStatusCode.Unauthorized, error: "Invalid request!"));
 
             var userDto = _mapper.Map<CurrentUserDTO>(user);
-            return Ok(ResponseObject.Success(data: userDto);
+            return Ok(ResponseObject.Success(data: userDto));
         }
 
         [Authorize(Roles = "ADMIN")]
