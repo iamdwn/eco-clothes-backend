@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using IdentityServer.Models;
-using IdentityServer.Models.DTOs;
+using IdentityServer.Models.DTOs.Request;
+using IdentityServer.Models.DTOs.Response;
 
 namespace IdentityServer.Services
 {
@@ -10,6 +11,8 @@ namespace IdentityServer.Services
         {
             CreateMap<RegisterDTO, ApplicationUser>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email));
+
+            CreateMap<ApplicationUser, CurrentUserDTO>();
         }
     }
 }
