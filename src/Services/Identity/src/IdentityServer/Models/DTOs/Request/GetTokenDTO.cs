@@ -1,4 +1,4 @@
-﻿namespace IdentityServer.Models.DTOs
+﻿namespace IdentityServer.Models.DTOs.Request
 {
     public class GetTokenDTO
     {

@@ -110,11 +110,11 @@ services.AddAuthentication(options =>
             RoleClaimType = "role"
         };
     })
-    .AddCookie(options =>
-    {
-        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-        options.Cookie.SameSite = SameSiteMode.Lax;
-    })
+    //.AddCookie(options =>
+    //{
+    //    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    //    options.Cookie.SameSite = SameSiteMode.Lax;
+    //})
     .AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
     {
         options.ClientId = builder.Configuration["Authenticate:Google:ClientId"];

@@ -19,9 +19,13 @@ namespace DataAccess.Models.Response
 
         public static ResponseObject Success(string message) => new(HttpStatusCode.OK, message);
 
+        public static ResponseObject Success(HttpStatusCode code, string message) => new(code, message);
+
         public static ResponseObject<T> Success<T>(T data) => new(data, HttpStatusCode.OK, "Success!");
 
         public static ResponseObject<T> Success<T>(T data, string message) => new(data, HttpStatusCode.OK, message);
+
+        public static ResponseObject<T> Success<T>(HttpStatusCode code, T data, string message) => new(data, code, message);
 
 
         // Failure Response
@@ -29,9 +33,13 @@ namespace DataAccess.Models.Response
 
         public static ResponseObject Failure(string error) => new(HttpStatusCode.BadRequest, error);
 
+        public static ResponseObject Failure(HttpStatusCode code, string error) => new(code, error);
+
         public static ResponseObject<T> Failure<T>(T data) => new(data, HttpStatusCode.BadRequest, "Internal Server!");
 
         public static ResponseObject<T> Failure<T>(T data, string error) => new(data, HttpStatusCode.BadRequest, error);
+
+        public static ResponseObject<T> Failure<T>(HttpStatusCode code, T data, string error) => new(data, code, error);
     }
 
     public class ResponseObject<T> : ResponseObject
