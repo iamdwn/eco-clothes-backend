@@ -48,7 +48,7 @@ namespace Payments.Api.Services
 
         public async Task<string> VNPayResponse(Dictionary<string, string> queryParams)
         {
-            string baseUrl = "http://localhost:3000";
+            string baseUrl = "http://localhost:3000/order-success";
 
             SortedList<string, string> vnp_Responses = new SortedList<string, string>(new VnPayCompare());
             foreach (var s in queryParams.Keys)
@@ -103,9 +103,9 @@ namespace Payments.Api.Services
 
                     return baseUrl + $"?amount={vnp_Responses["vnp_Amount"]}&createDate={vnp_Responses["vnp_PayDate"]}&status={true}";
                 }
-                return baseUrl + $"?status={false}&errorMessage={"Something went wrong in process payment"}&errorCode={vnp_Responses["vnp_ResponseCode"]}";
+                return baseUrl + $"?status={false}&errorMessage={Uri.EscapeDataString("Something went wrong in process payment")}&errorCode={vnp_Responses["vnp_ResponseCode"]}";
             }
-            return baseUrl + $"?status={false}&errorMessage={"Invalid signature"}";
+            return baseUrl + $"?status={false}&errorMessage={Uri.EscapeDataString("Invalid signature")}";
         }
 
         private string PayWithVNPay(double amount, string id)
