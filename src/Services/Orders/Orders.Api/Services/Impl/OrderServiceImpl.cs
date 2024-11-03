@@ -25,6 +25,7 @@ namespace Orders.Api.Services.Impl
             try
             {
                 int amount = 0;
+                decimal totalPrice = 0;
                 Size? size = null;
                 SizeProduct? productBySize = null;
                 Product? existingProduct = null;
@@ -50,6 +51,8 @@ namespace Orders.Api.Services.Impl
 
                 foreach (var item in order.OrderItems)
                 {
+                    totalPrice += item.Quantity * item.UnitPrice;
+
                     await _orderItemService.InsertOrderItem(item, insertOrder.OrderId);
 
                     await _publishEndpoint.Publish(new OrderCreatedEvent
@@ -60,6 +63,10 @@ namespace Orders.Api.Services.Impl
                         ExistingProduct = existingProduct
                     });
                 }
+
+                insertOrder.TotalPrice = totalPrice;
+                _unitOfWork.OrderRepository.Insert(insertOrder);
+                _unitOfWork.Save();
 
                 await _publishEndpoint.Publish(new OrderInformationForPaymentEvent
                 {
