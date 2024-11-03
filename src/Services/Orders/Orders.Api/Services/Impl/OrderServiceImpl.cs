@@ -29,12 +29,20 @@ namespace Orders.Api.Services.Impl
                 SizeProduct? productBySize = null;
                 Product? existingProduct = null;
 
+                var existingUser = _unitOfWork.UserRepository.GetByID(order.UserId);
+
+                if (existingUser == null)
+                {
+                    throw new KeyNotFoundException($"User with ID {order.UserId} not found.");
+                }
+
                 var insertOrder = new Order()
                 {
                     UserId = order.UserId,
                     StartDate = DateOnly.FromDateTime(DateTime.Now),
                     EndDate = DateOnly.FromDateTime(DateTime.Now).AddDays(7),
-                    Address = order.Address
+                    Address = order.Address,
+                    Username = existingUser.FullName
                 };
 
                 _unitOfWork.OrderRepository.Insert(insertOrder);
@@ -136,11 +144,19 @@ namespace Orders.Api.Services.Impl
                     throw new KeyNotFoundException($"Order with id {order.OrderId} not found.");
                 }
 
+                var existingUser = _unitOfWork.UserRepository.GetByID(order.UserId);
+
+                if (existingUser == null)
+                {
+                    throw new KeyNotFoundException($"User with ID {order.UserId} not found.");
+                }
+
                 await _orderItemService.UpdateOrderItem(order.OrderItems, existingOrder.OrderId);
 
                 existingOrder.StartDate = order.StartDate ?? existingOrder.StartDate;
                 existingOrder.EndDate = order.EndDate ?? existingOrder.EndDate;
                 existingOrder.Address = order.Address ?? existingOrder.Address;
+                existingOrder.Username = existingUser.FullName ?? "";
 
                 _unitOfWork.OrderRepository.Update(existingOrder);
                 _unitOfWork.Save();
