@@ -16,6 +16,8 @@ public partial class Order
 
     public string? Status { get; set; }
 
+    public string? Username { get; set; }
+
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 
     public virtual User? User { get; set; }
