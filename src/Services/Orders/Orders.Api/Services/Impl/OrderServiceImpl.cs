@@ -43,7 +43,7 @@ namespace Orders.Api.Services.Impl
                     StartDate = DateOnly.FromDateTime(DateTime.Now),
                     EndDate = DateOnly.FromDateTime(DateTime.Now).AddDays(7),
                     Address = order.Address,
-                    Username = existingUser.FullName
+                    FullName = existingUser.FullName
                 };
 
                 _unitOfWork.OrderRepository.Insert(insertOrder);
@@ -163,7 +163,7 @@ namespace Orders.Api.Services.Impl
                 existingOrder.StartDate = order.StartDate ?? existingOrder.StartDate;
                 existingOrder.EndDate = order.EndDate ?? existingOrder.EndDate;
                 existingOrder.Address = order.Address ?? existingOrder.Address;
-                existingOrder.Username = existingUser.FullName ?? "";
+                existingOrder.FullName = existingUser.FullName ?? "";
 
                 _unitOfWork.OrderRepository.Update(existingOrder);
                 _unitOfWork.Save();
