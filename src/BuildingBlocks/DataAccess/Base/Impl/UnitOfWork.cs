@@ -1,8 +1,7 @@
 ﻿using DataAccess.Models;
 using DataAccess.Persistences;
-using System.ComponentModel.DataAnnotations;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using System.ComponentModel.DataAnnotations;
 
 namespace DataAccess.Base.Impl
 {
