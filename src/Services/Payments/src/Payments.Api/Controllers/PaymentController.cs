@@ -35,5 +35,12 @@ namespace Payments.Api.Controllers
             string url = await _paymentService.MoMoResponse(queryParams);
             return Redirect(url);
         }
+
+        [HttpGet("PayOsResponse")]
+        public async Task<IActionResult> PayOsResponse([FromQuery] Dictionary<string, string> queryParams)
+        {
+            string url = await _paymentService.PayOsResponse(queryParams);
+            return Redirect(url);
+        }
     }
 }
