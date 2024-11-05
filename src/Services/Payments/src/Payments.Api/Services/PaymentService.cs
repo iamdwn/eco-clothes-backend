@@ -1,13 +1,15 @@
 using DataAccess.Base;
+using DataAccess.Enums;
 using DataAccess.Models;
 using EventBus.Events;
+using Net.payOS;
+using Net.payOS.Types;
 using Newtonsoft.Json;
 using Payments.Api.Models.DTOs;
 using Payments.Api.Services.Interfaces;
 using Payments.Api.Utils;
 using System.Globalization;
 using System.Net;
-using System.Security.Cryptography;
 using System.Text;
 
 namespace Payments.Api.Services
@@ -32,9 +34,11 @@ namespace Payments.Api.Services
             switch (model.PaymentMethod)
             {
                 case PaymentMethod.VNPay:
-                    return PayWithVNPay(model.Amount, model.Id);
+                    return PayWithVNPay(model.Amount, model.OrderId);
                 case PaymentMethod.MoMo:
-                    return await PayWithMoMo(model.Amount, model.Id);
+                    return await PayWithMoMo(model.Amount, model.OrderId);
+                case PaymentMethod.PayOs:
+                    return await PayWithPayOs(model.OrderId, model.Amount, model.Description);
                 default:
                     throw new NotImplementedException();
             }
@@ -105,7 +109,40 @@ namespace Payments.Api.Services
                 }
                 return baseUrl + $"?status={false}&errorMessage={Uri.EscapeDataString("Something went wrong in process payment")}&errorCode={vnp_Responses["vnp_ResponseCode"]}";
             }
-            return baseUrl + $"?status={false}&errorMessage={Uri.EscapeDataString("Invalid signature")}";
+            return baseUrl + $"/order-fail?status={false}&errorMessage={Uri.EscapeDataString("Invalid signature")}";
+        }
+
+        public async Task<string> PayOsResponse(Dictionary<string, string> queryParams)
+        {
+            string baseUrl = "https://eco-clothes.hdang09.me";
+
+            var clientId = _configuration["Payment:PayOs:ClientID"];
+            var apiKey = _configuration["Payment:PayOs:APIKey"];
+            var checksumKey = _configuration["Payment:PayOs:ChecksumKey"];
+
+            if (queryParams["code"] != null && int.TryParse(queryParams["code"], out int code))
+            {
+                if (code != 01)
+                {
+                    return baseUrl + $"/order-fail?status={false}&errorMessage={Uri.EscapeDataString("Something went wrong in process payment")}";
+                }
+
+                var orderCode = long.Parse(queryParams["orderCode"]);
+
+                PayOS payOS = new PayOS(clientId, apiKey, checksumKey);
+                PaymentLinkInformation paymentLinkInformation = await payOS.getPaymentLinkInformation(orderCode);
+
+                switch (paymentLinkInformation.status)
+                {
+                    case "PAID":
+                        return baseUrl + $"/order-success?amount={paymentLinkInformation.amountPaid}&createDate={paymentLinkInformation.createdAt}&status={true}";
+                    case "CANCELLED":
+                        return baseUrl + $"/order-fail?status={false}&errorMessage{Uri.EscapeDataString(paymentLinkInformation.cancellationReason ?? "Payment cancel")}";
+                    default:
+                        return baseUrl + $"/order-fail?status={false}&errorMessage={Uri.EscapeDataString("Invalid signature")}";
+                }
+            }
+            return baseUrl + $"/order-fail?status={false}&errorMessage={Uri.EscapeDataString("Invalid signature")}";
         }
 
         private string PayWithVNPay(double amount, string id)
@@ -208,6 +245,29 @@ namespace Payments.Api.Services
 
                 return responseData["payUrl"] ?? "";
             }
+        }
+
+        private async Task<string> PayWithPayOs(string orderId, double amount, string description)
+        {
+            var clientId = _configuration["Payment:PayOs:ClientID"];
+            var apiKey = _configuration["Payment:PayOs:APIKey"];
+            var checksumKey = _configuration["Payment:PayOs:ChecksumKey"];
+            PayOS payOS = new PayOS(clientId, apiKey, checksumKey);
+
+            Guid guid = Guid.Parse(orderId);
+            byte[] guidBytes = guid.ToByteArray();
+            long orderCode = BitConverter.ToInt32(guidBytes, 0);
+
+            PaymentData paymentData = new PaymentData(
+                orderCode,
+                (int)amount,
+                description,
+                new List<ItemData>(),
+                _configuration["Payment:PayOs:CancelUrl"] ?? "",
+                _configuration["Payment:PayOs:ReturnUrl"] ?? ""
+            );
+            CreatePaymentResult createPayment = await payOS.createPaymentLink(paymentData);
+            return createPayment.checkoutUrl;
         }
 
         private bool CheckVNPayPayment(string inputHash, string rspRaw)
