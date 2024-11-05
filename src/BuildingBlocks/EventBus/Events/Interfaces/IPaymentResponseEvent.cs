@@ -4,5 +4,6 @@
     {
         bool PaymentStatus { get; set; }
         string? Transaction { get; set; }
+        long OrderCode { get; set; }
     }
 }
