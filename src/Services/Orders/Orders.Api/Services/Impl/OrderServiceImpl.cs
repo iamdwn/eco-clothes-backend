@@ -65,7 +65,7 @@ namespace Orders.Api.Services.Impl
                 }
 
                 insertOrder.TotalPrice = totalPrice;
-                _unitOfWork.OrderRepository.Insert(insertOrder);
+                _unitOfWork.OrderRepository.Update(insertOrder);
                 _unitOfWork.Save();
 
                 await _publishEndpoint.Publish(new OrderInformationForPaymentEvent
