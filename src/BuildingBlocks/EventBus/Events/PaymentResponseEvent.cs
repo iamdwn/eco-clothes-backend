@@ -6,5 +6,6 @@ namespace EventBus.Events
     {
         public bool PaymentStatus { get; set; }
         public string? Transaction { get; set; }
+        public long OrderCode { get; set; }
     }
 }
