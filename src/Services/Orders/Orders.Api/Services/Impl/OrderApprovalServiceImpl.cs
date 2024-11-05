@@ -18,25 +18,33 @@ namespace Orders.Api.Services.Impl
         {
             var response = context.Message.PaymentStatus;
             var transaction = context.Message.Transaction;
+            var orderCode = context.Message.OrderCode;
 
-            await ApproveOrder(response, transaction);
+            await ApproveOrder(response, transaction, orderCode);
         }
 
-        private async Task ApproveOrder(bool response, string? transaction)
+        private async Task ApproveOrder(bool response, string? transaction, long orderCode)
         {
-            Payment? pointTransaction = null;
+            Order? pointOrder = null;
 
             if (response)
             {
-                pointTransaction = _unitOfWork.PaymentRepository.Get(
-                    filter: p => p.TransactionId.Equals(transaction)
+                pointOrder = _unitOfWork.OrderRepository.Get(
+                    filter: p => orderCode.Equals(BitConverter.ToInt32(p.OrderId.ToByteArray(), 0))
                     ).FirstOrDefault();
 
-                pointTransaction.Status = "Success";
+                pointOrder.Status = "Paid";
+
+                _unitOfWork.OrderRepository.Update(pointOrder);
+                _unitOfWork.Save();
+
                 return;
             }
 
-            pointTransaction.Status = "Fail";
+            pointOrder.Status = "Failed";
+            _unitOfWork.OrderRepository.Update(pointOrder);
+            _unitOfWork.Save();
+            return;
         }
     }
 }
