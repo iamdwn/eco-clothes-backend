@@ -102,7 +102,7 @@ namespace Payments.Api.Services
                     await _massTransitService.Publish(new PaymentResponseEvent
                     {
                         PaymentStatus = true,
-                        Transaction = vnp_Responses["vnp_TransactionNo"]
+                        Transaction = vnp_Responses["vnp_TransactionNo"],
                     });
 
                     return baseUrl + $"?amount={vnp_Responses["vnp_Amount"]}&createDate={vnp_Responses["vnp_PayDate"]}&status={true}";
@@ -131,6 +131,22 @@ namespace Payments.Api.Services
 
                 PayOS payOS = new PayOS(clientId, apiKey, checksumKey);
                 PaymentLinkInformation paymentLinkInformation = await payOS.getPaymentLinkInformation(orderCode);
+
+                var payment = new Payment
+                {
+                    Amount = paymentLinkInformation.amountPaid,
+                    Method = "PayOs",
+                    Status = paymentLinkInformation.status,
+                };
+                _unitOfWork.PaymentRepository.Insert(payment);
+                _unitOfWork.Save();
+
+                await _massTransitService.Publish(new PaymentResponseEvent
+                {
+                    PaymentStatus = paymentLinkInformation.status.Equals("PAID"),
+                    OrderCode = paymentLinkInformation.orderCode,
+                    Transaction = Guid.NewGuid().ToString(),
+                });
 
                 switch (paymentLinkInformation.status)
                 {
