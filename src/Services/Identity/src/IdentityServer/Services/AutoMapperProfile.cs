@@ -12,7 +12,8 @@ namespace IdentityServer.Services
             CreateMap<RegisterDTO, ApplicationUser>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email));
 
-            CreateMap<ApplicationUser, CurrentUserDTO>();
+            CreateMap<ApplicationUser, CurrentUserDTO>()
+                .ForMember(dest => dest.ImgUrl, opt => opt.MapFrom(src => src.ImgUrl));
         }
     }
 }
