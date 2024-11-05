@@ -1,6 +1,7 @@
 ﻿using Dashboard.Api.Dtos;
 using DataAccess.Base;
 using DataAccess.Models;
+using Orders.Api.Enums;
 
 namespace Dashboard.Api.Services.Impl
 {
@@ -18,7 +19,7 @@ namespace Dashboard.Api.Services.Impl
         public IEnumerable<CategoryRevenueDto> GetRevenueByCategoryAsync()
         {
             var orderItems = _unitOfWork.OrderitemRepository.Get(
-                filter: oi => oi.Order.Status == "Đã Giao",
+                filter: oi => oi.Order.Status.Equals(OrderStatus.Paid.ToString()),
                 includeProperties: "Order"
             );
 
@@ -48,7 +49,7 @@ namespace Dashboard.Api.Services.Impl
         public async Task<decimal> GetRevenueByDateRangeAsync(DateTime startDate, DateTime endDate)
         {
             var orders = _unitOfWork.OrderRepository.Get(
-                filter: o => o.Status == "Đã Giao" &&
+                filter: o => o.Status.Equals(OrderStatus.Paid.ToString()) &&
                              o.EndDate >= DateOnly.FromDateTime(startDate) &&
                              o.EndDate <= DateOnly.FromDateTime(endDate),
                 includeProperties: "OrderItems"
@@ -73,7 +74,7 @@ namespace Dashboard.Api.Services.Impl
         public async Task<IEnumerable<Product>> GetTopSellingProductsAsync()
         {
             var orderItems = _unitOfWork.OrderitemRepository.Get(
-                filter: oi => oi.Order.Status == "Đã Giao"
+                filter: oi => oi.Order.Status.Equals(OrderStatus.Paid.ToString())
             );
 
             var productIds = orderItems.Select(oi => oi.ProductId).Distinct();
@@ -107,7 +108,7 @@ namespace Dashboard.Api.Services.Impl
         public async Task<decimal> GetTotalRevenueAsync()
         {
             var orders = _unitOfWork.OrderRepository.Get(
-                filter: o => o.Status == "Đã Giao",
+                filter: o => o.Status.Equals(OrderStatus.Paid.ToString()),
                 includeProperties: "OrderItems"
             );
 
