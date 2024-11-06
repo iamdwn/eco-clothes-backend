@@ -2,14 +2,127 @@
   "Routes": [
     {
       "DownstreamPathTemplate": "/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 5001
+          "Host": "dashboard.api",
+          "Port": 8080
         }
       ],
-      "UpstreamPathTemplate": "/api-gateway/{everything}",
+      "UpstreamPathTemplate": "/dashboard/{everything}",
+      "UpstreamHttpMethod": [
+        "GET"
+      ]
+      //"AuthenticationOptions": {
+      //  "AuthenticationProviderKey": "Bearer",
+      //  "AllowedScopes": []
+      //}
+    },
+    {
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "identityserver",
+          "Port": 8080
+        }
+      ],
+      "UpstreamPathTemplate": "/identityserver/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST"
+      ]
+      //"AuthenticationOptions": {
+      //  "AuthenticationProviderKey": "Bearer",
+      //  "AllowedScopes": []
+      //}
+    },
+    {
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "orders.api",
+          "Port": 8080
+        }
+      ],
+      "UpstreamPathTemplate": "/orders/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST"
+      ]
+      //"AuthenticationOptions": {
+      //  "AuthenticationProviderKey": "Bearer",
+      //  "AllowedScopes": []
+      //}
+    },
+    {
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "payments.api",
+          "Port": 8080
+        }
+      ],
+      "UpstreamPathTemplate": "/payments/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST"
+      ]
+      //"AuthenticationOptions": {
+      //  "AuthenticationProviderKey": "Bearer",
+      //  "AllowedScopes": []
+      //}
+    },
+    {
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "products.api",
+          "Port": 8080
+        }
+      ],
+      "UpstreamPathTemplate": "/products/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST"
+      ]
+      //"AuthenticationOptions": {
+      //  "AuthenticationProviderKey": "Bearer",
+      //  "AllowedScopes": []
+      //}
+    },
+    {
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "users.api",
+          "Port": 8080
+        }
+      ],
+      "UpstreamPathTemplate": "/users/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST"
+      ]
+      //"AuthenticationOptions": {
+      //  "AuthenticationProviderKey": "Bearer",
+      //  "AllowedScopes": []
+      //}
+    },
+    {
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "favorites.api",
+          "Port": 8080
+        }
+      ],
+      "UpstreamPathTemplate": "/favorites/{everything}",
       "UpstreamHttpMethod": [
         "GET",
         "POST"
@@ -21,6 +134,6 @@
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "https://localhost:5000"
+    "BaseUrl": "http://localhost:8087"
   }
 }

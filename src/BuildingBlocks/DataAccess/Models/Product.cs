@@ -22,6 +22,8 @@ public partial class Product
 
     public Guid? UserId { get; set; }
 
+    public string? Slug { get; set; }
+
     public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
 
     public virtual ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();

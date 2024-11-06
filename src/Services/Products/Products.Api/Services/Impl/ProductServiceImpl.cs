@@ -1,6 +1,7 @@
-using DataAccess.Base;
+﻿using DataAccess.Base;
 using DataAccess.Models;
 using Products.Api.Dtos.Request;
+using System.Text.RegularExpressions;
 
 namespace Products.Api.Services.Impl
 {
@@ -20,7 +21,7 @@ namespace Products.Api.Services.Impl
         public async Task<IEnumerable<Product>> GetAllProductsAsync()
         {
             return _unitOfWork.ProductRepository.Get(
-                includeProperties: "SizeProducts"
+                includeProperties: "SizeProducts,ProductCategories"
                 ).ToList();
         }
 
@@ -28,7 +29,7 @@ namespace Products.Api.Services.Impl
         {
             var existingProduct = _unitOfWork.ProductRepository.Get(
                 filter: p => p.ProductId.Equals(id),
-                includeProperties: "SizeProducts"
+                includeProperties: "SizeProducts,ProductCategories"
                 ).FirstOrDefault();
 
             if (existingProduct == null)
@@ -60,6 +61,7 @@ namespace Products.Api.Services.Impl
                     Amount = 0,
                     ImgUrl = product.ImgUrl,
                     Description = product.Description,
+                    Slug = GenerateSlug(product.ProductName)
                 };
 
                 _unitOfWork.ProductRepository.Insert(insertProduct);
@@ -87,7 +89,7 @@ namespace Products.Api.Services.Impl
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error: {ex.Message}, Inner Exception: {ex.InnerException?.Message}");
+                throw new Exception($"Error: {ex.Message}");
             }
         }
 
@@ -158,6 +160,72 @@ namespace Products.Api.Services.Impl
             }
             return existingProduct;
         }
-    }
 
+        public async Task<Product> GetProductBySlugAsync(string slug)
+        {
+            var existingProduct = _unitOfWork.ProductRepository.Get(
+                    filter: p => p.Slug.Equals(slug),
+                    includeProperties: "SizeProducts"
+                    ).FirstOrDefault();
+
+            if (existingProduct == null)
+            {
+                throw new KeyNotFoundException($"Product with Slug {slug} not found.");
+            }
+            return existingProduct;
+        }
+
+        public string GenerateSlug(string productName)
+        {
+            //var normalizedString = productName.Normalize(NormalizationForm.FormD);
+            //var stringBuilder = new StringBuilder();
+
+            //foreach (var c in normalizedString)
+            //{
+            //    var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
+            //    if (unicodeCategory != UnicodeCategory.NonSpacingMark)
+            //    {
+            //        stringBuilder.Append(c);
+            //    }
+            //}
+
+            //var slug = stringBuilder.ToString().Normalize(NormalizationForm.FormC);
+
+            string[] vietnameseSigns = new string[] {
+                "aAeEoOuUiIdDyY",
+                "áàạảãâấầậẩẫăắằặẳẵ",
+                "ÁÀẠẢÃÂẤẦẬẨẪĂẮẰẶẲẴ",
+                "éèẹẻẽêếềệểễ",
+                "ÉÈẸẺẼÊẾỀỆỂỄ",
+                "óòọỏõôốồộổỗơớờợởỡ",
+                "ÓÒỌỎÕÔỐỒỘỔỖƠỚỜỢỞỠ",
+                "úùụủũưứừựửữ",
+                "ÚÙỤỦŨƯỨỪỰỬỮ",
+                "íìịỉĩ",
+                "ÍÌỊỈĨ",
+                "đ",
+                "Đ",
+                "ýỳỵỷỹ",
+                "ÝỲỴỶỸ"
+            };
+
+            for (int i = 1; i < vietnameseSigns.Length; i++)
+            {
+                for (int j = 0; j < vietnameseSigns[i].Length; j++)
+                    productName = productName.Replace(vietnameseSigns[i][j], vietnameseSigns[0][i - 1]);
+            }
+
+            var slug = productName;
+
+            slug = slug.ToLower();
+
+            slug = Regex.Replace(slug, @"[^a-z0-9\s-]", "");
+            slug = Regex.Replace(slug, @"\s+", "-");
+            slug = Regex.Replace(slug, @"-+", "-");
+
+            slug = slug.Trim('-');
+
+            return slug;
+        }
+    }
 }

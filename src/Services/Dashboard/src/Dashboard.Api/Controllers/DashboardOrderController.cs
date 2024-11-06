@@ -50,5 +50,17 @@ namespace Dashboard.Api.Controllers
         {
             return await _orderAnalytics.CountTotalOrdersAsync();
         }
+
+        [HttpGet("count-daily-orders-delivered")]
+        public async Task<int> CountDailyOrdersDelivered(DateTime dateTime)
+        {
+            return await _orderAnalytics.CountDailyOrdersDeliveredAsync(dateTime);
+        }
+
+        [HttpGet("count-daily-orders-being-delivered")]
+        public async Task<int> CountDailyOrdersBeingDelivered(DateTime dateTime)
+        {
+            return await _orderAnalytics.CountDailyOrdersBeingDeliveredAsync(dateTime);
+        }
     }
 }

@@ -7,6 +7,7 @@ namespace Products.Api.Services
     {
         Task<IEnumerable<Product>> GetAllProductsAsync();
         Task<Product> GetProductByIdAsync(Guid id);
+        Task<Product> GetProductBySlugAsync(string slug);
         Task<IEnumerable<Product>> GetProductBySellerIdAsync(Guid id);
         Task<Product> CreateProductAsync(RequestProduct product);
         Task UpdateProductAsync(RequestProduct product);

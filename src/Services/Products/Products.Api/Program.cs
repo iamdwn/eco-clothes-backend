@@ -19,7 +19,8 @@ namespace Products.Api
             // Add services to the container.
             builder.Services.AddDbContext<EcoClothesContext>(options =>
                 options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
-                new MySqlServerVersion(new Version(8, 0, 23))));
+                new MySqlServerVersion(new Version(8, 0, 23)),
+                mySqlOptions => mySqlOptions.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null)));
 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>(); // Register Unit of Work
             builder.Services.AddScoped<IProductService, ProductServiceImpl>(); // Register Product Service
@@ -50,6 +51,17 @@ namespace Products.Api
                 });
             });
 
+            // Add CORS policy
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAllOrigins", builder =>
+                {
+                    builder.AllowAnyOrigin()
+                           .AllowAnyMethod()
+                           .AllowAnyHeader();
+                });
+            });
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -59,7 +71,9 @@ namespace Products.Api
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
+            app.UseCors("AllowAllOrigins");
+
+            //app.UseHttpsRedirection();
 
             app.UseAuthorization();
 

@@ -25,16 +25,25 @@ namespace Orders.Api.Services.Impl
             try
             {
                 int amount = 0;
+                decimal totalPrice = 0;
                 Size? size = null;
                 SizeProduct? productBySize = null;
                 Product? existingProduct = null;
 
+                var existingUser = _unitOfWork.UserRepository.GetByID(order.UserId);
+
+                if (existingUser == null)
+                {
+                    throw new KeyNotFoundException($"User with ID {order.UserId} not found.");
+                }
+
                 var insertOrder = new Order()
                 {
                     UserId = order.UserId,
-                    StartDate = order.StartDate,
-                    EndDate = order.EndDate,
-                    Address = order.Address
+                    StartDate = DateOnly.FromDateTime(DateTime.Now),
+                    EndDate = DateOnly.FromDateTime(DateTime.Now).AddDays(7),
+                    Address = order.Address,
+                    FullName = existingUser.FullName
                 };
 
                 _unitOfWork.OrderRepository.Insert(insertOrder);
@@ -42,6 +51,8 @@ namespace Orders.Api.Services.Impl
 
                 foreach (var item in order.OrderItems)
                 {
+                    totalPrice += item.Quantity * item.UnitPrice;
+
                     await _orderItemService.InsertOrderItem(item, insertOrder.OrderId);
 
                     await _publishEndpoint.Publish(new OrderCreatedEvent
@@ -52,6 +63,10 @@ namespace Orders.Api.Services.Impl
                         ExistingProduct = existingProduct
                     });
                 }
+
+                insertOrder.TotalPrice = totalPrice;
+                _unitOfWork.OrderRepository.Update(insertOrder);
+                _unitOfWork.Save();
 
                 await _publishEndpoint.Publish(new OrderInformationForPaymentEvent
                 {
@@ -136,11 +151,19 @@ namespace Orders.Api.Services.Impl
                     throw new KeyNotFoundException($"Order with id {order.OrderId} not found.");
                 }
 
+                var existingUser = _unitOfWork.UserRepository.GetByID(order.UserId);
+
+                if (existingUser == null)
+                {
+                    throw new KeyNotFoundException($"User with ID {order.UserId} not found.");
+                }
+
                 await _orderItemService.UpdateOrderItem(order.OrderItems, existingOrder.OrderId);
 
                 existingOrder.StartDate = order.StartDate ?? existingOrder.StartDate;
                 existingOrder.EndDate = order.EndDate ?? existingOrder.EndDate;
                 existingOrder.Address = order.Address ?? existingOrder.Address;
+                existingOrder.FullName = existingUser.FullName ?? "";
 
                 _unitOfWork.OrderRepository.Update(existingOrder);
                 _unitOfWork.Save();

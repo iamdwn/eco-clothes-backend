@@ -1,13 +1,14 @@
-﻿using DataAccess.Models;
+﻿using Dashboard.Api.Dtos;
+using DataAccess.Models;
 
 namespace Dashboard.Api.Services
 {
     public interface IRevenueAnalytics
     {
-        Task<decimal> GetTotalRevenue();
-        Task<decimal> GetRevenueByCategory(string category);
-        Task<decimal> GetRevenueThisMonth();
-        Task<decimal> GetRevenueByDateRange(DateTime startDate, DateTime endDate);
-        Task<IEnumerable<Product>> GetTopSellingProducts();
+        Task<decimal> GetTotalRevenueAsync();
+        IEnumerable<CategoryRevenueDto> GetRevenueByCategoryAsync();
+        Task<decimal> GetRevenueThisMonthAsync();
+        Task<decimal> GetRevenueByDateRangeAsync(DateTime startDate, DateTime endDate);
+        Task<IEnumerable<Product>> GetTopSellingProductsAsync();
     }
 }

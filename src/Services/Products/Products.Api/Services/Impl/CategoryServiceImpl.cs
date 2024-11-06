@@ -49,7 +49,8 @@ namespace Products.Api.Services.Impl
             var insertCategory = new ProductCategory()
             {
                 ProductId = productId,
-                CategoryId = pointCategory.CategoryId
+                CategoryId = pointCategory.CategoryId,
+                CategoryName = pointCategory.Name
             };
 
             _unitOfWork.ProductcategoryRepository.Insert(insertCategory);

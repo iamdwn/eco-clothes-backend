@@ -1,5 +1,6 @@
 ﻿using DataAccess.Models;
 using DataAccess.Persistences;
+using Microsoft.EntityFrameworkCore.Storage;
 using System.ComponentModel.DataAnnotations;
 
 namespace DataAccess.Base.Impl
@@ -7,6 +8,8 @@ namespace DataAccess.Base.Impl
     public class UnitOfWork : IUnitOfWork, IDisposable
     {
         private EcoClothesContext context;
+        private IDbContextTransaction _transaction;
+
         private GenericRepository<Cart> cartRepository;
         private GenericRepository<Category> categoryRepository;
         private GenericRepository<Favorite> favoriteRepository;
@@ -27,117 +30,20 @@ namespace DataAccess.Base.Impl
             context = _context;
         }
 
-        public IGenericRepository<Cart> CartRepository
-        {
-            get
-            {
-                return cartRepository ??= new GenericRepository<Cart>(context);
-            }
-        }
-
-        public IGenericRepository<Category> CategoryRepository
-        {
-            get
-            {
-                return categoryRepository ??= new GenericRepository<Category>(context);
-            }
-        }
-
-        public IGenericRepository<Favorite> FavoriteRepository
-        {
-            get
-            {
-                return favoriteRepository ??= new GenericRepository<Favorite>(context);
-            }
-        }
-
-        public IGenericRepository<Feedback> FeedbackRepository
-        {
-            get
-            {
-                return feedbackRepository ??= new GenericRepository<Feedback>(context);
-            }
-        }
-
-        public IGenericRepository<Order> OrderRepository
-        {
-            get
-            {
-                return orderRepository ??= new GenericRepository<Order>(context);
-            }
-        }
-
-        public IGenericRepository<OrderItem> OrderitemRepository
-        {
-            get
-            {
-                return orderitemRepository ??= new GenericRepository<OrderItem>(context);
-            }
-        }
-
-        public IGenericRepository<Payment> PaymentRepository
-        {
-            get
-            {
-                return paymentRepository ??= new GenericRepository<Payment>(context);
-            }
-        }
-
-        public IGenericRepository<PaymentSubscription> PaymentsubscriptionRepository
-        {
-            get
-            {
-                return paymentsubscriptionRepository ??= new GenericRepository<PaymentSubscription>(context);
-            }
-        }
-
-        public IGenericRepository<Product> ProductRepository
-        {
-            get
-            {
-                return productRepository ??= new GenericRepository<Product>(context);
-            }
-        }
-
-        public IGenericRepository<ProductCategory> ProductcategoryRepository
-        {
-            get
-            {
-                return productcategoryRepository ??= new GenericRepository<ProductCategory>(context);
-            }
-        }
-
-        public IGenericRepository<Size> SizeRepository
-        {
-            get
-            {
-                return sizeRepository ??= new GenericRepository<Size>(context);
-            }
-        }
-
-        public IGenericRepository<SizeProduct> SizeproductRepository
-        {
-            get
-            {
-                return sizeproductRepository ??= new GenericRepository<SizeProduct>(context);
-            }
-        }
-
-        public IGenericRepository<Subscription> SubscriptionRepository
-        {
-            get
-            {
-                return subscriptionRepository ??= new GenericRepository<Subscription>(context);
-            }
-        }
-
-        public IGenericRepository<User> UserRepository
-        {
-            get
-            {
-                return userRepository ??= new GenericRepository<User>(context);
-            }
-        }
+        public IGenericRepository<Cart> CartRepository => cartRepository ??= new GenericRepository<Cart>(context);
+        public IGenericRepository<Category> CategoryRepository => categoryRepository ??= new GenericRepository<Category>(context);
+        public IGenericRepository<Favorite> FavoriteRepository => favoriteRepository ??= new GenericRepository<Favorite>(context);
+        public IGenericRepository<Feedback> FeedbackRepository => feedbackRepository ??= new GenericRepository<Feedback>(context);
+        public IGenericRepository<Order> OrderRepository => orderRepository ??= new GenericRepository<Order>(context);
+        public IGenericRepository<OrderItem> OrderitemRepository => orderitemRepository ??= new GenericRepository<OrderItem>(context);
+        public IGenericRepository<Payment> PaymentRepository => paymentRepository ??= new GenericRepository<Payment>(context);
+        public IGenericRepository<PaymentSubscription> PaymentsubscriptionRepository => paymentsubscriptionRepository ??= new GenericRepository<PaymentSubscription>(context);
+        public IGenericRepository<Product> ProductRepository => productRepository ??= new GenericRepository<Product>(context);
+        public IGenericRepository<ProductCategory> ProductcategoryRepository => productcategoryRepository ??= new GenericRepository<ProductCategory>(context);
+        public IGenericRepository<Size> SizeRepository => sizeRepository ??= new GenericRepository<Size>(context);
+        public IGenericRepository<SizeProduct> SizeproductRepository => sizeproductRepository ??= new GenericRepository<SizeProduct>(context);
+        public IGenericRepository<Subscription> SubscriptionRepository => subscriptionRepository ??= new GenericRepository<Subscription>(context);
+        public IGenericRepository<User> UserRepository => userRepository ??= new GenericRepository<User>(context);
 
         public void Save()
         {

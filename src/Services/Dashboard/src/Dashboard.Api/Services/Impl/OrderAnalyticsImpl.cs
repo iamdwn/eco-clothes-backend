@@ -1,5 +1,6 @@
 ﻿using DataAccess.Base;
 using DataAccess.Models;
+using Orders.Api.Enums;
 
 namespace Dashboard.Api.Services.Impl
 {
@@ -12,17 +13,33 @@ namespace Dashboard.Api.Services.Impl
             _unitOfWork = unitOfWork;
         }
 
+        public async Task<int> CountDailyOrdersBeingDeliveredAsync(DateTime dateTime)
+        {
+            return _unitOfWork.OrderRepository.Get(
+                    filter: u => u.Status.Equals(OrderStatus.Pending.ToString())
+                                && u.StartDate.Equals(DateOnly.FromDateTime(dateTime))
+                    ).Count();
+        }
+
+        public async Task<int> CountDailyOrdersDeliveredAsync(DateTime dateTime)
+        {
+            return _unitOfWork.OrderRepository.Get(
+                    filter: u => u.Status.Equals(OrderStatus.Paid.ToString())
+                                && u.StartDate.Equals(DateOnly.FromDateTime(dateTime))
+                    ).Count();
+        }
+
         public async Task<int> CountOrdersBeingDeliveredAsync()
         {
             return _unitOfWork.OrderRepository.Get(
-                    filter: u => u.Status.Equals("Đang Giao")
+                    filter: u => u.Status.Equals(OrderStatus.Pending.ToString())
                     ).Count();
         }
 
         public async Task<int> CountOrdersDeliveredAsync()
         {
             return _unitOfWork.OrderRepository.Get(
-                    filter: u => u.Status.Equals("Đã Giao")
+                    filter: u => u.Status.Equals(OrderStatus.Paid.ToString())
                     ).Count();
         }
 
@@ -34,14 +51,14 @@ namespace Dashboard.Api.Services.Impl
         public async Task<IEnumerable<Order>> GetOrdersBeingDeliveredAsync()
         {
             return _unitOfWork.OrderRepository.Get(
-                    filter: u => u.Status.Equals("Đang Giao")
+                    filter: u => u.Status.Equals(OrderStatus.Pending.ToString())
                     ).ToList();
         }
 
         public async Task<IEnumerable<Order>> GetOrdersDeliveredAsync()
         {
             return _unitOfWork.OrderRepository.Get(
-                    filter: u => u.Status.Equals("Đã Giao")
+                    filter: u => u.Status.Equals(OrderStatus.Paid.ToString())
                     ).ToList();
         }
 

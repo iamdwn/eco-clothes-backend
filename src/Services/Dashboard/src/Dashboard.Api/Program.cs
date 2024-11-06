@@ -17,14 +17,16 @@ namespace Dashboard.Api
 
             // Add services to the container.
             builder.Services.AddDbContext<EcoClothesContext>(options =>
-                options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
-                new MySqlServerVersion(new Version(8, 0, 23))));
+                            options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
+                            new MySqlServerVersion(new Version(8, 0, 23)),
+                            mySqlOptions => mySqlOptions.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null)));
 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IUserAnalytics, UserAnalyticsImpl>();
             builder.Services.AddScoped<IProductAnalytics, ProductAnalyticsImpl>();
             builder.Services.AddScoped<IRevenueAnalytics, RevenueAnalyticsImpl>();
             builder.Services.AddScoped<IOrderAnalytics, OrderAnalyticsImpl>();
+            builder.Services.AddScoped<IGrowthAnalytics, GrowthAnalyticsImpl>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -33,6 +35,17 @@ namespace Dashboard.Api
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
                 c.EnableAnnotations();
+            });
+
+            // Add CORS policy
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAllOrigins", builder =>
+                {
+                    builder.AllowAnyOrigin()
+                           .AllowAnyMethod()
+                           .AllowAnyHeader();
+                });
             });
 
             var app = builder.Build();
@@ -44,7 +57,9 @@ namespace Dashboard.Api
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
+            app.UseCors("AllowAllOrigins");
+
+            //app.UseHttpsRedirection();
 
             app.UseAuthorization();
 

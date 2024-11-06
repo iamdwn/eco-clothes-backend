@@ -10,5 +10,7 @@ namespace Dashboard.Api.Services
         Task<int> CountOrdersDeliveredAsync();
         Task<int> CountOrdersBeingDeliveredAsync();
         Task<int> CountTotalOrdersAsync();
+        Task<int> CountDailyOrdersDeliveredAsync(DateTime dateTime);
+        Task<int> CountDailyOrdersBeingDeliveredAsync(DateTime dateTime);
     }
 }
