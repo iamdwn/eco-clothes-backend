@@ -127,7 +127,7 @@ namespace Payments.Api.Services
                     return baseUrl + $"/order-fail?status={false}&errorMessage={Uri.EscapeDataString("Something went wrong in process payment")}";
                 }
 
-                var orderCode = long.Parse(queryParams["orderCode"]);
+                var orderCode = int.Parse(queryParams["orderCode"]);
 
                 PayOS payOS = new PayOS(clientId, apiKey, checksumKey);
                 PaymentLinkInformation paymentLinkInformation = await payOS.getPaymentLinkInformation(orderCode);
@@ -135,8 +135,9 @@ namespace Payments.Api.Services
                 var payment = new Payment
                 {
                     Amount = paymentLinkInformation.amountPaid,
-                    Method = "PayOs",
                     Status = paymentLinkInformation.status,
+                    TransactionId = paymentLinkInformation.orderCode.ToString(),
+                    Method = "PayOs",
                 };
                 _unitOfWork.PaymentRepository.Insert(payment);
                 _unitOfWork.Save();
@@ -145,7 +146,6 @@ namespace Payments.Api.Services
                 {
                     PaymentStatus = paymentLinkInformation.status.Equals("PAID"),
                     OrderCode = paymentLinkInformation.orderCode,
-                    Transaction = Guid.NewGuid().ToString(),
                 });
 
                 switch (paymentLinkInformation.status)
@@ -272,7 +272,9 @@ namespace Payments.Api.Services
 
             Guid guid = Guid.Parse(orderId);
             byte[] guidBytes = guid.ToByteArray();
-            long orderCode = BitConverter.ToInt32(guidBytes, 0);
+            long orderCode = Math.Abs(BitConverter.ToInt32(guidBytes, 8));
+
+            //int orderCode = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
 
             PaymentData paymentData = new PaymentData(
                 orderCode,
