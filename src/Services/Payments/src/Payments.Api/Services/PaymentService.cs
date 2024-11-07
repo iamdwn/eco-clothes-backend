@@ -21,12 +21,15 @@ namespace Payments.Api.Services
         private readonly ILogger<PaymentService> _logger;
         private readonly IMassTransitService _massTransitService;
 
-        public PaymentService(IConfiguration configuration, ILogger<PaymentService> logger, IUnitOfWork unitOfWork, IMassTransitService massTransitService)
+        private readonly PayOS _payOS;
+
+        public PaymentService(IConfiguration configuration, ILogger<PaymentService> logger, IUnitOfWork unitOfWork, IMassTransitService massTransitService, PayOS payOS)
         {
             _configuration = configuration;
             _logger = logger;
             _unitOfWork = unitOfWork;
             _massTransitService = massTransitService;
+            _payOS = payOS;
         }
 
         public async Task<string> CreatePayment(CreatePaymentDTO model)
@@ -116,10 +119,6 @@ namespace Payments.Api.Services
         {
             string baseUrl = "https://eco-clothes.hdang09.me";
 
-            var clientId = _configuration["Payment:PayOs:ClientID"];
-            var apiKey = _configuration["Payment:PayOs:APIKey"];
-            var checksumKey = _configuration["Payment:PayOs:ChecksumKey"];
-
             if (queryParams["code"] != null && int.TryParse(queryParams["code"], out int code))
             {
                 if (code == 1)
@@ -129,8 +128,7 @@ namespace Payments.Api.Services
 
                 var orderCode = int.Parse(queryParams["orderCode"]);
 
-                PayOS payOS = new PayOS(clientId, apiKey, checksumKey);
-                PaymentLinkInformation paymentLinkInformation = await payOS.getPaymentLinkInformation(orderCode);
+                PaymentLinkInformation paymentLinkInformation = await _payOS.getPaymentLinkInformation(orderCode);
 
                 var payment = new Payment
                 {
@@ -263,11 +261,6 @@ namespace Payments.Api.Services
 
         private async Task<string> PayWithPayOs(string orderId, double amount, string description)
         {
-            var clientId = _configuration["Payment:PayOs:ClientID"];
-            var apiKey = _configuration["Payment:PayOs:APIKey"];
-            var checksumKey = _configuration["Payment:PayOs:ChecksumKey"];
-            PayOS payOS = new PayOS(clientId, apiKey, checksumKey);
-
             Guid guid = Guid.Parse(orderId);
             byte[] guidBytes = guid.ToByteArray();
             long orderCode = Math.Abs(BitConverter.ToInt32(guidBytes, 8));
@@ -282,7 +275,7 @@ namespace Payments.Api.Services
                 _configuration["Payment:PayOs:CancelUrl"] ?? "",
                 _configuration["Payment:PayOs:ReturnUrl"] ?? ""
             );
-            CreatePaymentResult createPayment = await payOS.createPaymentLink(paymentData);
+            CreatePaymentResult createPayment = await _payOS.createPaymentLink(paymentData);
             return createPayment.checkoutUrl;
         }
 
