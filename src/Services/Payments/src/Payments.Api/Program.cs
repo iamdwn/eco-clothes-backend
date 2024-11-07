@@ -5,13 +5,19 @@ using Microsoft.EntityFrameworkCore;
 using Payments.Api.Services;
 using Payments.Api.Services.Interfaces;
 using MassTransit;
+using Net.payOS;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var services = builder.Services;
 var configuration = builder.Configuration;
-// Add services to the container.
 
+PayOS payOS = new PayOS(configuration["Environment:PAYOS_CLIENT_ID"] ?? throw new Exception("Cannot find environment"),
+                    configuration["Environment:PAYOS_API_KEY"] ?? throw new Exception("Cannot find environment"),
+                    configuration["Environment:PAYOS_CHECKSUM_KEY"] ?? throw new Exception("Cannot find environment"));
+
+// Add services to the container.
+builder.Services.AddSingleton(payOS);
 services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 services.AddEndpointsApiExplorer();
