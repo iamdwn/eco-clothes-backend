@@ -122,9 +122,9 @@ namespace Payments.Api.Services
 
             if (queryParams["code"] != null && int.TryParse(queryParams["code"], out int code))
             {
-                if (code != 01)
+                if (code == 1)
                 {
-                    return baseUrl + $"/order-fail?status={false}&errorMessage={Uri.EscapeDataString("Something went wrong in process payment")}";
+                    return baseUrl + $"/order-fail?status=CANCELLED&errorMessage={Uri.EscapeDataString("Invalid Params")}";
                 }
 
                 var orderCode = int.Parse(queryParams["orderCode"]);
@@ -151,14 +151,12 @@ namespace Payments.Api.Services
                 switch (paymentLinkInformation.status)
                 {
                     case "PAID":
-                        return baseUrl + $"/order-success?amount={paymentLinkInformation.amountPaid}&createDate={paymentLinkInformation.createdAt}&status={true}";
-                    case "CANCELLED":
-                        return baseUrl + $"/order-fail?status={false}&errorMessage{Uri.EscapeDataString(paymentLinkInformation.cancellationReason ?? "Payment cancel")}";
+                        return baseUrl + $"/order-success?status={paymentLinkInformation.status}&amount={paymentLinkInformation.amountPaid}&paymentMethod=PayOs&createDate={paymentLinkInformation.createdAt}";
                     default:
-                        return baseUrl + $"/order-fail?status={false}&errorMessage={Uri.EscapeDataString("Invalid signature")}";
+                        return baseUrl + $"/order-fail?status={paymentLinkInformation.status}&errorMessage={Uri.EscapeDataString(paymentLinkInformation.cancellationReason ?? "Payment cancel")}";
                 }
             }
-            return baseUrl + $"/order-fail?status={false}&errorMessage={Uri.EscapeDataString("Invalid signature")}";
+            return baseUrl + $"/order-fail?status=CANCELLED&errorMessage={Uri.EscapeDataString("Invalid signature")}";
         }
 
         private string PayWithVNPay(double amount, string id)
@@ -274,7 +272,7 @@ namespace Payments.Api.Services
             byte[] guidBytes = guid.ToByteArray();
             long orderCode = Math.Abs(BitConverter.ToInt32(guidBytes, 8));
 
-            //int orderCode = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
+            //int timestamp = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
 
             PaymentData paymentData = new PaymentData(
                 orderCode,

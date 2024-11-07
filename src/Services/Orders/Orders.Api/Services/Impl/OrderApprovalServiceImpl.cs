@@ -30,7 +30,7 @@ namespace Orders.Api.Services.Impl
             if (response)
             {
                 pointOrder = _unitOfWork.OrderRepository.Get(
-                    filter: p => orderCode.Equals(Math.Abs(BitConverter.ToInt32(p.OrderId.ToByteArray(), 8)))
+                    filter: p => orderCode == Math.Abs(BitConverter.ToInt32(p.OrderId.ToByteArray(), 8))
                     ).FirstOrDefault();
 
                 pointOrder.Status = "Paid";
