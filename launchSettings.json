@@ -1,0 +1,17 @@
+{
+  "profiles": {
+    "Docker Compose": {
+      "commandName": "DockerCompose",
+      "commandVersion": "1.0",
+      "serviceActions": {
+        "dashboard.api": "StartDebugging",
+        //"identityserver": "StartDebugging",
+        //"orders.api": "StartDebugging",
+        //"payments.api": "StartDebugging",
+        //"products.api": "StartDebugging",
+        //"users.api": "StartDebugging",
+        "ocelotgateway": "StartDebugging"
+      }
+    }
+  }
+}
